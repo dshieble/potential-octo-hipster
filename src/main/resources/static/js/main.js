@@ -1,3 +1,13 @@
+WORLD_WIDTH = 500; 
+WORLD_HEIGHT = 300; 
+MIN_WIDTH = 5; 
+MIN_HEIGHT = 3; 
+
+var TILE_SIZE = 1; // Degrees
+
+var width = 50; 
+var height = 30; 
+
 $(function() {
 	var content = "<p id=\"intro\">" +
      	 			"Welcome to n degrees of Kevin Bacon!" +
@@ -52,80 +62,124 @@ $(function() {
 		})
 	});
 
-$('#suggest').change(function(event) {
+	$('#suggest').change(function(event) {
 
-	var postParameters = { rawText: $('#suggest').val() };
+		var postParameters = { rawText: $('#suggest').val() };
 
-	$.post("/suggestions", postParameters, function(responseJSON) {
-		$("#list").find('option').remove().end();
-		var suggestions = JSON.parse(responseJSON);
-		for (i in suggestions) {
-			$('#list').append(
-				$('<option>', {id: "remove", value : suggestions[i]}).text(suggestions[i]));
+		$.post("/suggestions", postParameters, function(responseJSON) {
+			$("#list").find('option').remove().end();
+			var suggestions = JSON.parse(responseJSON);
+			for (i in suggestions) {
+				$('#list').append(
+					$('<option>', {id: "remove", value : suggestions[i]}).text(suggestions[i]));
+			}
+		})
+	})
+
+	$('#suggest2').change(function(event) {
+
+		var postParameters = { rawText: $('#suggest2').val() };
+
+		$.post("/suggestions", postParameters, function(responseJSON) {
+			$("#list2").find('option').remove().end();
+			var suggestions = JSON.parse(responseJSON);
+			for (i in suggestions) {
+				$('#list2').append(
+					$('<option>', {id: "remove 2", value : suggestions[i]}).text(suggestions[i]));
+			}
+		})
+	})
+
+	$('#suggest3').change(function(event) {
+
+		var postParameters = { rawText: $('#suggest3').val() };
+
+		$.post("/suggestions", postParameters, function(responseJSON) {
+			$("#list3").find('option').remove().end();
+			var suggestions = JSON.parse(responseJSON);
+			for (i in suggestions) {
+				$('#list3').append(
+					$('<option>', {id: "remove 3", value : suggestions[i]}).text(suggestions[i]));
+			}
+		})
+	})
+
+	$('#suggest4').change(function(event) {
+
+		var postParameters = { rawText: $('#suggest4').val() };
+
+		$.post("/suggestions", postParameters, function(responseJSON) {
+			$("#list4").find('option').remove().end();
+			var suggestions = JSON.parse(responseJSON);
+			for (i in suggestions) {
+				$('#list4').append(
+					$('<option>', {id: "remove 4", value : suggestions[i]}).text(suggestions[i]));
+			}
+		})
+	})
+
+	$("#list").change(function(event) {
+		$('#suggest').val($("#list option:selected").val());
+	})
+
+	$("#list2").change(function(event) {
+		$('#suggest2').val($("#list2 option:selected").val());
+	})
+
+	$("#list3").change(function(event) {
+		$('#suggest3').val($("#list3 option:selected").val());
+	})
+
+	$("#list4").change(function(event) {
+		$('#suggest4').val($("#list4 option:selected").val());
+	})
+
+
+	// TODO
+	$("#map").bind('click', function(event) {
+		// TODO Get LatLong of Click
+		var map = $("#map")[0];
+
+		var x = event.pageX - board.offsetLeft; 
+		var y = event.pageY - board.offsetTop; 
+
+		var latlong = clickToCoordinate(x, y); 
+
+		$.post("/closest", postParameters, function(responseJSON)) {
+			// TODO
+
+			// Find Take Closest Node
+
+			// Highlight Node
+
 		}
 	})
-})
 
-$('#suggest2').change(function(event) {
+	var lastScrollTop = 0; 
+	var tol = 3; 
+	$("#map").scroll(function(event) {
+		var currST = $(this).scrollTop();
+		if (Math.abs(currST - lastScrollTop) < tol) {
 
-	var postParameters = { rawText: $('#suggest2').val() };
+		} else if (currST < lastScrollTop) {
+			// Scroll Down
+			width = Math.min(width * 2, WORLD_WIDTH);
+			height = Math.min(height * 2, WORLD_HEIGHT);  
 
-	$.post("/suggestions", postParameters, function(responseJSON) {
-		$("#list2").find('option').remove().end();
-		var suggestions = JSON.parse(responseJSON);
-		for (i in suggestions) {
-			$('#list2').append(
-				$('<option>', {id: "remove 2", value : suggestions[i]}).text(suggestions[i]));
+		} else if (currST > lastScrollTop) {
+			// Scroll Up
+			width = Math.max(width / 2, MIN_WIDTH);
+			height = Math.max(height / 2, MIN_HEIGHT);
 		}
+		lastScrollTop = currST; 
 	})
-})
-
-$('#suggest3').change(function(event) {
-
-	var postParameters = { rawText: $('#suggest3').val() };
-
-	$.post("/suggestions", postParameters, function(responseJSON) {
-		$("#list3").find('option').remove().end();
-		var suggestions = JSON.parse(responseJSON);
-		for (i in suggestions) {
-			$('#list3').append(
-				$('<option>', {id: "remove 3", value : suggestions[i]}).text(suggestions[i]));
-		}
-	})
-})
-
-$('#suggest4').change(function(event) {
-
-	var postParameters = { rawText: $('#suggest4').val() };
-
-	$.post("/suggestions", postParameters, function(responseJSON) {
-		$("#list4").find('option').remove().end();
-		var suggestions = JSON.parse(responseJSON);
-		for (i in suggestions) {
-			$('#list4').append(
-				$('<option>', {id: "remove 4", value : suggestions[i]}).text(suggestions[i]));
-		}
-	})
-})
-
-$("#list").change(function(event) {
-	$('#suggest').val($("#list option:selected").val());
-})
-
-$("#list2").change(function(event) {
-	$('#suggest2').val($("#list2 option:selected").val());
-})
-
-$("#list3").change(function(event) {
-	$('#suggest3').val($("#list3 option:selected").val());
-})
-
-$("#list4").change(function(event) {
-	$('#suggest4').val($("#list4 option:selected").val());
-})
 
 });
 
+function clickToCoordiante(x, y) {
+	var latlong = [x, y];
+	return latlong;
+}
 
 function search() {
 	var fromBox = document.getElementById("fromArea"); 
@@ -148,5 +202,8 @@ function search() {
 	}
 }
 
+function paintMap() {
+	var grid = globalBoard.grid; 
+}
 
 
