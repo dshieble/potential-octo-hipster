@@ -1,59 +1,21 @@
 <!DOCTYPE html>
-<html>
-  
-  
   <head>
     <meta charset="utf-8">
     <title>${title}</title>
-    <script src = "js/jquery-2.1.1.js"></script>
-    <script src = "js/main.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- In real-world webapps, css is usually minified and
+         concatenated. Here, separate normalize from our code, and
+         avoid minification for clarity. -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/html5bp.css">
+    <link rel="stylesheet" href="css/main.css">
   </head>
-  
-  <style>
-body {
-    font-size: 20px;
-	color:white;
-	background-color:#000000;
-	background-image: url(../images/e0a7a2_5b177e6280845ad0ea806c4f8c45aec0.jpg);
-	background-size:cover;
-}
-
-#pathDiv {
-    position: absolute;
-    top: 10%;
-    right: 25%;
-    width: 30%;
-    height: 50%;
-    text-align:center;
-}
-
-a {
-	color:red;
-}
-
-.movie {
-	color:blue;
-}
-
-.invisible {
-	visibility: hidden;
-}
-
-  </style>
-
   <body>
-     
-     <div id = "mainDiv">
-     </div>
-     
-
-     
-     <div id = "pathDiv">
-		${names}
-     </div>
-     
-
+     ${content}
+     <!-- Again, we're serving up the unminified source for clarity. -->
+     <script src="js/jquery-2.1.1.js"></script>
+     <script src="js/main.js"></script>
   </body>
-
-
+  <!-- See http://html5boilerplate.com/ for a good place to start
+       dealing with real world issues like old browsers.  -->
 </html>
