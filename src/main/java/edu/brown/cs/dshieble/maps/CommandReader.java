@@ -68,8 +68,6 @@ public final class CommandReader {
                 throw new IOException();
               }
             }
-            System.out.println(Arrays.toString(from));
-            System.out.println(Arrays.toString(to));
             fromId = kd.neighbors(1, from).get(0).getID();
             toId = kd.neighbors(1, to).get(0).getID();
           //if quotation method
