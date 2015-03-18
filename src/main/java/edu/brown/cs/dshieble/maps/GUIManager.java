@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -105,10 +107,13 @@ public class GUIManager {
   private class ClosestHandler implements Route {
     @Override
     public ModelAndView handle(Request req, Response res) {
+      // TODO
+      QueryParamsMap qm = req.queryMap();
+      Node coordinate = GSON.fromJson(qm.value("coordinate"), Node.class);
+
       Map<String, Object> variables =
         ImmutableMap.of("title", "Maps");
 
-      // TODO
 
       return new ModelAndView(variables, "query.ftl");
     }
