@@ -24,10 +24,6 @@ public class PathFinder implements AutoCloseable {
    * connection to db.
    */
   private Connection conn;
-  /**
-   * the primary query string.
-   */
-  private String query;
 
   /**
    * This constructor takes in a path to the db file.
@@ -43,9 +39,9 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   * Finds a path from the root actor to the final actor.
-   * @param dName the root actor
-   * @param rName the final recipient
+   * Finds a path from the first node to the final node
+   * @param startId the first node id
+   * @param endId the final node
    * @return a list representing a path
    * @throws SQLException
    */
@@ -130,10 +126,15 @@ public class PathFinder implements AutoCloseable {
     return output;
   }
 
+  /**
+   * returns the heuristic vale
+   * @param node the node we are recording heuristic fir
+   * @param target the final node
+   * @return the heuristic value (euclidian)
+   */
   public double getHeuristic(Node node, Node target) {
     return node.getDistance(target);
   }
-
 
   /**
    * 
@@ -238,6 +239,11 @@ public class PathFinder implements AutoCloseable {
     return name;
   }
 
+  /**
+   * 
+   * @return a list of all nodes
+   * @throws SQLException
+   */
   public final List<Node> getAllNodes() throws SQLException {
     List<Node> list = new ArrayList<Node>();
     String query = "SELECT id, latitude, longitude FROM node";
@@ -259,69 +265,6 @@ public class PathFinder implements AutoCloseable {
     }
     return list;
   }
-  
-  /**
-  * @param id - the id of the actor or movie.
-  * @return the names of all movies that actor was in or the
-  * names of all actors in that movie
-  * @throws SQLException
-  */
-//  public final String[][] getActorMovieNames(final String id)
-//          throws SQLException {
-//    List<String> names = new ArrayList<String>();
-//    List<String> ids = new ArrayList<String>();
-//    String[] queries = {"SELECT name, id FROM actor WHERE id IN "
-//        + "(SELECT actor FROM actor_film WHERE film = ?)",
-//                       "SELECT name, id FROM film WHERE id IN "
-//        + "(SELECT film FROM actor_film WHERE actor = ?)"};
-//    for (int i = 0; i < queries.length; i++) {
-//      try (PreparedStatement prep = conn.prepareStatement(queries[i])) {
-//        prep.setString(1, id);
-//        // Execute the query and retrieve a ResultStatement
-//        try (ResultSet rs = prep.executeQuery()) {
-//          while (rs.next())   @Test
-//            names.add(rs.getString(1));
-//            ids.add(rs.getString(2));
-//          }
-//          if (names.size() > 0) {
-//            break;
-//          }
-//        } catch (SQLException e1) {
-//          throw(e1);
-//        }
-//      } catch (SQLException e2) {
-//        throw(e2);
-//      }
-//    }
-//    String[][] output = new String[names.size()][2];
-//    for (int i = 0; i < output.length; i++) {
-//      output[i][0] = names.get(i);
-//      output[i][1] = ids.get(i);
-//    }
-//    return output;
-//  }
-
-  /**
-   * Returns a string of all actor names.
-   * @return string of actor names.
-   * @throws SQLException
-   */
-//  public final String[] getActorNames() throws SQLException {
-//    List<String> list = new ArrayList<String>();
-//    String q = "SELECT name FROM actor";
-//    try (PreparedStatement prep = conn.prepareStatement(q)) {
-//      try (ResultSet rs = prep.executeQuery()) {
-//        while (rs.next()) {
-//          list.add(rs.getString(1));
-//        }
-//      } catch (SQLException e1) {
-//        throw(e1);
-//      }
-//    } catch (SQLException e2) {
-//      throw(e2);
-//    }
-//    return list.toArray(new String[list.size()]);
-//  }
 
   @Override
   /**
@@ -332,74 +275,3 @@ public class PathFinder implements AutoCloseable {
     conn.close();
   }
 }
-
-
-
-
-
-
-//
-///**
-// * Finds a path from the root actor to the final actor.
-// * @param dName the root actor
-// * @param rName the final recipient
-// * @return a list representing a path
-// * @throws SQLException
-// */
-//public final List<Actor> findActorPath(final String dName,
-//    final String rName)
-//        throws SQLException {
-//
-//  Set<String> explored = new HashSet<String>();
-//  String dId = getID(dName);
-//  String rId = getID(rName);
-//  if (dId == null || rId == null) {
-//    return null;
-//  }
-//  Actor d = new Actor(dName, getID(dName), null, 0, null, null);
-//  PriorityQueue<Actor> pq = new PriorityQueue<Actor>(1,
-//      new ActorComparator());
-//  pq.add(d);
-//  while (!pq.isEmpty()) {
-//    Actor head = pq.remove();
-//    if (head.getName().equals(rName)) {
-//      return head.getPath();
-//    } else if (!explored.contains(head.getID())) {
-//      explored.add(head.getID());
-//      Iterator<Actor> it = findActors(head).iterator();
-//      while (it.hasNext()) {
-//        Actor a = it.next();
-//        if (!explored.contains(a.getID())) {
-//          pq.add(a);
-//        }
-//      }
-//    }
-//  }
-//  assert pq.isEmpty();
-//  return new ArrayList<Actor>();
-//}
-  
-  
-//  
-  
-//  ""
-//+ "SELECT count, A.name, A.id, actor.name, actor.id "
-//+ "FROM actor INNER JOIN "
-//  + "("
-//    + "film INNER JOIN "
-//      + "("
-//        + "actor_film INNER JOIN "
-//          + "("
-//            + "SELECT COUNT(actor) AS count, actor, film FROM "
-//                + "actor_film WHERE film IN "
-//                  + "("
-//                    + "SELECT film FROM actor_film WHERE actor = ?"
-//                  + " )"
-//            + "GROUP BY film "
-//          + ") AS L "
-//        + "ON actor_film.film = L.film "
-//      + ") AS T "
-//    + "ON film.id = T.film"
-//  + ") AS A "
-//+ "ON actor.id = A.actor"
-//  + ";";

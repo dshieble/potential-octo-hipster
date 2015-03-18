@@ -5,7 +5,7 @@
  
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.brown.cs</groupId>
-  <artifactId>maps</artifactId>
+  <artifactId>stars</artifactId>
   <packaging>jar</packaging>
   <version>1.0</version>
  
@@ -14,18 +14,6 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>org.xerial</groupId>
-      <artifactId>sqlite-jdbc</artifactId>
-      <version>3.8.7</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>net.sf.opencsv</groupId>
-      <artifactId>opencsv</artifactId>
-      <version>2.0</version>
-    </dependency>
-
     <dependency>
       <groupId>net.sf.jopt-simple</groupId>
       <artifactId>jopt-simple</artifactId>
@@ -37,7 +25,6 @@
       <artifactId>junit</artifactId>
       <version>4.11</version>
     </dependency>
-
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-all</artifactId>
@@ -66,7 +53,6 @@
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>2.3.1</version>
-      <scope>compile</scope>
     </dependency>
 
     <dependency>
@@ -80,6 +66,12 @@
       <artifactId>spark-template-freemarker</artifactId>
       <version>2.0.0</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>3.8.7</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -91,6 +83,7 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
+          <compilerArgument>-Xlint:all</compilerArgument>
         </configuration>
       </plugin>
     </plugins>
@@ -115,8 +108,23 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.1</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>javadoc</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>2.13</version>
+        <configuration>
+          <configLocation>config/cs32_checks.xml</configLocation>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -130,5 +138,4 @@
       </plugin>
     </plugins>
   </reporting>
-
 </project>
