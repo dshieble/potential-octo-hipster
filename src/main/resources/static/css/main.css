@@ -1,0 +1,32 @@
+body {
+	color:#ffffff;
+	background-color:#000000;
+	background-image: url(../images/background_image.gif);
+	background-size:cover;
+}
+
+#pathDiv {
+    position: absolute;
+    top: 10%;
+    right: 25%;
+    width: 30%;
+    height: 50%;
+    text-align:center;
+}
+
+.actorName {
+	background:none;
+	color:red;
+}
+
+.movieName {
+	background:none;
+	color:blue;
+}
+
+.invisible {
+	visibility: hidden;
+}
+
+
+
