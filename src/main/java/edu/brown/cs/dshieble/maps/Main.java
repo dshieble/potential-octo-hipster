@@ -31,21 +31,7 @@ public final class Main {
    * @throws SQLException
    */
   public static void main(final String[] args) throws Exception {
-    String ff = "/course/cs032/data/maps/smallMaps.sqlite3";
-    double lat1 = 0;
-    double lat2 = 410.8207;
-    double lon1 = -71.4002;
-    double lon2 = -0;
 
-    try (PathFinder p = new PathFinder(ff)) {
-      List<Way> l = p.getWaysWithin(lat1, lat2,
-          lon1, lon2);
-      System.out.println(l.size());
-      System.out.println(Arrays.toString(l.toArray()));
-    } catch (Exception e) {
-      throw(e);
-    }
-    System.exit(0);
     
     //gui inputs
     if (args.length == 2) {
@@ -75,3 +61,19 @@ public final class Main {
 
   }
 }
+
+//String ff = "/course/cs032/data/maps/smallMaps.sqlite3";
+//double lat1 = 0;
+//double lat2 = 410.8207;
+//double lon1 = -71.4002;
+//double lon2 = -0;
+//
+//try (PathFinder p = new PathFinder(ff)) {
+//List<Way> l = p.getWaysWithin(lat1, lat2,
+//    lon1, lon2);
+//System.out.println(l.size());
+//System.out.println(Arrays.toString(l.toArray()));
+//} catch (Exception e) {
+//throw(e);
+//}
+//System.exit(0);

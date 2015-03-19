@@ -59,7 +59,8 @@ public class Node implements KDimensional {
    */
   public Node(final double la, final double lo,
       final String i, final Node p,
-      final String rN, final String rI, final double heur) {
+      final String rN, final String rI, final double heur,
+      final int multiplier) {
     this.lat = la;
     this.lon = lo;
     this.id = i;
@@ -70,7 +71,7 @@ public class Node implements KDimensional {
     if (parent == null) {
       this.weight = 0;
     } else {
-      this.weight = getDistance(parent) + parent.getWeight();
+      this.weight = multiplier*getDistance(parent) + parent.getWeight();
     }
   }
 
