@@ -1,14 +1,30 @@
-WORLD_WIDTH = 500; 
-WORLD_HEIGHT = 300; 
+
 MIN_WIDTH = 5; 
 MIN_HEIGHT = 3; 
+TILE_SIZE = 1; // Degrees
 
-var TILE_SIZE = 1; // Degrees
-
-var width = 50; 
-var height = 30; 
+var ANCHOR_LAT; 
+var ANCHOR_LONG; 
+var WORLD_WIDTH; 
+var WORLD_HEIGHT; 
+var width; 
+var height; 
+var grid; 
 
 $(function() {
+
+	$.get("/anchor", function(extrema){
+		// TODO Initialize ANCHOR and WORLD_WIDTH
+		
+		ANCHOR_LAT = extrema[1]; 
+		WORLD_HEIGHT = Math.ceil(extrema[1] - extrema[0]); // deg. Lat 
+
+		ANCHOR_LONG = extrema[2]; 
+		WORLD_WIDTH = Math.ceil(extrema[3] - extrema[2]); // deg. Long
+
+		
+	})
+
 	var content = "<p id=\"intro\">" +
      	 			"Welcome to n degrees of Kevin Bacon!" +
      	 			"</p>" +

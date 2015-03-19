@@ -78,6 +78,7 @@ public class GUIManager {
     FreeMarkerEngine freeMarker = createEngine();
 
     Spark.get("/maps", new FrontHandler(), freeMarker);
+    Spark.get("/anchor", new AnchorHandler());
     Spark.post("/closest", new ClosestHandler());
     Spark.post("/path", new PathHandler());
     Spark.post("/suggestions", new SuggestionsHandler());
@@ -104,18 +105,48 @@ public class GUIManager {
    * @author sjl2
    *
    */
+  private class AnchorHandler implements Route {
+    @Override
+    public Object handle(final Request req, final Response res) {
+      double[] extrema = new double[] { 26.0, 59.4, -4.8, 34.7 };
+      // min lat
+      // max lat
+      // min long
+      // max long
+      int width = Math.ceil(extrema[1] - extrema[0]);
+      int height = Math.ceil(extrema[3] - extrema[2]);
+      Tile[][] grid = new Tile[height][width];
+
+      // TODO get actual extrema from path finder
+
+      return GSON.toJson(extrema);
+    }
+  }
+
+  private class Tile {
+    private List<Way> ways;
+
+    Tile(List<Way> ways) {
+      this.ways = ways;
+    }
+  }
+
+  /**
+   * TODO
+   *
+   * @author sjl2
+   *
+   */
   private class ClosestHandler implements Route {
     @Override
-    public ModelAndView handle(Request req, Response res) {
+    public Object handle(Request req, Response res) {
       // TODO
       QueryParamsMap qm = req.queryMap();
       Node coordinate = GSON.fromJson(qm.value("coordinate"), Node.class);
 
-      Map<String, Object> variables =
-        ImmutableMap.of("title", "Maps");
+      // TODO
 
-
-      return new ModelAndView(variables, "query.ftl");
+      return GSON.toJson(coordinate);
     }
   }
 
@@ -127,13 +158,15 @@ public class GUIManager {
    */
   private class PathHandler implements Route {
     @Override
-    public ModelAndView handle(Request req, Response res) {
-      Map<String, Object> variables =
-        ImmutableMap.of("title", "Maps");
+    public Object handle(final Request req, final Response res) {
+      QueryParamsMap qm = req.queryMap();
 
-      // TODO
+      String input = qm.value("rawText");
 
-      return new ModelAndView(variables, "query.ftl");
+      List<String> suggestions =
+          autocorrect.getNSuggestions(SUGGESTIONS, input);
+
+      return GSON.toJson(suggestions);
     }
   }
 
