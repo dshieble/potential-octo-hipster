@@ -176,6 +176,51 @@ public class MapsTest {
     //System.out.println(Arrays.toString(nodes.toArray()));
   }
   
+  @Test 
+  public void getWaysWithin() throws ClassNotFoundException, SQLException {
+    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3");
+    double lat1 = 41.82;
+    double lat2 = 41.8205;
+    double lon1 = -71.41;
+    double lon2 = -71.4;
+    
+    List<Way> ways = p.getWaysWithin(lat1, lat2, lon1, lon2);
+    assertTrue(ways.size() == 6);
+    assertTrue(ways.get(0).getID().equals("/w/0"));
+    assertTrue(ways.get(1).getID().equals("/w/1"));
+    assertTrue(ways.get(2).getID().equals("/w/2"));
+    assertTrue(ways.get(3).getID().equals("/w/3"));
+    assertTrue(ways.get(4).getID().equals("/w/5"));
+    assertTrue(ways.get(5).getID().equals("/w/6"));
+
+    double lat10 = 41.82;
+    double lat20 = 41.8205;
+    double lon10 = -71.4001;
+    double lon20 = -71.4;
+    
+    List<Way> ways2 = p.getWaysWithin(lat10, lat20, lon10, lon20);
+    assertTrue(ways2.size() == 4);
+    assertTrue(ways2.get(0).getID().equals("/w/0"));
+    assertTrue(ways2.get(1).getID().equals("/w/1"));
+    assertTrue(ways2.get(2).getID().equals("/w/2"));
+    assertTrue(ways2.get(3).getID().equals("/w/3"));
+
+    double lat100 = 41.828;
+    double lat200 = 41.8205;
+    double lon100 = -71.4001;
+    double lon200 = -71.4;
+    
+    List<Way> ways3 = p.getWaysWithin(lat100, lat200, lon100, lon200);
+//    for (Way w: ways3) {
+//      System.out.println(w.getID());
+//    }
+//    assertTrue(ways3.size() == 0);
+    
+    
+    //System.out.println(Arrays.toString(ways.toArray()));
+
+  }
+  
 //  
 //  @Test
 //  public void nameTest() throws ClassNotFoundException, SQLException {

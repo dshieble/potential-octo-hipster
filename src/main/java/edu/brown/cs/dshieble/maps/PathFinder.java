@@ -266,6 +266,85 @@ public class PathFinder implements AutoCloseable {
     return list;
   }
 
+  /**
+   * @return a list of all nodes
+   * @throws SQLException
+   */
+  public final List<Way> getWaysWithin(double lat1, double lat2,
+      double lon1, double lon2) throws SQLException {
+    List<Way> list = new ArrayList<Way>();
+    String query = "SELECT start, end, way.id, name FROM way INNER JOIN "
+        + "(SELECT id FROM node "
+          + "WHERE latitude >= ? "
+          + "AND latitude <= ? "
+          + "AND longitude >= ? "
+          + "AND longitude <= ?"
+          + ") "
+        + "AS A ON way.start = A.id";
+    try (PreparedStatement prep = conn.prepareStatement(query)) {
+      // Execute the query and retrieve a ResultStatement
+      prep.setDouble(1, lat1);
+      prep.setDouble(2, lat2);
+      prep.setDouble(3, lon1);
+      prep.setDouble(4, lon2);
+      try (ResultSet rs = prep.executeQuery()) {
+        while (rs.next()) {
+          Node start = idToNode(rs.getString(1));
+          Node end = idToNode(rs.getString(2));
+          String id = rs.getString(3);
+          String name = rs.getString(3);
+          Way w = new Way(start, end, name, id);
+          list.add(w);
+        }
+      } catch (SQLException e1) {
+        throw(e1);
+      }
+    } catch (SQLException e2) {
+      throw(e2);
+    }
+    return list;
+  }
+
+  /**
+   * 
+   * @param id of a node
+   * @return that node
+   * @throws SQLException 
+   */
+  public Node idToNode(String id) throws SQLException {
+    Node node = null;
+    String query = "SELECT latitude, longitude FROM node WHERE id = ?";
+    try (PreparedStatement prep = conn.prepareStatement(query)) {
+      // Execute the query and retrieve a ResultStatement
+      prep.setString(1, id);
+      try (ResultSet rs = prep.executeQuery()) {
+        if (rs.next()) {
+          double lat = rs.getDouble(1);
+          double lon = rs.getDouble(2);
+          node = new Node(lat, lon, id, null, null, null, 0);
+        }
+      } catch (SQLException e1) {
+        throw(e1);
+      }
+    } catch (SQLException e2) {
+      throw(e2);
+    }
+    return node;
+  }
+
+  /**
+   * 
+   * @return a 4 elements double array where
+   * 0 - min lat
+   * 1 - max lat
+   * 2 - min lon
+   * 3 - max lon
+   * @throws SQLException
+   */
+  public double[] getMaxMin() throws SQLException {
+    return null;
+  }
+
   @Override
   /**
    * Closes and cleans up any resources.

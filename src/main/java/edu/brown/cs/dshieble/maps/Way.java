@@ -118,17 +118,29 @@ public class Way implements KDimensional {
     return w.getID().equals(id);
   }
 
-//  /**
-//  *
-//  * @return string version of object
-//  */
-// public final String toString() {
-//   if (parent != null) {
-//     return " Parent: " + parent.getID() + " Weight: " + weight
-//            + " ID: " + id + " Edge Name: " + edgeName;
-//   } else {
-//     return " Parent: null" + " Weight: " + weight
-//            + " ID: " + id + " Edge Name: null";
-//   }
-// }
+  /**
+   * 
+   * @return start node
+   */
+  public Node getStart() {
+    return start;
+  }
+
+  /**
+   * 
+   * @return end node
+   */
+  public Node getEnd() {
+    return end;
+  }
+
+  /**
+  *
+  * @return string version of object
+  */
+  public final String toString() {
+    return "Name: " + name + " ID: " + id
+         + " Start: " + start.getID() + " End: " + end.getID();
+  }
+
 }
