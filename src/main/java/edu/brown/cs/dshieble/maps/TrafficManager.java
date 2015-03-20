@@ -54,9 +54,7 @@ public class TrafficManager {
         HttpURLConnection connection =
             (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
-        connection.connect();
- 
-        // read the output from the server
+        connection.connect(); 
         try (BufferedReader reader =
           new BufferedReader(
           new InputStreamReader(connection.getInputStream()))) {
@@ -89,14 +87,7 @@ public class TrafficManager {
       } catch (IOException e) {
         e.printStackTrace();
       }
-    map = output;
-    
-//    
-//    for (String s : map.keySet()) {
-//      System.out.println(s);
-//      System.out.println(map.get(s));
-//    }
-    
+    map = output;    
   }
 
   /**
