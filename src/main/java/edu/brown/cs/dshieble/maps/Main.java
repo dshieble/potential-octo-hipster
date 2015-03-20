@@ -12,6 +12,9 @@ import java.util.Map;
  * The Main Class for the Bacon project.
  *  It handles the commandline input.
  * @author dshieble
+ * 
+ * cs032_traffic_server 8080 /course/cs032/data/maps/smallMaps.sqlite3
+ * 
  *
  */
 public final class Main {
@@ -32,32 +35,44 @@ public final class Main {
    * @throws SQLException
    */
   public static void main(final String[] args) {
-
-    
-    
     //gui inputs
-    if (args.length == 2) {
+    if (args.length == 2 ) {
       if (args[0].equals("--gui")) {
-        //String file = args[1];
+        String file = args[1];
+        TrafficManager t = new TrafficManager(8080);
 //        try {
-          //GuiManager.makeGUI(file);
+//          //GUIManager g = new GUIManager(file, tm, );
 //        } catch (SQLException|ClassNotFoundException e) {
 //          System.out.println("ERROR: database error");
+//          return;
 //        }
+        while (true) {
+          t.updateTraffic();
+          
+          //pause the program
+          try { Thread.sleep(250);} catch (InterruptedException e) {break;}
+          Map<String, Integer> map = t.getMap();
+          for (String k : map.keySet()) {
+            System.out.println(k);
+            System.out.println(map.get(k));
+          }
+        }
       } else {
         System.out.println("ERROR: Arguements are: "
             + "[--gui] <sql database>");
+        return;
       }
     //bad input
     } else if (args.length != 1) {
       System.out.println("ERROR: Arguements are:"
           + "[--gui] <sql database>");
+      return;
     //matching names
     } else {
       try {
        CommandReader.readCommands(args[0]);
       } catch (IOException|SQLException e) {
-        System.exit(0); // error printed in CommandReader
+        return; // error printed in CommandReader
       }
     }
 

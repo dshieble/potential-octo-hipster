@@ -35,8 +35,9 @@ public final class CommandReader {
    * @param useWhitespace - the options
    * @param useSmart - the options
    */
-  public static void readCommands(String file) throws IOException, SQLException {
-    try (PathFinder p = new PathFinder(file)) {
+  public static void readCommands(String file)
+      throws IOException, SQLException {
+    try (PathFinder p = new PathFinder(file, null)) {
       try (BufferedReader reader =
         new BufferedReader(new InputStreamReader(System.in))) {
         KDTree<Node> kd = new KDTree<Node>(2, new ArrayList<Node>(p.getAllNodes()));
@@ -70,7 +71,7 @@ public final class CommandReader {
             }
             fromId = kd.neighbors(1, from).get(0).getID();
             toId = kd.neighbors(1, to).get(0).getID();
-          //if quotation method
+          //if quotation input type
           } else {
             if (quoteArr.length != 8) {
               throw new IOException();
@@ -87,7 +88,7 @@ public final class CommandReader {
             throw new IOException();
           }
           //Print the REPL stuff
-          List<Node> list = p.findPath(fromId, toId);
+          List<Node> list = p.findPath(fromId, toId, false);
           if (list.size() == 0 || list.size() == 1) {
             System.out.println(fromId + " -/- " + toId);
           } else {

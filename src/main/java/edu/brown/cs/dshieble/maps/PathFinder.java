@@ -14,7 +14,7 @@ import java.util.Set;
 
 /**
  * This class uses the input database to find the shortest distance
- * between two actors.
+ * between two nodes.
  * @author dshieble
  *
  */
@@ -28,20 +28,20 @@ public class PathFinder implements AutoCloseable {
   /**
    * connection to Traffic
    */
-  TrafficManager tm;
-  
+  private TrafficManager tm;
+
   /**
    * This constructor takes in a path to the db file.
    * @param db Path to the db file
    * @throws ClassNotFoundException
    * @throws SQLException
    */
-  public PathFinder(final String db)
+  public PathFinder(final String db, TrafficManager tm_input)
       throws ClassNotFoundException, SQLException {
+    tm = tm_input;
     Class.forName("org.sqlite.JDBC");
     String urlToDB = "jdbc:sqlite:" + db;
     conn = DriverManager.getConnection(urlToDB);
-    tm = new TrafficManager();
   }
 
   /**
@@ -52,9 +52,11 @@ public class PathFinder implements AutoCloseable {
    * @throws SQLException
    */
   public final List<Node> findPath(final String startId,
-      final String endId)
+      final String endId, final boolean usingTraffic)
           throws SQLException {
-
+    if (usingTraffic) {
+      tm.updateTraffic();
+    }
     Set<String> explored = new HashSet<String>();
     if (startId == null || endId == null) {
       return null;
@@ -73,7 +75,7 @@ public class PathFinder implements AutoCloseable {
         return head.getPath();
       } else if (!explored.contains(head.getID())) {
         explored.add(head.getID());
-        Set<Node> nodes = findNodes(head);
+        Set<Node> nodes = findNodes(head, usingTraffic);
         for (Node n : nodes) {
           if (!explored.contains(n.getID())) {
             pq.add(n);
@@ -92,7 +94,8 @@ public class PathFinder implements AutoCloseable {
    * @return a list of nodes
    * @throws SQLException
    */
-  public final Set<Node> findNodes(final Node node)
+  public final Set<Node> findNodes(
+      final Node node, final boolean usingTraffic)
       throws SQLException {
     Set<Node> output = new HashSet<Node>();
     String[] queries = {
@@ -120,6 +123,9 @@ public class PathFinder implements AutoCloseable {
             double heur = UtilityClass.getDistance(lat, lon,
                 node.getLat(), node.getLong());
             int multiplier = 1;
+            if (usingTraffic) {
+              multiplier = tm.getTrafficLevel(wayId);
+            }
             Node n = new Node(lat, lon, id, node,
                 wayName, wayId, heur, multiplier);
             output.add(n);

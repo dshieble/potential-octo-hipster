@@ -48,7 +48,8 @@ public class MapsTest {
     double[] e3 = {41.82, -71.4003};
     double[] e4 = {41.8203, -71.4003};
     double[] e5 = {41.8206, -71.4003};
-    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3");
+    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
+        null);
     assertTrue(Arrays.equals(p.getLatLong(id0), e0));
     assertTrue(Arrays.equals(p.getLatLong(id1), e1));
     assertTrue(Arrays.equals(p.getLatLong(id2), e2));
@@ -81,7 +82,8 @@ public class MapsTest {
   
   @Test
   public void getNameTest() throws ClassNotFoundException, SQLException {
-    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3");
+    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
+        null);
     assertTrue(p.getName("/w/0").equals("Chihiro Ave"));
     assertTrue(p.getName("/w/1").equals("Chihiro Ave"));
     assertTrue(p.getName("/w/3").equals("Sootball Ln"));
@@ -96,26 +98,27 @@ public class MapsTest {
 
   @Test 
   public void getNodesTest() throws ClassNotFoundException, SQLException {
-    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3");
+    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
+        null);
     double[] ll0 = {41.82, -71.4};
     double[] ll3 = {41.82, -71.4003};
     double[] ll5 = {41.8206, -71.4003};
     Node Node0 = new Node(ll0[0], ll0[1], "/n/0", null, null, null, 0, 1);
     Node Node3 = new Node(ll3[0], ll3[1], "/n/3", null, null, null, 0, 1);
     Node Node5 = new Node(ll5[0], ll5[1], "/n/5", null, null, null, 0, 1);
-    Set<Node> nodes0 = p.findNodes(Node0);
+    Set<Node> nodes0 = p.findNodes(Node0, false);
     assertTrue(nodes0.size() == 2);
     for (Node n : nodes0) {
       assertTrue(n.getID().equals("/n/1") || n.getID().equals("/n/3"));
     }
     
-    Set<Node> nodes3 = p.findNodes(Node3);
+    Set<Node> nodes3 = p.findNodes(Node3, false);
     assertTrue(nodes3.size() == 2);
     for (Node n : nodes3) {
       assertTrue(n.getID().equals("/n/0") || n.getID().equals("/n/4"));
     }
  
-    Set<Node> nodes5 = p.findNodes(Node5);
+    Set<Node> nodes5 = p.findNodes(Node5, false);
     assertTrue(nodes5.size() == 2);
     for (Node n : nodes5) {
       assertTrue(n.getID().equals("/n/2") || n.getID().equals("/n/4"));
@@ -128,21 +131,22 @@ public class MapsTest {
   
   @Test 
   public void getPathTest() throws ClassNotFoundException, SQLException {
-    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3");
-    List<Node> path04 = p.findPath("/n/0", "/n/4");
+    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
+        null);
+    List<Node> path04 = p.findPath("/n/0", "/n/4", false);
     assertTrue(path04.get(0).getID().equals("/n/0"));
     assertTrue(path04.get(1).getID().equals("/n/1"));
     assertTrue(path04.get(2).getID().equals("/n/4"));
 
-    List<Node> path00 = p.findPath("/n/0", "/n/0");
+    List<Node> path00 = p.findPath("/n/0", "/n/0", false);
     assertTrue(path00.get(0).getID().equals("/n/0"));
     
-    List<Node> path35 = p.findPath("/n/3", "/n/5");
+    List<Node> path35 = p.findPath("/n/3", "/n/5", false);
     assertTrue(path35.get(0).getID().equals("/n/3"));
     assertTrue(path35.get(1).getID().equals("/n/4"));
     assertTrue(path35.get(2).getID().equals("/n/5"));
     
-    List<Node> path05 = p.findPath("/n/0", "/n/5");
+    List<Node> path05 = p.findPath("/n/0", "/n/5", false);
     assertTrue(path05.get(0).getID().equals("/n/0"));
     assertTrue(path05.get(1).getID().equals("/n/1"));
     assertTrue(path05.get(2).getID().equals("/n/2"));
@@ -152,7 +156,8 @@ public class MapsTest {
   
   @Test 
   public void getIntersectionTest() throws ClassNotFoundException, SQLException {
-    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3");
+    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
+        null);
     //System.outprintln(p.getIntersection("Chihiro Ave", "Sootball Ln"));
     assertTrue(p.getIntersection("Chihiro Ave", "Sootball Ln").equals("/n/1"));
     assertTrue(p.getIntersection("Chihiro Ave", "Radish Spirit Blvd").equals("/n/0"));
@@ -164,7 +169,8 @@ public class MapsTest {
   
   @Test 
   public void getAllNodesTest() throws ClassNotFoundException, SQLException {
-    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3");
+    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
+        null);
     List<Node> nodes = p.getAllNodes();
     assertTrue(nodes.size() == 6);
     assertTrue(nodes.get(0).getID().equals("/n/0"));
@@ -179,7 +185,8 @@ public class MapsTest {
   
   @Test 
   public void getWaysWithin() throws ClassNotFoundException, SQLException {
-    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3");
+    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
+        null);
     double lat1 = 41.82;
     double lat2 = 41.8205;
     double lon1 = -71.41;
@@ -224,7 +231,8 @@ public class MapsTest {
   
   @Test 
   public void maxMinTest() throws ClassNotFoundException, SQLException {
-    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3");
+    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
+        null);
     //System.outprintln(p.getIntersection("Chihiro Ave", "Sootball Ln"));
     double[] maxMin = p.getMaxMin();
     assertTrue(maxMin[0] == 41.82);
@@ -236,7 +244,7 @@ public class MapsTest {
   @Test 
   public void runTest() throws ClassNotFoundException, SQLException, InterruptedException {
 //    System.out.println("Printing: ");
-//    TrafficManager t = new TrafficManager();
+//    TrafficManager t = null();
 //    Map<String, Integer> wayToTraffic = t.getTraffic();
 //    for (String s : wayToTraffic.keySet()) {
 //      System.out.println(s);

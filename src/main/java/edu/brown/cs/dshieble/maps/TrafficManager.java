@@ -11,6 +11,7 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,77 +34,88 @@ public class TrafficManager {
   private ConcurrentHashMap<String, Integer> map;
 
   /**
+   * stores the locations that were just updated - bcuz there is 
+   * no ConcurrentHashSet
+   */
+  private ConcurrentHashMap<String, Boolean> updated;
+
+  /**
+   * the port number
+   */
+  private int port;
+
+  /**
    * simple constructor that initlaizes the threadsafe variables
    */
-  public TrafficManager() {
+  public TrafficManager(int p) {
+    port = p;
     time = new AtomicInteger(0);
     map = new ConcurrentHashMap<String, Integer>();
+    updated = new ConcurrentHashMap<String, Boolean>();
   }
-
 
   /**
    * Updates the concurrent hash map with traffic data
    */
   public void updateTraffic() {
-    ConcurrentHashMap<String, Integer> output =
-        new ConcurrentHashMap<String, Integer>();
-    String urlString = "http://localhost:8080?last=" + time;
-    time.getAndSet((int) (System.currentTimeMillis() / 1000));
-      try {
-        URL url = new URL(urlString);
-        HttpURLConnection connection =
-            (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.connect(); 
-        try (BufferedReader reader =
-          new BufferedReader(
-          new InputStreamReader(connection.getInputStream()))) {
-          String line = reader.readLine();
-          if (line == null) {
-            throw new IOException();
-          }                    
-          String[] sArray = line.split("\\], \\[");
-          for (int i = 0; i < sArray.length; i ++) {
-            try {
-              String[] element = sArray[i].split("\"");
-              if (element.length == 3) {
-                String key = element[1]
-                    .replaceAll("\\]","")
-                    .replaceAll("\\[","");
-                int value = Integer.parseInt(element[2]
-                    .split(",")[1]
-                    .trim()
-                    .replaceAll("\\]","")
-                    .replaceAll("\\[",""));
-                output.put(key, value);
-              }
-            } catch (NumberFormatException e) {
-              //do nothing
+    updated.clear();
+    try {
+      String urlString = "http://localhost:" + port + "?last=" + time;
+      time.getAndSet((int) (System.currentTimeMillis() / 1000));
+      URL url = new URL(urlString);
+      HttpURLConnection connection =
+          (HttpURLConnection) url.openConnection();
+      connection.setRequestMethod("GET");
+      connection.connect(); 
+      try (BufferedReader reader =
+        new BufferedReader(
+        new InputStreamReader(connection.getInputStream()))) {
+        String line = reader.readLine();
+        if (line == null) {
+          throw new IOException();
+        }                    
+        String[] sArray = line.split("\\], \\[");
+        for (int i = 0; i < sArray.length; i ++) {
+          try {
+            String[] element = sArray[i].split("\"");
+            if (element.length == 3) {
+              String key = element[1]
+                  .replaceAll("\\]","")
+                  .replaceAll("\\[","");
+              int value = Integer.parseInt(element[2]
+                  .split(",")[1]
+                  .trim()
+                  .replaceAll("\\]","")
+                  .replaceAll("\\[",""));
+              map.put(key, value);
+              updated.put(key, true);
             }
+          } catch (NumberFormatException e) {
+            //do nothing
           }
-        } catch (IOException e) {
-          e.printStackTrace();
         }
       } catch (IOException e) {
         e.printStackTrace();
       }
-    map = output;    
+    } catch (Exception e) { //traffic fail quietly!
+      e.printStackTrace();
+    }
   }
 
   /**
    * 
+   * @return returns a set of all way ids whose traffic was updated
+   * in last iteration
+   */
+  public Set<String> getUpdated() {
+    return updated.keySet();
+  }
+
+  /**
    * @return simple getter
    */
   public ConcurrentHashMap<String, Integer> getMap() {
     return map;
-  }
-
-  /**
-   * 
-   * @param map simple setter
-   */
-  public void setMap(ConcurrentHashMap<String, Integer> map) {
-    this.map = map;
   }
 
   /**
