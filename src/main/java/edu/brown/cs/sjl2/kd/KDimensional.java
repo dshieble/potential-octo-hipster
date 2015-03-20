@@ -31,6 +31,16 @@ public interface KDimensional {
   double getDimension(int n);
 
   /**
+   * Returns the positive distance between a KD and a coordinate along the nth
+   * dimension.
+   * @param coordinates A Double Array of coordinates with k elements.
+   * @param n The nth dimension to compare the distances.
+   * @return Returns the dimensional distance between this KD and the
+   * coordinates.
+   */
+  double getDimensionalDistance(double[] coordinates, int n);
+
+  /**
    * In KDimensional's, k represents the number of dimensions (length of
    * double[] coordinates.
    * @return returns the number of dimensions in the K-Space.

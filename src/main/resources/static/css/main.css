@@ -1,6 +1,6 @@
 body {
 	color:#ffffff;
-	background-color:#000000;
+	background-color: blue;
 	background-image: url(../images/background_image.gif);
 	background-size:cover;
 }
@@ -14,19 +14,22 @@ body {
     text-align:center;
 }
 
-.actorName {
-	background:none;
-	color:red;
-}
-
-.movieName {
-	background:none;
-	color:blue;
+#map {
+	width: 500px;
+	height: 300px;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 70px;
+	border: 1px solid #000000;
+	background-color: #FFFFFF; 
+	border: ridge;
 }
 
 .invisible {
 	visibility: hidden;
 }
+
 
 
 

@@ -76,6 +76,10 @@ public class Star implements KDimensional, Comparable<Star> {
   }
 
   @Override
+  public double getDimensionalDistance(double[] coordinates, int n) {
+    return Math.abs(getDimension(n) - coordinates[n]);
+  }
+  @Override
   public int getK() {
     return K;
   }
