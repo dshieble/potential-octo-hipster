@@ -475,7 +475,7 @@ public class KDTree<E extends KDimensional> implements Iterable<E> {
     pq = radiusHelper(r, coordinates, explore, pq);
 
     // Other Branch within bounds?
-    double radius = Math.abs(currPoint.getDimension(dim) - coordinates[dim]);
+    double radius = currPoint.getDimensionalDistance(coordinates, dim);
     if (radius <= r && unexplored != null) {
       pq = radiusHelper(r, coordinates, unexplored, pq);
     }

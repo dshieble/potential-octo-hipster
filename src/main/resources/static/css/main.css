@@ -1,7 +1,7 @@
 body {
 	color:#ffffff;
 	background-color: blue;
-	background-image: url(../images/background_image.gif);
+	/*background-image: url(../images/background_image.gif);*/
 	background-size:cover;
 }
 
