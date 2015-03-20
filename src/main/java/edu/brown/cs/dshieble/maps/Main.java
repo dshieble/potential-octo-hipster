@@ -48,7 +48,6 @@ public final class Main {
 //        }
         while (true) {
           t.updateTraffic();
-          
           //pause the program
           try { Thread.sleep(250);} catch (InterruptedException e) {break;}
           Map<String, Integer> map = t.getMap();
