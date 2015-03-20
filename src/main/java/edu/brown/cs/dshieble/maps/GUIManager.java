@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,32 +31,53 @@ public class GUIManager {
 
   private Autocorrect autocorrect;
   private KDTree<Node> tree;
-  private PathFinder pathfinder;
+  private TrafficManager tm;
+  private String db;
 
   private static final int SUGGESTIONS = 5;
   private static final int DEFAULT_PORT = 8585;
+  private static final int TRAFFIC_PORT = 8080;
   private static final int STATUS = 500;
   private static final Gson GSON = new Gson();
 
-  public GUIManager(
-      KDTree<Node> tree,
-      PathFinder pathfinder,
-      Autocorrect autocorrect,
-      int port) {
-    this.tree = tree;
-    this.pathfinder = pathfinder;
+  public GUIManager(String db, TrafficManager tm, int port) {
+    this.tm = tm;
+    this.db = db;
+    try (PathFinder p = new PathFinder(db)) {
+      this.tree = new KDTree<Node>(2, new ArrayList<>(p.getAllNodes()));
+    } catch (ClassNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    if (port == TRAFFIC_PORT) {
+      port = DEFAULT_PORT;
+    }
 
     runSparkServer(port);
   }
 
-  public GUIManager(
-      KDTree<Node> tree,
-      PathFinder pathfinder,
-      Autocorrect autocorrect) {
-    this.tree = tree;
-    this.pathfinder = pathfinder;
-
+  public GUIManager(String db, TrafficManager tm) {
+    this.tm = tm;
+    this.db = db;
+    try (PathFinder p = new PathFinder(db)) {
+      this.tree = new KDTree<Node>(2, new ArrayList<>(p.getAllNodes()));
+    } catch (ClassNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     runSparkServer(DEFAULT_PORT);
+  }
+
+  public void update() {
+    // TODO
+
   }
 
   private static FreeMarkerEngine createEngine() {
@@ -139,11 +162,15 @@ public class GUIManager {
     public Object handle(Request req, Response res) {
       // TODO
       QueryParamsMap qm = req.queryMap();
-      Node coordinate = GSON.fromJson(qm.value("coordinate"), Node.class);
+      Double latitude = GSON.fromJson(qm.value("lat"), Double.class);
+      Double longitude = GSON.fromJson(qm.value("lng"), Double.class);
 
-      // TODO
-
-      return GSON.toJson(coordinate);
+      ArrayList<Node> n = tree.neighbors(1, new double[] { latitude, longitude });
+      if (!n.isEmpty()) {
+        return GSON.toJson(n.get(0));
+      } else {
+        return GSON.toJson(null);
+      }
     }
   }
 
