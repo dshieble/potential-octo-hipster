@@ -64,12 +64,12 @@ public class MapsTest {
     double[] ll3 = {41.82, -71.4003};
     double[] ll4 = {41.8203, -71.4003};
     double[] ll5 = {41.8206, -71.4003};
-    Node Node0 = new Node(ll0[0], ll0[1], null, null, null, null, 0);
-    Node Node1 = new Node(ll1[0], ll1[1], null, null, null, null, 0);
-    Node Node2 = new Node(ll2[0], ll2[1], null, null, null, null, 0);
-    Node Node3 = new Node(ll3[0], ll3[1], null, null, null, null, 0);
-    Node Node4 = new Node(ll4[0], ll4[1], null, null, null, null, 0);
-    Node Node5 = new Node(ll5[0], ll5[1], null, null, null, null, 0);
+    Node Node0 = new Node(ll0[0], ll0[1], null, null, null, null, 0, 1);
+    Node Node1 = new Node(ll1[0], ll1[1], null, null, null, null, 0, 1);
+    Node Node2 = new Node(ll2[0], ll2[1], null, null, null, null, 0, 1);
+    Node Node3 = new Node(ll3[0], ll3[1], null, null, null, null, 0, 1);
+    Node Node4 = new Node(ll4[0], ll4[1], null, null, null, null, 0, 1);
+    Node Node5 = new Node(ll5[0], ll5[1], null, null, null, null, 0, 1);
     int d01 = 33;
     int d35 = 67;
     int d24 = 42;
@@ -99,9 +99,9 @@ public class MapsTest {
     double[] ll0 = {41.82, -71.4};
     double[] ll3 = {41.82, -71.4003};
     double[] ll5 = {41.8206, -71.4003};
-    Node Node0 = new Node(ll0[0], ll0[1], "/n/0", null, null, null, 0);
-    Node Node3 = new Node(ll3[0], ll3[1], "/n/3", null, null, null, 0);
-    Node Node5 = new Node(ll5[0], ll5[1], "/n/5", null, null, null, 0);
+    Node Node0 = new Node(ll0[0], ll0[1], "/n/0", null, null, null, 0, 1);
+    Node Node3 = new Node(ll3[0], ll3[1], "/n/3", null, null, null, 0, 1);
+    Node Node5 = new Node(ll5[0], ll5[1], "/n/5", null, null, null, 0, 1);
     Set<Node> nodes0 = p.findNodes(Node0);
     assertTrue(nodes0.size() == 2);
     for (Node n : nodes0) {
@@ -219,6 +219,17 @@ public class MapsTest {
     
     //System.out.println(Arrays.toString(ways.toArray()));
 
+  }
+  
+  @Test 
+  public void maxMinTest() throws ClassNotFoundException, SQLException {
+    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3");
+    //System.outprintln(p.getIntersection("Chihiro Ave", "Sootball Ln"));
+    double[] maxMin = p.getMaxMin();
+    assertTrue(maxMin[0] == 41.82);
+    assertTrue(maxMin[1] == 41.8206);
+    assertTrue(maxMin[2] == -71.4003);
+    assertTrue(maxMin[3] == -71.4);
   }
   
 //  

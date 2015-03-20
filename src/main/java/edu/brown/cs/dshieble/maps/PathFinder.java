@@ -57,7 +57,7 @@ public class PathFinder implements AutoCloseable {
     Node d = new Node(latLong[0], latLong[1],
         startId,
         null, null,
-        null, 0);
+        null, 0, 1);
     PriorityQueue<Node> pq = new PriorityQueue<Node>(1,
         new NodeComparator());
     pq.add(d);
@@ -113,7 +113,9 @@ public class PathFinder implements AutoCloseable {
             String wayName = rs.getString(5);
             double heur = UtilityClass.getDistance(lat, lon,
                 node.getLat(), node.getLong());
-            Node n = new Node(lat, lon, id, node, wayName, wayId, heur);
+            int multiplier = 1;
+            Node n = new Node(lat, lon, id, node,
+                wayName, wayId, heur, multiplier);
             output.add(n);
           }
         } catch (SQLException e1) {
@@ -254,7 +256,7 @@ public class PathFinder implements AutoCloseable {
           String id = rs.getString(1);
           double lat = rs.getDouble(2);
           double lon = rs.getDouble(3);
-          Node n = new Node(lat, lon, id, null, null, null, 0);
+          Node n = new Node(lat, lon, id, null, null, null, 0, 1);
           list.add(n);
         }
       } catch (SQLException e1) {
@@ -321,7 +323,7 @@ public class PathFinder implements AutoCloseable {
         if (rs.next()) {
           double lat = rs.getDouble(1);
           double lon = rs.getDouble(2);
-          node = new Node(lat, lon, id, null, null, null, 0);
+          node = new Node(lat, lon, id, null, null, null, 0, 1);
         }
       } catch (SQLException e1) {
         throw(e1);
@@ -342,7 +344,23 @@ public class PathFinder implements AutoCloseable {
    * @throws SQLException
    */
   public double[] getMaxMin() throws SQLException {
-    return null;
+    double[] output = new double[4];
+    String query = "SELECT  MIN(latitude), MAX(latitude), MIN(longitude), MAX(longitude) FROM node";
+    try (PreparedStatement prep = conn.prepareStatement(query)) {
+      // Execute the query and retrieve a ResultStatement
+      try (ResultSet rs = prep.executeQuery()) {
+        if (rs.next()) {
+          for (int i = 0; i < output.length; i++) {
+            output[i] = rs.getDouble(i + 1);
+          }
+        }
+      } catch (SQLException e1) {
+        throw(e1);
+      }
+    } catch (SQLException e2) {
+      throw(e2);
+    }
+    return output;  
   }
 
   @Override
