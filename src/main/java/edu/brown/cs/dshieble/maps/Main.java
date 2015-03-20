@@ -12,9 +12,9 @@ import java.util.Map;
  * The Main Class for the Bacon project.
  *  It handles the commandline input.
  * @author dshieble
- * 
+ *
  * cs032_traffic_server 8080 /course/cs032/data/maps/smallMaps.sqlite3
- * 
+ *
  *
  */
 public final class Main {
@@ -30,7 +30,7 @@ public final class Main {
   /**
    * Mainline of code. Parses user input and finds path between actors.
    * @param args CL args
-   * @throws Exception 
+   * @throws Exception
    * @throws ClassNotFoundException
    * @throws SQLException
    */
@@ -40,22 +40,25 @@ public final class Main {
       if (args[0].equals("--gui")) {
         String file = args[1];
         TrafficManager t = new TrafficManager(8080);
+        GUIManager g = new GUIManager(file, t);
+
 //        try {
-//          //GUIManager g = new GUIManager(file, tm, );
+//          GUIManager g = new GUIManager(file, t);
 //        } catch (SQLException|ClassNotFoundException e) {
 //          System.out.println("ERROR: database error");
 //          return;
 //        }
-        while (true) {
-          t.updateTraffic();
-          //pause the program
-          try { Thread.sleep(250);} catch (InterruptedException e) {break;}
-          Map<String, Integer> map = t.getMap();
-          for (String k : map.keySet()) {
-            System.out.println(k);
-            System.out.println(map.get(k));
-          }
-        }
+
+//        while (true) {
+//           t.updateTraffic();
+//          //pause the program
+//          try { Thread.sleep(250);} catch (InterruptedException e) {break;}
+//          Map<String, Integer> map = t.getMap();
+//          for (String k : map.keySet()) {
+//            System.out.println(k);
+//            System.out.println(map.get(k));
+//          }
+//        }
       } else {
         System.out.println("ERROR: Arguements are: "
             + "[--gui] <sql database>");
@@ -86,7 +89,7 @@ public final class Main {
 //TrafficManager t = new TrafficManager();
 //t.updateTraffic();
 //System.exit(0);
-//  
+//
 
 
 
