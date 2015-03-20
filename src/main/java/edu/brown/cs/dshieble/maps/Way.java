@@ -81,7 +81,14 @@ public class Way implements KDimensional {
    */
   public final double getDistance(double[] coordinates) {
     return start.getDistance(coordinates);
+  }
 
+  @Override
+  /**
+   * @return dimensional distance
+   */
+  public final double getDimensionalDistance(double[] coordinates, int n) {
+    return start.getDimensionalDistance(coordinates, n);
   }
 
   @Override

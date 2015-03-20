@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import edu.brown.cs.dshieble.maps.*;
+import edu.brown.cs.sjl2.kd.KDTree;
 import static org.junit.Assert.*;
 
 
@@ -239,6 +240,20 @@ public class MapsTest {
     assertTrue(maxMin[1] == 41.8206);
     assertTrue(maxMin[2] == -71.4003);
     assertTrue(maxMin[3] == -71.4);
+  }
+  
+  @Test 
+  public void nearestNeighborTest() throws ClassNotFoundException, SQLException {
+    PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
+        null);
+    KDTree<Node> kd = new KDTree<Node>(2, new ArrayList<Node>(p.getAllNodes()));
+    
+    //System.outprintln(p.getIntersection("Chihiro Ave", "Sootball Ln"));
+//    double[] maxMin = p.getMaxMin();
+//    assertTrue(maxMin[0] == 41.82);
+//    assertTrue(maxMin[1] == 41.8206);
+//    assertTrue(maxMin[2] == -71.4003);
+//    assertTrue(maxMin[3] == -71.4);
   }
   
   @Test 

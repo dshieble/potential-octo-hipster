@@ -115,6 +115,22 @@ public class Node implements KDimensional {
 
   @Override
   /**
+   * @return dimensional distance
+   */
+  public final double getDimensionalDistance(double[] coordinates, int n) {
+    double[] myCoor = {this.getLat(), this.getLong()};
+    if (n == 0) {
+      return UtilityClass.getDistance(myCoor[0], myCoor[1],
+          myCoor[0], coordinates[1]);
+    } else if (n == 1) {
+      return UtilityClass.getDistance(myCoor[0], myCoor[1],
+          coordinates[0], myCoor[1]);
+    }
+    return -1;
+  }
+  
+  @Override
+  /**
    * 
    * @return the distance between this node and another node, using the
    * Haversine formula
