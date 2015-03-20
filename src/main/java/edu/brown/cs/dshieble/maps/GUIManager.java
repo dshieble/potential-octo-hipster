@@ -43,7 +43,7 @@ public class GUIManager {
   public GUIManager(String db, TrafficManager tm, int port) {
     this.tm = tm;
     this.db = db;
-    try (PathFinder p = new PathFinder(db)) {
+    try (PathFinder p = new PathFinder(db, tm)) {
       this.tree = new KDTree<Node>(2, new ArrayList<>(p.getAllNodes()));
     } catch (ClassNotFoundException e) {
       // TODO Auto-generated catch block
@@ -63,7 +63,7 @@ public class GUIManager {
   public GUIManager(String db, TrafficManager tm) {
     this.tm = tm;
     this.db = db;
-    try (PathFinder p = new PathFinder(db)) {
+    try (PathFinder p = new PathFinder(db, tm)) {
       this.tree = new KDTree<Node>(2, new ArrayList<>(p.getAllNodes()));
     } catch (ClassNotFoundException e) {
       // TODO Auto-generated catch block
