@@ -60,7 +60,7 @@ public class Node implements KDimensional {
   public Node(final double la, final double lo,
       final String i, final Node p,
       final String rN, final String rI, final double heur,
-      final int multiplier) {
+      final double multiplier) {
     this.lat = la;
     this.lon = lo;
     this.id = i;

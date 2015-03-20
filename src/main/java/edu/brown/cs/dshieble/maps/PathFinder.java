@@ -122,7 +122,7 @@ public class PathFinder implements AutoCloseable {
             String wayName = rs.getString(5);
             double heur = UtilityClass.getDistance(lat, lon,
                 node.getLat(), node.getLong());
-            int multiplier = 1;
+            double multiplier = 1;
             if (usingTraffic) {
               multiplier = tm.getTrafficLevel(wayId);
             }

@@ -31,7 +31,7 @@ public class TrafficManager {
   /**
    * stores traffic data
    */
-  private ConcurrentHashMap<String, Integer> map;
+  private ConcurrentHashMap<String, Double> map;
 
   /**
    * stores the locations that were just updated - bcuz there is 
@@ -50,7 +50,7 @@ public class TrafficManager {
   public TrafficManager(int p) {
     port = p;
     time = new AtomicInteger(0);
-    map = new ConcurrentHashMap<String, Integer>();
+    map = new ConcurrentHashMap<String, Double>();
     updated = new ConcurrentHashMap<String, Boolean>();
   }
 
@@ -73,7 +73,8 @@ public class TrafficManager {
         String line = reader.readLine();
         if (line == null) {
           throw new IOException();
-        }                    
+        }
+        System.out.println(line);
         String[] sArray = line.split("\\], \\[");
         for (int i = 0; i < sArray.length; i ++) {
           try {
@@ -82,7 +83,7 @@ public class TrafficManager {
               String key = element[1]
                   .replaceAll("\\]","")
                   .replaceAll("\\[","");
-              int value = Integer.parseInt(element[2]
+              double value = Double.parseDouble(element[2]
                   .split(",")[1]
                   .trim()
                   .replaceAll("\\]","")
@@ -114,7 +115,7 @@ public class TrafficManager {
   /**
    * @return simple getter
    */
-  public ConcurrentHashMap<String, Integer> getMap() {
+  public ConcurrentHashMap<String, Double> getMap() {
     return map;
   }
 
@@ -123,7 +124,7 @@ public class TrafficManager {
    * @param id the way id
    * @return the traffic of that way
    */
-  public int getTrafficLevel(String id) {
+  public double getTrafficLevel(String id) {
     return map.get(id);
   }
 
