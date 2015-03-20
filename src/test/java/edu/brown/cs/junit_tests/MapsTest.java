@@ -232,6 +232,13 @@ public class MapsTest {
     assertTrue(maxMin[3] == -71.4);
   }
   
+  @Test 
+  public void runTest() throws ClassNotFoundException, SQLException {
+    System.out.println("Printing: ");
+    TrafficManager t = new TrafficManager();
+  }
+
+  
 //  
 //  @Test
 //  public void nameTest() throws ClassNotFoundException, SQLException {

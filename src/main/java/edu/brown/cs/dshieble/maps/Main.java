@@ -32,11 +32,10 @@ public final class Main {
    */
   public static void main(final String[] args) throws Exception {
 
-    
     //gui inputs
     if (args.length == 2) {
       if (args[0].equals("--gui")) {
-        String file = args[1];
+        //String file = args[1];
 //        try {
           //GuiManager.makeGUI(file);
 //        } catch (SQLException|ClassNotFoundException e) {

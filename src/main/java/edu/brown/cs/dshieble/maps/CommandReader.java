@@ -104,6 +104,7 @@ public final class CommandReader {
         throw(ioe);
       }
     } catch (SQLException|ClassNotFoundException e) {
+      e.printStackTrace();
       System.out.println("ERROR: SQL Exception");
       throw new SQLException();
     }
