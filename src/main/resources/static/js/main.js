@@ -18,6 +18,17 @@ var width;
 var height;
 
 var grid; 
+
+var input_state = 1; 
+var node1; 
+var node2; 
+
+function Node(lat, lon, id) {
+	this.lat = lat; 
+	this.lon = lon;
+	this.id = id; 
+}
+
 /*
 function Way(lat1, long1, lat2, long2, id) {
 	this.lat1 = lat1; 
@@ -59,6 +70,7 @@ $(function() {
 		row1 = 0;
 		col2 = Math.floor(WORLD_WIDTH / 2);
 		row2 = Math.floor(WORLD_HEIGHT / 2);
+
 	})
 
 	var content = "<p id=\"intro\">" +
@@ -203,15 +215,30 @@ $(function() {
 
 		if (x == lastX && y = lastY) {
 			var latlong = clickToRowCol(x, y);
-			latlong[0] = latlong[0] * TILE_LAT;
-			latlong[1] = latlong[1] * TILE_LONG;
+			var postParameters.lat = latlong[0] * TILE_LAT;
+			postParameters.lng = latlong[1] * TILE_LONG;
 
 			$.post("/closest", latLong, function(responseJSON)) {
 				// TODO
 
 				// Find Take Closest Node
+				var lat = responseJSON.lat;
+				var lon = responseJSON.lon;
+				var id = responseJSON.id; 
 
-				// Highlight Node
+				if (input_state == 1) {
+					// Highlight Node
+					paint(lat, lon);
+					node1 = new Node(lat, lon, id);
+					input_state = 2; 
+				} else {
+					paint(lat, lon);
+					node2 = new Node(lat, lon, id);
+					makePath();
+
+					input_state = 1; 
+				}
+				
 
 			}
 		} else {
@@ -294,8 +321,17 @@ function search() {
 	}
 }
 
-function paintMap() {
-	var grid = globalBoard.grid; 
+function makePath() {
+	// TODO
+	
 }
 
+function paint(lat, lon) {
+	// TODO
+}
+
+function paintMap() {
+	var grid = globalBoard.grid; 
+	// TODO 
+}
 
