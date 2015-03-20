@@ -36,11 +36,26 @@ public final class Main {
    */
   public static void main(final String[] args) {
     //gui inputs
-    if (args.length == 2 ) {
-      if (args[0].equals("--gui")) {
-        String file = args[1];
-        TrafficManager t = new TrafficManager(8080);
-        GUIManager g = new GUIManager(file, t);
+    TrafficManager t = new TrafficManager(8080);
+    while (true) {
+      t.updateTraffic();
+      //pause the program
+      try { Thread.sleep(1000);} catch (InterruptedException e) {break;}
+//      Map<String, Integer> map = t.getMap();
+//      for (String k : map.keySet()) {
+//        System.out.println(k);
+//        System.out.println(map.get(k));
+//      }
+    }
+    //System.exit(0);
+    
+    
+//    
+//    if (args.length == 2 ) {
+//      if (args[0].equals("--gui")) {
+//        String file = args[1];
+//        TrafficManager t = new TrafficManager(8080);
+//        GUIManager g = new GUIManager(file, t);
 
 //        try {
 //          GUIManager g = new GUIManager(file, t);
@@ -59,24 +74,24 @@ public final class Main {
 //            System.out.println(map.get(k));
 //          }
 //        }
-      } else {
-        System.out.println("ERROR: Arguements are: "
-            + "[--gui] <sql database>");
-        return;
-      }
+//      } else {
+//        System.out.println("ERROR: Arguements are: "
+//            + "[--gui] <sql database>");
+//        return;
+//      }
     //bad input
-    } else if (args.length != 1) {
-      System.out.println("ERROR: Arguements are:"
-          + "[--gui] <sql database>");
-      return;
-    //matching names
-    } else {
-      try {
-       CommandReader.readCommands(args[0]);
-      } catch (IOException|SQLException e) {
-        return; // error printed in CommandReader
-      }
-    }
+//    } else if (args.length != 1) {
+//      System.out.println("ERROR: Arguements are:"
+//          + "[--gui] <sql database>");
+//      return;
+//    //matching names
+//    } else {
+//      try {
+//       CommandReader.readCommands(args[0]);
+//      } catch (IOException|SQLException e) {
+//        return; // error printed in CommandReader
+//      }
+//    }
 
   }
 }
