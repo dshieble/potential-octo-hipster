@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.HashSet;
 import java.util.Set;
@@ -233,9 +234,21 @@ public class MapsTest {
   }
   
   @Test 
-  public void runTest() throws ClassNotFoundException, SQLException {
-    System.out.println("Printing: ");
-    TrafficManager t = new TrafficManager();
+  public void runTest() throws ClassNotFoundException, SQLException, InterruptedException {
+//    System.out.println("Printing: ");
+//    TrafficManager t = new TrafficManager();
+//    Map<String, Integer> wayToTraffic = t.getTraffic();
+//    for (String s : wayToTraffic.keySet()) {
+//      System.out.println(s);
+//      System.out.println(wayToTraffic.get(s));
+//    }
+//    Thread.sleep(4);
+//    Map<String, Integer> wayToTraffic2 = t.getTraffic();
+//    for (String s : wayToTraffic2.keySet()) {
+//      System.out.println(s);
+//      System.out.println(wayToTraffic.get(s));
+//    }
+    
   }
 
   

@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The Main Class for the Bacon project.
@@ -30,8 +31,10 @@ public final class Main {
    * @throws ClassNotFoundException
    * @throws SQLException
    */
-  public static void main(final String[] args) throws Exception {
+  public static void main(final String[] args) {
 
+    
+    
     //gui inputs
     if (args.length == 2) {
       if (args[0].equals("--gui")) {
@@ -60,6 +63,24 @@ public final class Main {
 
   }
 }
+
+
+
+//
+
+//System.out.println("Printing: ");
+//TrafficManager t = new TrafficManager();
+//t.updateTraffic();
+//System.exit(0);
+//  
+
+
+
+
+
+
+
+
 
 //String ff = "/course/cs032/data/maps/smallMaps.sqlite3";
 //double lat1 = 0;

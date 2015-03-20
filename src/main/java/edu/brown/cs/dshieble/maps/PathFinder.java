@@ -26,6 +26,11 @@ public class PathFinder implements AutoCloseable {
   private Connection conn;
 
   /**
+   * connection to Traffic
+   */
+  TrafficManager tm;
+  
+  /**
    * This constructor takes in a path to the db file.
    * @param db Path to the db file
    * @throws ClassNotFoundException
@@ -36,6 +41,7 @@ public class PathFinder implements AutoCloseable {
     Class.forName("org.sqlite.JDBC");
     String urlToDB = "jdbc:sqlite:" + db;
     conn = DriverManager.getConnection(urlToDB);
+    tm = new TrafficManager();
   }
 
   /**
