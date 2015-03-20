@@ -113,9 +113,6 @@ public class GUIManager {
       // max lat
       // min long
       // max long
-      int width = Math.ceil(extrema[1] - extrema[0]);
-      int height = Math.ceil(extrema[3] - extrema[2]);
-      Tile[][] grid = new Tile[height][width];
 
       // TODO get actual extrema from path finder
 
