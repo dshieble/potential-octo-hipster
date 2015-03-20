@@ -247,13 +247,14 @@ public class MapsTest {
     PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
         null);
     KDTree<Node> kd = new KDTree<Node>(2, new ArrayList<Node>(p.getAllNodes()));
-    
-    //System.outprintln(p.getIntersection("Chihiro Ave", "Sootball Ln"));
-//    double[] maxMin = p.getMaxMin();
-//    assertTrue(maxMin[0] == 41.82);
-//    assertTrue(maxMin[1] == 41.8206);
-//    assertTrue(maxMin[2] == -71.4003);
-//    assertTrue(maxMin[3] == -71.4);
+    double[] one = {41.82, -71.3};
+    double[] two = {41.8205, -71.3};
+    double[] three = {41.8202, -71.40016};
+
+    assertTrue(kd.neighbors(1, one).get(0).getID().equals("/n/0"));
+    assertTrue(kd.neighbors(1, two).get(0).getID().equals("/n/2"));
+    assertTrue(kd.neighbors(1, three).get(0).getID().equals("/n/4"));
+
   }
   
   @Test 
