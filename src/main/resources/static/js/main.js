@@ -3,7 +3,8 @@ MIN_WIDTH = 5;
 MIN_HEIGHT = 3; 
 TILE_LAT = 1; // Degrees
 TILE_LONG = 1; // Degrees
-DEFAULT_WAY_COLOR = "#000000";
+DEFAULT_WAY = "#000000";
+GRID_LINE = "#D1D2F2";
 MAP_WIDTH = 500; 
 MAP_HEIGHT = 300; 
 
@@ -23,37 +24,49 @@ var input_state = 1;
 var node1; 
 var node2; 
 
+var lastX;
+var lastY;
+
 function Node(lat, lon, id) {
 	this.lat = lat; 
 	this.lon = lon;
 	this.id = id; 
 }
 
-/*
+
 function Way(lat1, long1, lat2, long2, id) {
 	this.lat1 = lat1; 
 	this.lat2 = lat2; 
 	this.long1 = long1;
 	this.long2 = long2; 
 	this.id = id; 
-	this.color = DEFAULT_WAY_COLOR;  
+	this.color = DEFAULT_WAY;  
 }
-*/
 
-function Tile(ways) {
+function Tile(row, col) {
+	var postParameters = { 
+		minLat : row, 
+		maxLat : row + 1, 
+		minLong : col, 
+		maxLong : col + 1 
+	}; 
+
+	var ways = $.post("/ways", postParameters, function(responseJSON) {
+		return JSON.parse(responseJSON);
+	})
+
+	this.row = row;
+	this.col = col; 
 	this.ways = ways; 
 }
 
-Tile.prototype.paint = function() {
-	// TODO Paint all of the ways of a tile. 
-	$("map");
-}
 
 $(function() {
 
-	$.get("/anchor", function(extrema){
+	$.get("/anchor", function(responseJSON) {
 		// TODO Initialize ANCHOR and WORLD_WIDTH
-		
+		var extrema = JSON.parse(responseJSON);
+
 		ANCHOR_LAT = extrema[1]; 
 		WORLD_HEIGHT = Math.ceil(extrema[1] - extrema[0]); // deg. Lat 
 
@@ -66,12 +79,14 @@ $(function() {
 			grid[i] = new Array(WORLD_WIDTH);
 		}
 
-		col1 = 0; 
-		row1 = 0;
-		col2 = Math.floor(WORLD_WIDTH / 2);
-		row2 = Math.floor(WORLD_HEIGHT / 2);
+		// TODO Obtain initialial points from program
+		topLeftRow = 0;
+		topLeftCol = 0;
+		width = WORLD_WIDTH / 4; 
+		height = WORLD_HEIGHT / 4; 
 
-	})
+		paintMap(); 
+	});
 
 	var content = "<p id=\"intro\">" +
      	 			"Welcome to n degrees of Kevin Bacon!" +
@@ -89,8 +104,9 @@ $(function() {
 	     			"<button id = \"searchButton\" onclick=\"search()\">" +
 	     			"Search!" +
 	     			"</button>";
-	var main = document.getElementById("mainDiv"); 
-	main.innerHTML = content;
+	//var main = document.getElementById("mainDiv"); 
+	//main.innerHTML = content;
+	/*
 	var fromBox = document.getElementById("fromArea"); 
 	$("#fromArea").bind('keypress', function(event){
 		if (event.charCode < 48 || event.charCode > 90) {
@@ -125,6 +141,7 @@ $(function() {
 			}
 		})
 	});
+	*/
 
 	$('#suggest').change(function(event) {
 
@@ -198,9 +215,6 @@ $(function() {
 		$('#suggest4').val($("#list4 option:selected").val());
 	})
 
-
-	var lastX;
-	var lastY;
 	$("#map").mousedown(function() {
 		lastX = event.pageX - map.offsetLeft; 
 		lastY = event.pageY - map.offsetRight; 
@@ -213,12 +227,14 @@ $(function() {
 		var x = event.pageX - map.offsetLeft; 
 		var y = event.pageY - map.offsetTop; 
 
-		if (x == lastX && y = lastY) {
+		if (x == lastX && y == lastY) {
 			var latlong = clickToRowCol(x, y);
-			var postParameters.lat = latlong[0] * TILE_LAT;
-			postParameters.lng = latlong[1] * TILE_LONG;
+			var postParameters = {
+				lat : latlong[0] * TILE_LAT,
+				lng : latlong[1] * TILE_LONG 
+			}; 
 
-			$.post("/closest", latLong, function(responseJSON)) {
+			$.post("/closest", postParameters, function(responseJSON) {
 				// TODO
 
 				// Find Take Closest Node
@@ -228,19 +244,14 @@ $(function() {
 
 				if (input_state == 1) {
 					// Highlight Node
-					paint(lat, lon);
 					node1 = new Node(lat, lon, id);
 					input_state = 2; 
 				} else {
 					paint(lat, lon);
 					node2 = new Node(lat, lon, id);
-					makePath();
-
-					input_state = 1; 
+					input_state = 3; 
 				}
-				
-
-			}
+			});
 		} else {
 			// Mouse Drag 
 			var diffX = x - lastX; 
@@ -321,17 +332,66 @@ function search() {
 	}
 }
 
-function makePath() {
-	// TODO
-	
-}
-
 function paint(lat, lon) {
 	// TODO
 }
 
+function paintLines(ctx) {
+	ctx.fillStyle = GRID_LINE; 
+
+	var longWidth = MAP_WIDTH / width;
+	for (var i = longWidth; i < MAP_WIDTH; i += longWidth) {
+		ctx.moveTo(i, 0);
+		ctx.lineTo(i, MAP_WIDTH); 
+	} 
+
+	var latHeight = MAP_HEIGHT / height
+	for (var j = latHeight; j < MAP_HEIGHT; j += latHeight) {
+		ctx.moveTo(0, j);
+		ctx.lineTo(MAP_HEIGHT, j); 
+	} 
+
+	ctx.stroke(); 
+}
+
 function paintMap() {
-	var grid = globalBoard.grid; 
-	// TODO 
+	var ctx = $("#map")[0].getContext("2d"); 
+	ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); 
+
+	paintLines(ctx); 
+
+	for (var i = topLeftRow; i < (topLeftRow + height); i++) {
+		for (var j = topLeftCol; j < (topLeftCol + width); j++) {
+			if (grid[i][j] == null) {
+				grid[i][j] = new Tile(i, j);
+			}
+			grid[i][j].paint(ctx); 
+		}
+	}
+	paintPath(ctx);
+}
+
+Tile.prototype.paint = function(ctx) {
+	// TODO Paint all of the ways of a tile. 
+
+}
+
+function paintPath(ctx) {
+	if (input_state == 2) {
+		// TODO Paint node1
+
+	} else if (input_state == 3) {
+		// TODO Paint Path from node1 and node2
+ 
+		input_state = 1; 
+		node1 = null;
+		node2 = null; 
+	} else if (input_state == 1) {
+		// Nothing
+		// TODO Display message saying to click map? 
+	} else {
+		// TODO 
+		console.log("Fucked up states");
+	}
 }
 

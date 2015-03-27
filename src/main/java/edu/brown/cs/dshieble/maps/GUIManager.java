@@ -102,6 +102,7 @@ public class GUIManager {
 
     Spark.get("/maps", new FrontHandler(), freeMarker);
     Spark.get("/anchor", new AnchorHandler());
+    Spark.post("/ways", new WaysHandler());
     Spark.post("/closest", new ClosestHandler());
     Spark.post("/path", new PathHandler());
     Spark.post("/suggestions", new SuggestionsHandler());
@@ -143,11 +144,39 @@ public class GUIManager {
     }
   }
 
-  private class Tile {
-    private List<Way> ways;
+  // TODO
+//  private class Tile {
+//    private List<Way> ways;
+//
+//    Tile(List<Way> ways) {
+//      this.ways = ways;
+//    }
+//  }
 
-    Tile(List<Way> ways) {
-      this.ways = ways;
+  private class WaysHandler implements Route {
+    @Override
+    public Object handle(final Request req, final Response res) {
+      QueryParamsMap qm = req.queryMap();
+
+      double maxLat = GSON.fromJson(qm.value("maxLat"), Double.class);
+      double minLat = GSON.fromJson(qm.value("minLat"), Double.class);
+
+      double maxLong = GSON.fromJson(qm.value("maxLong"), Double.class);
+      double minLong = GSON.fromJson(qm.value("minLong"), Double.class);
+
+      List<Way> ways;
+
+      try (PathFinder p = new PathFinder(db, tm)) {
+        ways = p.getWaysWithin(minLat, maxLat, minLong, maxLong);
+
+      } catch (ClassNotFoundException | SQLException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+
+        ways = new ArrayList<>();
+      }
+
+      return GSON.toJson(ways);
     }
   }
 
