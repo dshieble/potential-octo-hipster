@@ -27,39 +27,8 @@ var node2;
 var lastX;
 var lastY;
 
-function Node(lat, lon, id) {
-	this.lat = lat; 
-	this.lon = lon;
-	this.id = id; 
-}
-
-
-function Way(lat1, long1, lat2, long2, id) {
-	this.lat1 = lat1; 
-	this.lat2 = lat2; 
-	this.long1 = long1;
-	this.long2 = long2; 
-	this.id = id; 
-	this.color = DEFAULT_WAY;  
-}
-
-function Tile(row, col) {
-	var postParameters = { 
-		minLat : row, 
-		maxLat : row + 1, 
-		minLong : col, 
-		maxLong : col + 1 
-	}; 
-
-	var ways = $.post("/ways", postParameters, function(responseJSON) {
-		return JSON.parse(responseJSON);
-	})
-
-	this.row = row;
-	this.col = col; 
-	this.ways = ways; 
-}
-
+var lastScrollTop = 0; 
+var tol = 3; 
 
 $(function() {
 
@@ -82,9 +51,12 @@ $(function() {
 		// TODO Obtain initialial points from program
 		topLeftRow = 0;
 		topLeftCol = 0;
-		width = WORLD_WIDTH / 4; 
-		height = WORLD_HEIGHT / 4; 
+		width = Math.floor(WORLD_WIDTH / 4); 
+		height = Math.floor(WORLD_HEIGHT / 4); 
 
+		var canvas = $("#map")[0]; 
+		canvas.width = MAP_WIDTH;
+		canvas.height = MAP_HEIGHT; 
 		paintMap(); 
 	});
 
@@ -217,7 +189,7 @@ $(function() {
 
 	$("#map").mousedown(function() {
 		lastX = event.pageX - map.offsetLeft; 
-		lastY = event.pageY - map.offsetRight; 
+		lastY = event.pageY - map.offsetTop; 
 	})
 
 	// TODO
@@ -247,15 +219,15 @@ $(function() {
 					node1 = new Node(lat, lon, id);
 					input_state = 2; 
 				} else {
-					paint(lat, lon);
+					paintPoint(lat, lon);
 					node2 = new Node(lat, lon, id);
 					input_state = 3; 
 				}
 			});
 		} else {
 			// Mouse Drag 
-			var diffX = x - lastX; 
-			var diffY = y - lastY; 
+			var diffX = lastX - x; 
+			var diffY = lastY - y; 
 
 			// Convert
 			var rowDiffColDiff = clickToRowCol(diffX, diffY)
@@ -269,23 +241,20 @@ $(function() {
 
 			// Check that hasn't been dragged over right and bottom boundaries.
 			if (topLeftRow + height > WORLD_HEIGHT) {
-				topLeftRow = WORLD_HEIGHT - height; 
+				topLeftRow = Math.floor(WORLD_HEIGHT - height); 
 			}
 
 			if (topLeftCol + width > WORLD_WIDTH) {
-				topLeftCol = WORLD_WIDTH - width; 
+				topLeftCol = Math.floor(WORLD_WIDTH - width); 
 			}
 
 		}
-		
+				
 		paintMap(); 
 	})
 
-	var lastScrollTop = 0; 
-	var tol = 3; 
-
 	$("#map").scroll(function(event) {
-		var currST = $(this).scrollTop();
+		var currST = this.scrollTop();
 		if (Math.abs(currST - lastScrollTop) < tol) {
 			// Do nothing
 		} else if (currST < lastScrollTop) {
@@ -332,7 +301,7 @@ function search() {
 	}
 }
 
-function paint(lat, lon) {
+function paintPoint(lat, lon) {
 	// TODO
 }
 
@@ -342,13 +311,13 @@ function paintLines(ctx) {
 	var longWidth = MAP_WIDTH / width;
 	for (var i = longWidth; i < MAP_WIDTH; i += longWidth) {
 		ctx.moveTo(i, 0);
-		ctx.lineTo(i, MAP_WIDTH); 
+		ctx.lineTo(i, MAP_HEIGHT); 
 	} 
 
 	var latHeight = MAP_HEIGHT / height
 	for (var j = latHeight; j < MAP_HEIGHT; j += latHeight) {
 		ctx.moveTo(0, j);
-		ctx.lineTo(MAP_HEIGHT, j); 
+		ctx.lineTo(MAP_WIDTH, j); 
 	} 
 
 	ctx.stroke(); 
@@ -356,6 +325,7 @@ function paintLines(ctx) {
 
 function paintMap() {
 	var ctx = $("#map")[0].getContext("2d"); 
+
 	ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); 
 
 	paintLines(ctx); 
@@ -373,7 +343,10 @@ function paintMap() {
 
 Tile.prototype.paint = function(ctx) {
 	// TODO Paint all of the ways of a tile. 
+	var tileX = (this.col - topLeftCol) * (MAP_WIDTH / width);
+	var tileY = (this.row - topLeftRow) * (MAP_HEIGHT / height);
 
+	ctx.strokeText(this.row + "," + this.col, tileX + 20, tileY + 20); 
 }
 
 function paintPath(ctx) {
@@ -393,5 +366,38 @@ function paintPath(ctx) {
 		// TODO 
 		console.log("Fucked up states");
 	}
+}
+
+function Node(lat, lon, id) {
+	this.lat = lat; 
+	this.lon = lon;
+	this.id = id; 
+}
+
+
+function Way(lat1, long1, lat2, long2, id) {
+	this.lat1 = lat1; 
+	this.lat2 = lat2; 
+	this.long1 = long1;
+	this.long2 = long2; 
+	this.id = id; 
+	this.color = DEFAULT_WAY;  
+}
+
+function Tile(row, col) {
+	var postParameters = { 
+		minLat : row, 
+		maxLat : row + 1, 
+		minLong : col, 
+		maxLong : col + 1 
+	}; 
+
+	var ways = $.post("/ways", postParameters, function(responseJSON) {
+		return JSON.parse(responseJSON);
+	})
+
+	this.row = row;
+	this.col = col; 
+	this.ways = ways; 
 }
 
