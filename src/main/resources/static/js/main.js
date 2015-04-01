@@ -1,12 +1,17 @@
 
 MIN_WIDTH = 5; 
 MIN_HEIGHT = 3; 
-TILE_LAT = 1; // Degrees
-TILE_LONG = 1; // Degrees
-DEFAULT_WAY = "#000000";
+TILE_LAT = 0.00001; // Degrees
+TILE_LONG = 0.00001; // Degrees
+
+
+DEFAULT_WAY = "#0000FF";
 GRID_LINE = "#D1D2F2";
+PATH_COLOR = "#FF0000"; 
+
 MAP_WIDTH = 500; 
 MAP_HEIGHT = 300; 
+
 
 var ANCHOR_LAT; // Top Left Latitude
 var ANCHOR_LONG;  // Top Left Longitude
@@ -37,10 +42,10 @@ $(function() {
 		var extrema = JSON.parse(responseJSON);
 
 		ANCHOR_LAT = extrema[1]; 
-		WORLD_HEIGHT = Math.ceil(extrema[1] - extrema[0]); // deg. Lat 
+		WORLD_HEIGHT = Math.ceil((extrema[1] - extrema[0]) / TILE_LAT); // deg. Lat 
 
 		ANCHOR_LONG = extrema[2]; 
-		WORLD_WIDTH = Math.ceil(extrema[3] - extrema[2]); // deg. Long
+		WORLD_WIDTH = Math.ceil((extrema[3] - extrema[2]) / TILE_LONG); // deg. Long
 
 		grid = new Array(WORLD_HEIGHT);
 
@@ -114,7 +119,7 @@ $(function() {
 		})
 	});
 	*/
-
+	
 	$('#suggest').change(function(event) {
 
 		var postParameters = { rawText: $('#suggest').val() };
@@ -305,7 +310,7 @@ function paintPoint(lat, lon) {
 	// TODO
 }
 
-function paintLines(ctx) {
+function paintGrid(ctx) {
 	ctx.fillStyle = GRID_LINE; 
 
 	var longWidth = MAP_WIDTH / width;
@@ -328,7 +333,7 @@ function paintMap() {
 
 	ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); 
 
-	paintLines(ctx); 
+	paintGrid(ctx); 
 
 	for (var i = topLeftRow; i < (topLeftRow + height); i++) {
 		for (var j = topLeftCol; j < (topLeftCol + width); j++) {
@@ -338,27 +343,30 @@ function paintMap() {
 			grid[i][j].paint(ctx); 
 		}
 	}
+	ctx.stroke(); 
+
 	paintPath(ctx);
-}
-
-Tile.prototype.paint = function(ctx) {
-	// TODO Paint all of the ways of a tile. 
-	var tileX = (this.col - topLeftCol) * (MAP_WIDTH / width);
-	var tileY = (this.row - topLeftRow) * (MAP_HEIGHT / height);
-
-	ctx.strokeText(this.row + "," + this.col, tileX + 20, tileY + 20); 
 }
 
 function paintPath(ctx) {
 	if (input_state == 2) {
 		// TODO Paint node1
-
+		node1.paint(ctx); 
 	} else if (input_state == 3) {
 		// TODO Paint Path from node1 and node2
- 
-		input_state = 1; 
-		node1 = null;
-		node2 = null; 
+ 		node2.paint(ctx); 
+
+ 		postParameters = { start : node1.id, end : node2.id }; 
+
+ 		$.post("/path", postParameters, function(responseJSON) {
+ 			var nodes = JSON.parseJson(responseJSON); 
+ 			paintNodes(ctx, nodes); 
+
+ 			input_state = 1; 
+			node1 = null;
+			node2 = null; 
+ 		})
+
 	} else if (input_state == 1) {
 		// Nothing
 		// TODO Display message saying to click map? 
@@ -366,6 +374,33 @@ function paintPath(ctx) {
 		// TODO 
 		console.log("Fucked up states");
 	}
+}
+
+function paintNodes(ctx, nodes) {
+	for (i in nodes) {
+		if (i + 1 < nodes.length) {
+			var start = nodes[i];
+			var end = nodes[i + 1]; 
+			ctx.fillStyle = PATH_COLOR; 
+ 			paintLine(ctx, start, end); 
+		}
+	}
+	ctx.stroke(); 
+}
+
+function latLongToXY(lat, lon) {
+	var y = (lat - ANCHOR_LAT - topLeftRow) / height * MAP_HEIGHT; 
+	var x = (lon - ANCHOR_LONG - topLeftCol) / width * MAP_WIDTH; 
+
+	return [x, y]; 
+}
+
+function paintLine(ctx, start, end) {
+	var p1 = latLongToXY(start.lat, start.lon); 
+	var p2 = latLongToXY(end.lat, end.lon); 
+
+	ctx.moveTo(p1[0], p1[1]);
+	ctx.lineTo(p2[0], p2[1]);
 }
 
 function Node(lat, lon, id) {
@@ -380,24 +415,45 @@ function Way(lat1, long1, lat2, long2, id) {
 	this.lat2 = lat2; 
 	this.long1 = long1;
 	this.long2 = long2; 
-	this.id = id; 
-	this.color = DEFAULT_WAY;  
+	this.id = id;  
 }
 
 function Tile(row, col) {
 	var postParameters = { 
-		minLat : row, 
-		maxLat : row + 1, 
-		minLong : col, 
-		maxLong : col + 1 
+		minLat : ANCHOR_LAT + row, 
+		maxLat : ANCHOR_LAT + row + 1, 
+		minLong : ANCHOR_LONG + col, 
+		maxLong : ANCHOR_LONG + col + 1 
 	}; 
 
-	var ways = $.post("/ways", postParameters, function(responseJSON) {
-		return JSON.parse(responseJSON);
+	$.post("/ways", postParameters, function(responseJSON) {
+		grid[row][col].setWays(JSON.parse(responseJSON));
 	})
 
 	this.row = row;
-	this.col = col; 
+	this.col = col;
+}
+
+Tile.prototype.setWays = function(ways) {
 	this.ways = ways; 
 }
 
+Tile.prototype.paint = function(ctx) {
+	// TODO Paint all of the ways of a tile. 
+	var tileX = (this.col - topLeftCol) * (MAP_WIDTH / width);
+	var tileY = (this.row - topLeftRow) * (MAP_HEIGHT / height);
+
+	ctx.strokeText((this.row) + "," + (this.col), tileX + 20, tileY + 20); 
+
+	var ways = this.ways; 
+
+	for (i in ways) {
+		paintWay(ctx, ways[i]); 
+	}
+
+}
+
+function paintWay(ctx, w) {
+	ctx.fillStyle = DEFAULT_WAY;
+	paintLine(ctx, w.start, w.end);
+}

@@ -132,13 +132,14 @@ public class GUIManager {
   private class AnchorHandler implements Route {
     @Override
     public Object handle(final Request req, final Response res) {
-      double[] extrema = new double[] { 26.0, 59.4, -4.8, 34.7 };
-      // min lat
-      // max lat
-      // min long
-      // max long
+      double[] extrema = new double[0];
 
-      // TODO get actual extrema from path finder
+      try(PathFinder p = new PathFinder(db, tm)) {
+        extrema = p.getMaxMin();
+      } catch (ClassNotFoundException | SQLException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
 
       return GSON.toJson(extrema);
     }
@@ -214,12 +215,23 @@ public class GUIManager {
     public Object handle(final Request req, final Response res) {
       QueryParamsMap qm = req.queryMap();
 
-      String input = qm.value("rawText");
+      String startID = qm.value("start");
+      String endID = qm.value("end");
 
-      List<String> suggestions =
-          autocorrect.getNSuggestions(SUGGESTIONS, input);
+      List<Node> path;
+      try (PathFinder p = new PathFinder(db, tm)) {
+         path = p.findPath(startID, endID, false);
+      } catch (ClassNotFoundException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        path = new ArrayList<>();
+      } catch (SQLException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        path = new ArrayList<>();
+      }
 
-      return GSON.toJson(suggestions);
+      return GSON.toJson(path);
     }
   }
 
