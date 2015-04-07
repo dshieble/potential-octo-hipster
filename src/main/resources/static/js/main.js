@@ -4,7 +4,6 @@ MIN_HEIGHT = 3;
 TILE_LAT = 0.00001; // Degrees
 TILE_LONG = 0.00001; // Degrees
 
-
 DEFAULT_WAY = "#0000FF";
 GRID_LINE = "#D1D2F2";
 PATH_COLOR = "#FF0000"; 
@@ -35,17 +34,23 @@ var lastY;
 var lastScrollTop = 0; 
 var tol = 3; 
 
+//lock the mouse wheel
+window.onwheel = function() { 
+	return false;
+}
+
+
 $(function() {
 
 	$.get("/anchor", function(responseJSON) {
 		// TODO Initialize ANCHOR and WORLD_WIDTH
 		var extrema = JSON.parse(responseJSON);
 
-		ANCHOR_LAT = extrema[1]; 
-		WORLD_HEIGHT = Math.ceil((extrema[1] - extrema[0]) / TILE_LAT); // deg. Lat 
+		ANCHOR_LAT = extrema[1] - TILE_LAT; 
+		WORLD_HEIGHT = Math.ceil((extrema[1] - extrema[0]) / TILE_LAT) + 2; // deg. Lat 
 
-		ANCHOR_LONG = extrema[2]; 
-		WORLD_WIDTH = Math.ceil((extrema[3] - extrema[2]) / TILE_LONG); // deg. Long
+		ANCHOR_LONG = extrema[2] - TILE_LONG; 
+		WORLD_WIDTH = Math.ceil((extrema[3] - extrema[2]) / TILE_LONG) + 2; // deg. Long
 
 		grid = new Array(WORLD_HEIGHT);
 
@@ -62,25 +67,25 @@ $(function() {
 		var canvas = $("#map")[0]; 
 		canvas.width = MAP_WIDTH;
 		canvas.height = MAP_HEIGHT; 
-		paintMap(); 
+		paintMap();
 	});
 
-	var content = "<p id=\"intro\">" +
-     	 			"Welcome to n degrees of Kevin Bacon!" +
-     	 			"</p>" +
-	     			"<textarea id = \"fromArea\" style=\"width: 200px; height: 30px;\">" +
-	     			"</textarea> Starts with the bacon" +
-	     			"<p id = \"fromSuggestion\">" +
-	     			"</p>" +
-	     			"</br>" +
-	     			"<textarea id = \"toArea\" style=\"width: 200px; height: 30px;\">" +
-	     			"</textarea> Ends with the bacon" +
-	     			"<p id = \"toSuggestion\">" +
-	     			"</p>" +
-	     			"</br>" +
-	     			"<button id = \"searchButton\" onclick=\"search()\">" +
-	     			"Search!" +
-	     			"</button>";
+	// var content = "<p id=\"intro\">" +
+ //     	 			"Welcome to n degrees of Kevin Bacon!" +
+ //     	 			"</p>" +
+	//      			"<textarea id = \"fromArea\" style=\"width: 200px; height: 30px;\">" +
+	//      			"</textarea> Starts with the bacon" +
+	//      			"<p id = \"fromSuggestion\">" +
+	//      			"</p>" +
+	//      			"</br>" +
+	//      			"<textarea id = \"toArea\" style=\"width: 200px; height: 30px;\">" +
+	//      			"</textarea> Ends with the bacon" +
+	//      			"<p id = \"toSuggestion\">" +
+	//      			"</p>" +
+	//      			"</br>" +
+	//      			"<button id = \"searchButton\" onclick=\"search()\">" +
+	//      			"Search!" +
+	//      			"</button>";
 	//var main = document.getElementById("mainDiv"); 
 	//main.innerHTML = content;
 	/*
@@ -205,31 +210,37 @@ $(function() {
 		var y = event.pageY - map.offsetTop; 
 
 		if (x == lastX && y == lastY) {
+			console.log("Click.");
 			var latlong = clickToRowCol(x, y);
 			var postParameters = {
-				lat : latlong[0] * TILE_LAT,
-				lng : latlong[1] * TILE_LONG 
+				lat : ANCHOR_LAT + latlong[0] * TILE_LAT,
+				lng : ANCHOR_LONG + latlong[1] * TILE_LONG 
 			}; 
 
 			$.post("/closest", postParameters, function(responseJSON) {
-				// TODO
-
+				responseObject = JSON.parse(responseJSON);
 				// Find Take Closest Node
-				var lat = responseJSON.lat;
-				var lon = responseJSON.lon;
-				var id = responseJSON.id; 
+				var lat = responseObject.lat;
+				var lon = responseObject.lon;
+				var id = responseObject.id; 
 
 				if (input_state == 1) {
 					// Highlight Node
 					node1 = new Node(lat, lon, id);
 					input_state = 2; 
-				} else {
-					paintPoint(lat, lon);
+				} else if (input_state == 2) {
 					node2 = new Node(lat, lon, id);
 					input_state = 3; 
+				} else if (input_state == 3) {
+					//console.log("Input State 3: ")
+				} else {
+					alert("you done fucked up");
 				}
+
+				paintMap(); 
 			});
 		} else {
+			console.log("Drag.");
 			// Mouse Drag 
 			var diffX = lastX - x; 
 			var diffY = lastY - y; 
@@ -253,27 +264,26 @@ $(function() {
 				topLeftCol = Math.floor(WORLD_WIDTH - width); 
 			}
 
+			paintMap();
 		}
-				
-		paintMap(); 
 	})
+	
+	$('html').on('mousewheel', function(event) {
+		console.log("scrolled");
+		var delta = event.originalEvent.wheelDelta; 
 
-	$("#map").scroll(function(event) {
-		var currST = this.scrollTop();
-		if (Math.abs(currST - lastScrollTop) < tol) {
-			// Do nothing
-		} else if (currST < lastScrollTop) {
+		if (delta < 0) {
 			// Scroll Down
 			width = Math.min(width * 2, WORLD_WIDTH);
 			height = Math.min(height * 2, WORLD_HEIGHT);  
-			paintMap();
-		} else if (currST > lastScrollTop) {
+		} else {
 			// Scroll Up
 			width = Math.max(width / 2, MIN_WIDTH);
 			height = Math.max(height / 2, MIN_HEIGHT);
-			paintMap();
 		}
-		lastScrollTop = currST;
+
+		paintMap();
+
 	})
 
 });
@@ -306,8 +316,8 @@ function search() {
 	}
 }
 
-function paintPoint(lat, lon) {
-	// TODO
+function paintPoint(ctx, x, y) {
+  ctx.fillRect(x, y, 2, 2)
 }
 
 function paintGrid(ctx) {
@@ -324,14 +334,15 @@ function paintGrid(ctx) {
 		ctx.moveTo(0, j);
 		ctx.lineTo(MAP_WIDTH, j); 
 	} 
-
-	ctx.stroke(); 
+	//ctx.stroke(); 
 }
 
 function paintMap() {
 	var ctx = $("#map")[0].getContext("2d"); 
 
 	ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); 
+
+	ctx.beginPath(); 
 
 	paintGrid(ctx); 
 
@@ -348,6 +359,8 @@ function paintMap() {
 	paintPath(ctx);
 }
 
+
+
 function paintPath(ctx) {
 	if (input_state == 2) {
 		// TODO Paint node1
@@ -359,7 +372,7 @@ function paintPath(ctx) {
  		postParameters = { start : node1.id, end : node2.id }; 
 
  		$.post("/path", postParameters, function(responseJSON) {
- 			var nodes = JSON.parseJson(responseJSON); 
+ 			var nodes = JSON.parse(responseJSON); 
  			paintNodes(ctx, nodes); 
 
  			input_state = 1; 
@@ -372,7 +385,7 @@ function paintPath(ctx) {
 		// TODO Display message saying to click map? 
 	} else {
 		// TODO 
-		console.log("Fucked up states");
+		alert("Fucked up states");
 	}
 }
 
@@ -385,12 +398,12 @@ function paintNodes(ctx, nodes) {
  			paintLine(ctx, start, end); 
 		}
 	}
-	ctx.stroke(); 
+	//ctx.stroke(); 
 }
 
 function latLongToXY(lat, lon) {
-	var y = (lat - ANCHOR_LAT - topLeftRow) / height * MAP_HEIGHT; 
-	var x = (lon - ANCHOR_LONG - topLeftCol) / width * MAP_WIDTH; 
+	var y = ((lat - ANCHOR_LAT)/TILE_LAT - topLeftRow) / height * MAP_HEIGHT; 
+	var x = ((lon - ANCHOR_LONG)/TILE_LONG - topLeftCol) / width * MAP_WIDTH; 
 
 	return [x, y]; 
 }
@@ -409,6 +422,11 @@ function Node(lat, lon, id) {
 	this.id = id; 
 }
 
+Node.prototype.paint = function(ctx) {
+	var A = latLongToXY(this.lat, this.lon);
+	paintPoint(ctx, A[0], A[1]); 
+}
+
 
 function Way(lat1, long1, lat2, long2, id) {
 	this.lat1 = lat1; 
@@ -420,13 +438,15 @@ function Way(lat1, long1, lat2, long2, id) {
 
 function Tile(row, col) {
 	var postParameters = { 
-		minLat : ANCHOR_LAT + row, 
-		maxLat : ANCHOR_LAT + row + 1, 
-		minLong : ANCHOR_LONG + col, 
-		maxLong : ANCHOR_LONG + col + 1 
+		minLat : ANCHOR_LAT + row * TILE_LAT, 
+		maxLat : ANCHOR_LAT + (row + 1) * TILE_LAT, 
+		minLong : ANCHOR_LONG + col * TILE_LONG, 
+		maxLong : ANCHOR_LONG + (col + 1) * TILE_LONG 
 	}; 
 
 	$.post("/ways", postParameters, function(responseJSON) {
+		console.log(row)
+		console.log(col)
 		grid[row][col].setWays(JSON.parse(responseJSON));
 	})
 
@@ -443,11 +463,12 @@ Tile.prototype.paint = function(ctx) {
 	var tileX = (this.col - topLeftCol) * (MAP_WIDTH / width);
 	var tileY = (this.row - topLeftRow) * (MAP_HEIGHT / height);
 
-	ctx.strokeText((this.row) + "," + (this.col), tileX + 20, tileY + 20); 
+	//ctx.strokeText((this.row) + "," + (this.col), tileX + 20, tileY + 20); 
 
 	var ways = this.ways; 
-
-	for (i in ways) {
+	//console.log(444)
+	for (var i in ways) {
+		//console.log(ways[i]);
 		paintWay(ctx, ways[i]); 
 	}
 
