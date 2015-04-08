@@ -345,7 +345,7 @@ function paintMap() {
 
 	ctx.beginPath(); 
 
-	//paintGrid(ctx); 
+	paintGrid(ctx); 
 	ctx.stroke(); 
 	ctx.globalAlpha = 1;
 
@@ -463,17 +463,47 @@ function Tile(row, col) {
 
 Tile.prototype.setWays = function(ways) {
 	this.ways = ways;
+
+	var left = [[this.minLat, this.minLong], [this.maxLat, this.minLong]];
+	var right = [[this.maxLat, this.maxLong], [this.minLat, this.maxLong]];
+	var top = [[this.maxLat, this.minLong], [this.maxLat, this.maxLong]];
+	var bottom = [[this.minLat, this.maxLong], [this.minLat, this.minLong]];
+
+	var box = [left, right, top, bottom];
+	points = [];
 	for (var i in this.ways) {
-		
-		// //start_lat = max(min(minLat, w.start.lat), maxLat)
-		// end_lat
-		// start_long
-		// end_long
-
-
-		// this.ways[i]
+		var start = [this.ways[i].start.lat, this.ways[i].start.lon]; 
+		var end = [this.ways[i].end.lat, this.ways[i].end.lon];
+		for (var b in box) {
+			I = intersection(box[b][0], box[b][1], start, end);
+			if (I != undefined) {
+				points.push(I);
+			}
+		}
+		this.ways[i];
 	}
+	if (points.length == 2) {
+		this.ways[i].start.lat = points[0][0];
+		this.ways[i].start.lon = points[0][1];
+		this.ways[i].end.lat = points[1][0];
+		this.ways[i].end.lon = points[1][1];
+	} else if (points.length == 1) {
+		if (this.within(this.ways[i].start)) {
+			this.ways[i].end.lat = points[0][0];
+			this.ways[i].end.lon = points[0][1];		
+		} else if (this.within(this.ways[i].end)) {
+			this.ways[i].start.lat = points[0][0];
+			this.ways[i].start.lon = points[0][1];	
+		} else {
+			alert("ERROR: start or end should be within");
+		}
+	} 
 
+}
+
+Tile.prototype.within = function(node) {
+	var pt = [node.lat, node.lon];
+	return pt[0] >= this.minLat && pt[0] <= this.maxLat &&  pt[1] >= this.minLong && pt[1] <= this.maxLong;
 }
 
 // all inputs in the for [x, y]
@@ -495,7 +525,7 @@ function intersection(start1, end1, start2, end2) {
 	var u = crossProduct(d, [r[0] / rxs, r[1] / rxs]);
 	var t = crossProduct(d, [s[0] / rxs, s[1] / rxs]);
 
-	if (u < 0 || u > 1 || t < 0 || t > 1) {
+	if (u <= 0 || u > 1 || t < 0 || t > 1) {
 		return undefined; 
 	}
 
@@ -521,12 +551,12 @@ Tile.prototype.paint = function(ctx) {
 	//console.log(444)
 	for (var i in ways) {
 		//console.log(ways[i]);
-		paintWay(ctx, ways[i], row, col); 
+		paintWay(ctx, ways[i]); 
 	}
 
 }
 
-function paintWay(ctx, w, tile) {
+function paintWay(ctx, w) {
 	ctx.fillStyle = DEFAULT_WAY;
 	paintLine(ctx, w.start, w.end);
 }
