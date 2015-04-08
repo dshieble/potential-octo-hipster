@@ -69,8 +69,11 @@ public final class CommandReader {
                 throw new IOException();
               }
             }
+            //System.out.println("Thinking");
             fromId = kd.neighbors(1, from).get(0).getID();
             toId = kd.neighbors(1, to).get(0).getID();
+            //System.out.println("Neighbors Found");
+
           //if quotation input type
           } else {
             if (quoteArr.length != 8) {

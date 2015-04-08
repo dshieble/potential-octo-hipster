@@ -1,8 +1,8 @@
 
 MIN_WIDTH = 5; 
 MIN_HEIGHT = 3; 
-TILE_LAT = 0.00001; // Degrees
-TILE_LONG = 0.00001; // Degrees
+TILE_LAT = 0.001; // Degrees
+TILE_LONG = 0.001; // Degrees
 
 DEFAULT_WAY = "#0000FF";
 GRID_LINE = "#D1D2F2";
@@ -61,6 +61,7 @@ $(function() {
 		// TODO Obtain initialial points from program
 		topLeftRow = 0;
 		topLeftCol = 0;
+
 		width = Math.floor(WORLD_WIDTH / 4); 
 		height = Math.floor(WORLD_HEIGHT / 4); 
 
@@ -345,7 +346,7 @@ function paintMap() {
 
 	ctx.beginPath(); 
 
-	paintGrid(ctx); 
+	//paintGrid(ctx); 
 	ctx.stroke(); 
 	ctx.globalAlpha = 1;
 
@@ -462,40 +463,41 @@ function Tile(row, col) {
 Tile.prototype.setWays = function(ways) {
 	this.ways = ways;
 
-	var left = [[this.minLat, this.minLong], [this.maxLat, this.minLong]];
-	var right = [[this.maxLat, this.maxLong], [this.minLat, this.maxLong]];
-	var top = [[this.maxLat, this.minLong], [this.maxLat, this.maxLong]];
-	var bottom = [[this.minLat, this.maxLong], [this.minLat, this.minLong]];
 
-	var box = [left, right, top, bottom];
-	points = [];
-	for (var i in this.ways) {
-		var start = [this.ways[i].start.lat, this.ways[i].start.lon]; 
-		var end = [this.ways[i].end.lat, this.ways[i].end.lon];
-		for (var b in box) {
-			I = intersection(box[b][0], box[b][1], start, end);
-			if (I != undefined) {
-				points.push(I);
-			}
-		}
-		this.ways[i];
-	}
-	if (points.length == 2) {
-		this.ways[i].start.lat = points[0][0];
-		this.ways[i].start.lon = points[0][1];
-		this.ways[i].end.lat = points[1][0];
-		this.ways[i].end.lon = points[1][1];
-	} else if (points.length == 1) {
-		if (this.within(this.ways[i].start)) {
-			this.ways[i].end.lat = points[0][0];
-			this.ways[i].end.lon = points[0][1];		
-		} else if (this.within(this.ways[i].end)) {
-			this.ways[i].start.lat = points[0][0];
-			this.ways[i].start.lon = points[0][1];	
-		} else {
-			alert("ERROR: start or end should be within");
-		}
-	} 
+	// var left = [[this.minLat, this.minLong], [this.maxLat, this.minLong]];
+	// var right = [[this.maxLat, this.maxLong], [this.minLat, this.maxLong]];
+	// var top = [[this.maxLat, this.minLong], [this.maxLat, this.maxLong]];
+	// var bottom = [[this.minLat, this.maxLong], [this.minLat, this.minLong]];
+
+	// var box = [left, right, top, bottom];
+	// points = [];
+	// for (var i in this.ways) {
+	// 	var start = [this.ways[i].start.lat, this.ways[i].start.lon]; 
+	// 	var end = [this.ways[i].end.lat, this.ways[i].end.lon];
+	// 	for (var b in box) {
+	// 		I = intersection(box[b][0], box[b][1], start, end);
+	// 		if (I != undefined) {
+	// 			points.push(I);
+	// 		}
+	// 	}
+	// 	this.ways[i];
+	// }
+	// if (points.length == 2) {
+	// 	this.ways[i].start.lat = points[0][0];
+	// 	this.ways[i].start.lon = points[0][1];
+	// 	this.ways[i].end.lat = points[1][0];
+	// 	this.ways[i].end.lon = points[1][1];
+	// } else if (points.length == 1) {
+	// 	if (this.within(this.ways[i].start)) {
+	// 		this.ways[i].end.lat = points[0][0];
+	// 		this.ways[i].end.lon = points[0][1];		
+	// 	} else if (this.within(this.ways[i].end)) {
+	// 		this.ways[i].start.lat = points[0][0];
+	// 		this.ways[i].start.lon = points[0][1];	
+	// 	} else {
+	// 		alert("ERROR: start or end should be within");
+	// 	}
+	// } 
 
 }
 
