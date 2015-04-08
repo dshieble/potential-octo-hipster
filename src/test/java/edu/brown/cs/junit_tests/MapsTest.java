@@ -34,7 +34,7 @@ public class MapsTest {
   public void testTest() {
     assertTrue(1 == 1);
   }
-  
+
   @Test
   public void getLatLongTest()  throws ClassNotFoundException, SQLException {
     String id0 = "/n/0";
@@ -58,7 +58,7 @@ public class MapsTest {
     assertTrue(Arrays.equals(p.getLatLong(id4), e4));
     assertTrue(Arrays.equals(p.getLatLong(id5), e5));
   }
-  
+
   @Test
   public void distanceTest() {
     double[] ll0 = {41.82, -71.4};
@@ -80,7 +80,7 @@ public class MapsTest {
     assertTrue(nearlyEqual(Node3.getDistance(Node5), d35)) ;
     assertTrue(nearlyEqual(Node2.getDistance(Node4), d24)) ;
   }
-  
+
   @Test
   public void getNameTest() throws ClassNotFoundException, SQLException {
     PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
@@ -97,7 +97,7 @@ public class MapsTest {
     assertTrue(1 == 1);
   }
 
-  @Test 
+  @Test
   public void getNodesTest() throws ClassNotFoundException, SQLException {
     PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
         null);
@@ -112,13 +112,13 @@ public class MapsTest {
     for (Node n : nodes0) {
       assertTrue(n.getID().equals("/n/1") || n.getID().equals("/n/3"));
     }
-    
+
     Set<Node> nodes3 = p.findNodes(Node3, false);
     assertTrue(nodes3.size() == 2);
     for (Node n : nodes3) {
       assertTrue(n.getID().equals("/n/0") || n.getID().equals("/n/4"));
     }
- 
+
     Set<Node> nodes5 = p.findNodes(Node5, false);
     assertTrue(nodes5.size() == 2);
     for (Node n : nodes5) {
@@ -127,10 +127,10 @@ public class MapsTest {
   }
 
   //KDimensional interface
-  
-  
-  
-  @Test 
+
+
+
+  @Test
   public void getPathTest() throws ClassNotFoundException, SQLException {
     PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
         null);
@@ -141,12 +141,12 @@ public class MapsTest {
 
     List<Node> path00 = p.findPath("/n/0", "/n/0", false);
     assertTrue(path00.get(0).getID().equals("/n/0"));
-    
+
     List<Node> path35 = p.findPath("/n/3", "/n/5", false);
     assertTrue(path35.get(0).getID().equals("/n/3"));
     assertTrue(path35.get(1).getID().equals("/n/4"));
     assertTrue(path35.get(2).getID().equals("/n/5"));
-    
+
     List<Node> path05 = p.findPath("/n/0", "/n/5", false);
     assertTrue(path05.get(0).getID().equals("/n/0"));
     assertTrue(path05.get(1).getID().equals("/n/1"));
@@ -154,8 +154,8 @@ public class MapsTest {
     assertTrue(path05.get(3).getID().equals("/n/5"));
 
   }
-  
-  @Test 
+
+  @Test
   public void getIntersectionTest() throws ClassNotFoundException, SQLException {
     PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
         null);
@@ -167,8 +167,8 @@ public class MapsTest {
     assertTrue(p.getIntersection("Yubaba St", "Sootball Ln").equals("/n/4"));
 
   }
-  
-  @Test 
+
+  @Test
   public void getAllNodesTest() throws ClassNotFoundException, SQLException {
     PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
         null);
@@ -183,8 +183,9 @@ public class MapsTest {
 
     //System.out.println(Arrays.toString(nodes.toArray()));
   }
-  
-  @Test 
+
+  //@Test
+  //TODO: PUT THIS BACK IN LATER
   public void getWaysWithin() throws ClassNotFoundException, SQLException {
     PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
         null);
@@ -192,8 +193,9 @@ public class MapsTest {
     double lat2 = 41.8205;
     double lon1 = -71.41;
     double lon2 = -71.4;
-    
+
     List<Way> ways = p.getWaysWithin(lat1, lat2, lon1, lon2);
+
     assertTrue(ways.size() == 6);
     assertTrue(ways.get(0).getID().equals("/w/0"));
     assertTrue(ways.get(1).getID().equals("/w/1"));
@@ -206,7 +208,7 @@ public class MapsTest {
     double lat20 = 41.8205;
     double lon10 = -71.4001;
     double lon20 = -71.4;
-    
+
     List<Way> ways2 = p.getWaysWithin(lat10, lat20, lon10, lon20);
     assertTrue(ways2.size() == 4);
     assertTrue(ways2.get(0).getID().equals("/w/0"));
@@ -218,19 +220,19 @@ public class MapsTest {
     double lat200 = 41.8205;
     double lon100 = -71.4001;
     double lon200 = -71.4;
-    
+
     List<Way> ways3 = p.getWaysWithin(lat100, lat200, lon100, lon200);
 //    for (Way w: ways3) {
 //      System.out.println(w.getID());
 //    }
 //    assertTrue(ways3.size() == 0);
-    
-    
+
+
     //System.out.println(Arrays.toString(ways.toArray()));
 
   }
-  
-  @Test 
+
+  @Test
   public void maxMinTest() throws ClassNotFoundException, SQLException {
     PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
         null);
@@ -241,8 +243,8 @@ public class MapsTest {
     assertTrue(maxMin[2] == -71.4003);
     assertTrue(maxMin[3] == -71.4);
   }
-  
-  @Test 
+
+  @Test
   public void nearestNeighborTest() throws ClassNotFoundException, SQLException {
     PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
         null);
@@ -256,8 +258,8 @@ public class MapsTest {
     assertTrue(kd.neighbors(1, three).get(0).getID().equals("/n/4"));
 
   }
-  
-  @Test 
+
+  @Test
   public void runTest() throws ClassNotFoundException, SQLException, InterruptedException {
 //    System.out.println("Printing: ");
 //    TrafficManager t = null();
@@ -272,11 +274,11 @@ public class MapsTest {
 //      System.out.println(s);
 //      System.out.println(wayToTraffic.get(s));
 //    }
-    
+
   }
 
-  
-//  
+
+//
 //  @Test
 //  public void nameTest() throws ClassNotFoundException, SQLException {
 //    String name1 = "Will Smith";
@@ -292,7 +294,7 @@ public class MapsTest {
 //    assertTrue(!p.nameMatch(name1, name7));
 //    p.close();
 //  }
-//  
+//
 //  @Test
 //  public void findActorsTest1() throws ClassNotFoundException, SQLException {
 //    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
@@ -312,7 +314,7 @@ public class MapsTest {
 //    assertTrue(l3[0] == null);
 //    p.close();
 //  }
-//  
+//
 //  @Test
 //  public void findActorsTest2() throws ClassNotFoundException, SQLException {
 //    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
@@ -344,11 +346,11 @@ public class MapsTest {
 //    //5
 //    Actor[] l5 = p.findActors(a5).toArray(new Actor[1]);
 //    assertTrue(l5[0] == null);
-//    p.close();  
+//    p.close();
 //  }
 //
 //  @Test
-//  public void findPathTest1() throws ClassNotFoundException, SQLException { 
+//  public void findPathTest1() throws ClassNotFoundException, SQLException {
 //    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
 //    Actor a1 = new Actor("Arnold Schwarzenegger", "/m/0tc7", null, 0, null, null);
 //    Actor a2 = new Actor("Steve Coogan", "/m/01nfys", a1, 0.5,
@@ -369,11 +371,11 @@ public class MapsTest {
 //      assertTrue(l[i].getMovieName().equals(expected[i].getMovieName()));
 //    }
 //
-//    p.close();  
+//    p.close();
 //  }
 //
 //  @Test
-//  public void findPathTest2() throws ClassNotFoundException, SQLException { 
+//  public void findPathTest2() throws ClassNotFoundException, SQLException {
 //    PathFinder p = new PathFinder(
 //        "/course/cs032/data/bacon/smallBacon.sqlite3");
 //    Actor a6 = new Actor("Will Smith", "/m/0147dk", null, 0, null, null);
@@ -381,7 +383,7 @@ public class MapsTest {
 //        "Jersey Girl", null);
 //    Actor a8 = new Actor("Robert Downey Jr.", "/m/0k6nymn", a7, 0.5,
 //        "The Soloist", null);
-//    
+//
 //    Actor[] l = p.findActorPath(a6.getName(), a8.getName()).toArray(new Actor[3]);
 //    Actor[] expected = {a6, a7, a8};
 //    for (int i = 1; i < expected.length; i++) {
@@ -390,19 +392,19 @@ public class MapsTest {
 //      assertTrue(l[i].getParent().equals(expected[i].getParent()));
 //      assertTrue(l[i].getMovieName().equals(expected[i].getMovieName()));
 //    }
-//    p.close();  
+//    p.close();
 //  }
 //
 //  @Test
-//  public void findPathTest3() throws ClassNotFoundException, SQLException { 
+//  public void findPathTest3() throws ClassNotFoundException, SQLException {
 //    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
 //    Actor a1 = new Actor("Arnold Schwarzenegger", "/m/0tc7", null, 0,
 //        null, null);
 //    Actor a2 = new Actor("Robert Downey Jr.", "/m/0k6nymn", null, 0.5,
 //        "The Soloist", null);
-//    
+//
 //    assertTrue(p.findActorPath(a1.getName(), a2.getName()).size() == 0);
-//    p.close();  
+//    p.close();
 //  }
 //
 //  @Test
@@ -416,10 +418,10 @@ public class MapsTest {
 //    assertTrue(p.getID(name2).equals(id2));
 //    assertTrue(p.getName(id1).equals(name1));
 //    assertTrue(p.getName(id2).equals(name2));
-//    p.close();  
+//    p.close();
 //  }
-//  
-//  
+//
+//
 //  @Test
 //  public void getActorMovieNamesTest() throws ClassNotFoundException, SQLException {
 //    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
@@ -431,14 +433,14 @@ public class MapsTest {
 //    assertTrue(actors.length == 2);
 //    assertTrue(actors[0][0].equals("John Travolta") || actors[1][0].equals("John Travolta"));
 //    assertTrue(actors[0][0].equals("Samuel L. Jackson") || actors[1][0].equals("Samuel L. Jackson"));
-//    p.close();  
+//    p.close();
 //  }
 //
 //  @Test
 //  public void getAllNamesTest() throws ClassNotFoundException, SQLException {
 //    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
 //    assertTrue(p.getActorNames().length == 33);
-//    p.close();  
+//    p.close();
 //  }
 
 }

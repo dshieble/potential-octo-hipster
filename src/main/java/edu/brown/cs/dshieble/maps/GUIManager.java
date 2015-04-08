@@ -165,6 +165,12 @@ public class GUIManager {
       double maxLong = GSON.fromJson(qm.value("maxLong"), Double.class);
       double minLong = GSON.fromJson(qm.value("minLong"), Double.class);
 
+//      System.out.println("minLat:" + minLat);
+//      System.out.println("maxLat:" + maxLat);
+
+//      System.out.println("minLong:" + minLong);
+//      System.out.println("maxLong:" + maxLong);
+
       List<Way> ways;
 
       try (PathFinder p = new PathFinder(db, tm)) {
@@ -176,7 +182,7 @@ public class GUIManager {
 
         ways = new ArrayList<>();
       }
-
+      //System.out.println(Arrays.toString(ways.toArray()));
       return GSON.toJson(ways);
     }
   }

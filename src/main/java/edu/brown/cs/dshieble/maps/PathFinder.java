@@ -151,7 +151,7 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   * 
+   *
    * @param id of a node
    * @return a 2 element array containg the latitude, longtiude of that node
    */
@@ -209,7 +209,7 @@ public class PathFinder implements AutoCloseable {
   public final String getIntersection(final String name1, final String name2)
           throws SQLException {
     String name = null;
-    String[] queries = 
+    String[] queries =
       {
         "SELECT A.start FROM "
           + "(SELECT start FROM way WHERE name = ?) AS A "
@@ -254,7 +254,7 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   * 
+   *
    * @return a list of all nodes
    * @throws SQLException
    */
@@ -281,7 +281,7 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   * @return a list of all nodes
+   * @return a list of all ways whose starts or ends are in the tile
    * @throws SQLException
    */
   public final List<Way> getWaysWithin(double lat1, double lat2,
@@ -294,13 +294,27 @@ public class PathFinder implements AutoCloseable {
           + "AND longitude >= ? "
           + "AND longitude <= ?"
           + ") "
-        + "AS A ON way.start = A.id";
+        + "AS A ON way.start = A.id "
+        + "UNION "
+        + "SELECT start, end, way.id, name FROM way INNER JOIN "
+        + "(SELECT id FROM node "
+          + "WHERE latitude >= ? "
+          + "AND latitude <= ? "
+          + "AND longitude >= ? "
+          + "AND longitude <= ?"
+          + ") "
+        + "AS B ON way.end = B.id";
+
     try (PreparedStatement prep = conn.prepareStatement(query)) {
       // Execute the query and retrieve a ResultStatement
       prep.setDouble(1, lat1);
       prep.setDouble(2, lat2);
       prep.setDouble(3, lon1);
       prep.setDouble(4, lon2);
+      prep.setDouble(5, lat1);
+      prep.setDouble(6, lat2);
+      prep.setDouble(7, lon1);
+      prep.setDouble(8, lon2);
       try (ResultSet rs = prep.executeQuery()) {
         while (rs.next()) {
           Node start = idToNode(rs.getString(1));
@@ -320,10 +334,10 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   * 
+   *
    * @param id of a node
    * @return that node
-   * @throws SQLException 
+   * @throws SQLException
    */
   public Node idToNode(String id) throws SQLException {
     Node node = null;
@@ -347,7 +361,7 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   * 
+   *
    * @return a 4 elements double array where
    * 0 - min lat
    * 1 - max lat
@@ -372,7 +386,7 @@ public class PathFinder implements AutoCloseable {
     } catch (SQLException e2) {
       throw(e2);
     }
-    return output;  
+    return output;
   }
 
   @Override

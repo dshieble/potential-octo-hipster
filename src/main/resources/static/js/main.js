@@ -46,11 +46,11 @@ $(function() {
 		// TODO Initialize ANCHOR and WORLD_WIDTH
 		var extrema = JSON.parse(responseJSON);
 
-		ANCHOR_LAT = extrema[1] - TILE_LAT; 
-		WORLD_HEIGHT = Math.ceil((extrema[1] - extrema[0]) / TILE_LAT) + 2; // deg. Lat 
+		ANCHOR_LAT = extrema[1] + 4*TILE_LAT; 
+		WORLD_HEIGHT = Math.ceil((extrema[1] - extrema[0]) / TILE_LAT) + 8; // deg. Lat 
 
-		ANCHOR_LONG = extrema[2] - TILE_LONG; 
-		WORLD_WIDTH = Math.ceil((extrema[3] - extrema[2]) / TILE_LONG) + 2; // deg. Long
+		ANCHOR_LONG = extrema[2] - 4*TILE_LONG; 
+		WORLD_WIDTH = Math.ceil((extrema[3] - extrema[2]) / TILE_LONG) + 8; // deg. Long
 
 		grid = new Array(WORLD_HEIGHT);
 
@@ -213,7 +213,7 @@ $(function() {
 			console.log("Click.");
 			var latlong = clickToRowCol(x, y);
 			var postParameters = {
-				lat : ANCHOR_LAT + latlong[0] * TILE_LAT,
+				lat : ANCHOR_LAT - latlong[0] * TILE_LAT,
 				lng : ANCHOR_LONG + latlong[1] * TILE_LONG 
 			}; 
 
@@ -321,6 +321,7 @@ function paintPoint(ctx, x, y) {
 }
 
 function paintGrid(ctx) {
+	ctx.globalAlpha = 0.1;
 	ctx.fillStyle = GRID_LINE; 
 
 	var longWidth = MAP_WIDTH / width;
@@ -344,7 +345,9 @@ function paintMap() {
 
 	ctx.beginPath(); 
 
-	paintGrid(ctx); 
+	//paintGrid(ctx); 
+	ctx.stroke(); 
+	ctx.globalAlpha = 1;
 
 	for (var i = topLeftRow; i < (topLeftRow + height); i++) {
 		for (var j = topLeftCol; j < (topLeftCol + width); j++) {
@@ -402,7 +405,7 @@ function paintNodes(ctx, nodes) {
 }
 
 function latLongToXY(lat, lon) {
-	var y = ((lat - ANCHOR_LAT)/TILE_LAT - topLeftRow) / height * MAP_HEIGHT; 
+	var y = ((ANCHOR_LAT - lat)/TILE_LAT - topLeftRow) / height * MAP_HEIGHT; 
 	var x = ((lon - ANCHOR_LONG)/TILE_LONG - topLeftCol) / width * MAP_WIDTH; 
 
 	return [x, y]; 
@@ -437,25 +440,74 @@ function Way(lat1, long1, lat2, long2, id) {
 }
 
 function Tile(row, col) {
+	this.minLat = ANCHOR_LAT - (row + 1) * TILE_LAT; 
+	this.maxLat = ANCHOR_LAT - row * TILE_LAT;
+	this.minLong = ANCHOR_LONG + col * TILE_LONG;
+	this.maxLong = ANCHOR_LONG + (col + 1) * TILE_LONG;
+	this.row = row;
+	this.col = col;
+
 	var postParameters = { 
-		minLat : ANCHOR_LAT + row * TILE_LAT, 
-		maxLat : ANCHOR_LAT + (row + 1) * TILE_LAT, 
-		minLong : ANCHOR_LONG + col * TILE_LONG, 
-		maxLong : ANCHOR_LONG + (col + 1) * TILE_LONG 
+		minLat : this.minLat,
+		maxLat : this.maxLat,
+		minLong : this.minLong,
+		maxLong : this.maxLong
 	}; 
 
 	$.post("/ways", postParameters, function(responseJSON) {
-		console.log(row)
-		console.log(col)
 		grid[row][col].setWays(JSON.parse(responseJSON));
 	})
 
-	this.row = row;
-	this.col = col;
+
 }
 
 Tile.prototype.setWays = function(ways) {
-	this.ways = ways; 
+	this.ways = ways;
+	for (var i in this.ways) {
+		
+		// //start_lat = max(min(minLat, w.start.lat), maxLat)
+		// end_lat
+		// start_long
+		// end_long
+
+
+		// this.ways[i]
+	}
+
+}
+
+// all inputs in the for [x, y]
+function intersection(start1, end1, start2, end2) {
+	var q = start1; 
+	var p = start2; 
+
+	var s = diff(end1, start1);
+	var r = diff(end2, start2);
+
+	var d = diff(q, p);
+
+	var rxs = crossProduct(r, s); 
+
+	if (rxs == 0) {
+		return undefined; 
+	}
+
+	var u = crossProduct(d, [r[0] / rxs, r[1] / rxs]);
+	var t = crossProduct(d, [s[0] / rxs, s[1] / rxs]);
+
+	if (u < 0 || u > 1 || t < 0 || t > 1) {
+		return undefined; 
+	}
+
+	return [q[0] + u * s[0], q[1] + u * s[1]]; 
+}
+
+function diff(pt1, pt2) {
+	return [pt1[0] - pt2[0], pt1[1] - pt2[1]]
+}
+
+function crossProduct(pt1, pt2) {
+	return pt1[0]*pt2[1] - pt1[1]*pt2[0]; 
 }
 
 Tile.prototype.paint = function(ctx) {
@@ -469,12 +521,12 @@ Tile.prototype.paint = function(ctx) {
 	//console.log(444)
 	for (var i in ways) {
 		//console.log(ways[i]);
-		paintWay(ctx, ways[i]); 
+		paintWay(ctx, ways[i], row, col); 
 	}
 
 }
 
-function paintWay(ctx, w) {
+function paintWay(ctx, w, tile) {
 	ctx.fillStyle = DEFAULT_WAY;
 	paintLine(ctx, w.start, w.end);
 }
