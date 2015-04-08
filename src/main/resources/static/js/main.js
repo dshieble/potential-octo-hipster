@@ -393,15 +393,13 @@ function paintPath(ctx) {
 }
 
 function paintNodes(ctx, nodes) {
-	for (i in nodes) {
-		if (i + 1 < nodes.length) {
-			var start = nodes[i];
-			var end = nodes[i + 1]; 
-			ctx.fillStyle = PATH_COLOR; 
- 			paintLine(ctx, start, end); 
-		}
+	for (var i = 0; i < (nodes.length - 1); i++) {
+		var start = nodes[i];
+		var end = nodes[i + 1]; 
+		ctx.fillStyle = PATH_COLOR; 
+		paintLine(ctx, start, end); 
 	}
-	//ctx.stroke(); 
+	ctx.stroke(); 
 }
 
 function latLongToXY(lat, lon) {
