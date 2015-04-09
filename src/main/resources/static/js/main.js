@@ -5,7 +5,7 @@
 //make array "shown tiles" that contains all rendered tiles - change this array on each map view change
 //make method that returns all tiles that should be rendered given some top left corner lat long
 //
-INITIAL_LAT = 41.83; // Top Left Latitude
+INITIAL_LAT = 41.82; // Top Left Latitude
 INTITIAL_LONG = -71.4032;  // Top Left Longitude
 
 //Get rid of these
@@ -257,23 +257,23 @@ $(function() {
 	})
 	
 	$('html').on('mousewheel', function(event) {
-		console.log("scrolled");
+		// console.log("scrolled");
 
 
-		var delta = event.originalEvent.wheelDelta; 
+		// var delta = event.originalEvent.wheelDelta; 
 
-		if (delta < 0) {
-			// Scroll Down
-			width = Math.min(width * 2, WORLD_WIDTH);
-			height = Math.min(height * 2, WORLD_HEIGHT);  
-		} else {
-			// Scroll Up
-			//TODO Fix this so we can zoom in more (more than a tile size)
-			width = Math.max(width / 2, MIN_WIDTH);
-			height = Math.max(height / 2, MIN_HEIGHT);
-		}
+		// if (delta < 0) {
+		// 	// Scroll Down
+		// 	width = Math.min(width * 2, WORLD_WIDTH);
+		// 	height = Math.min(height * 2, WORLD_HEIGHT);  
+		// } else {
+		// 	// Scroll Up
+		// 	//TODO Fix this so we can zoom in more (more than a tile size)
+		// 	width = Math.max(width / 2, MIN_WIDTH);
+		// 	height = Math.max(height / 2, MIN_HEIGHT);
+		// }
 
-		paintMap();
+		// paintMap();
 
 	})
 
@@ -315,9 +315,8 @@ function addTilesAndDraw() {
 	//if anchor long + width is greater than ll_max[0], add tiles along the right side ll_max[1] ++
 	//if anchor lat + height is greater than ll_min[1], add tiles along the top side ll_max[0] ++
 	toAdd = [];
-
 	//bottom
-	while (ANCHOR_LAT < ll_min[0]) {
+	if (ANCHOR_LAT < ll_min[0]) {
 		for (var i = minIndex[1]; i <= maxIndex[1]; i++) {
 			toAdd.push(minIndex[0] - 1, i);
 		}
@@ -326,7 +325,7 @@ function addTilesAndDraw() {
 	}
 
 	//top
-	while (ANCHOR_LAT > ll_max[0]) {
+	if (ANCHOR_LAT > ll_max[0]) {
 		for (var i = minIndex[1]; i <= maxIndex[1]; i++) {
 			toAdd.push(maxIndex[0] + 1, i);
 		}
@@ -335,7 +334,7 @@ function addTilesAndDraw() {
 	}
 
 	//left
-	while (ANCHOR_LONG < ll_min[1]) {
+	if (ANCHOR_LONG < ll_min[1]) {
 		for (var i = minIndex[0]; i <= maxIndex[0]; i++) {
 			toAdd.push(i, minIndex[1] - 1);
 		}
@@ -344,19 +343,19 @@ function addTilesAndDraw() {
 	}
 
 	//right
-	while (ANCHOR_LONG > ll_max[1]) {
+	if (ANCHOR_LONG > ll_max[1]) {
 		for (var i = minIndex[0]; i <= maxIndex[0]; i++) {
 			toAdd.push(i, maxIndex[1] + 1);
 		}
 		maxIndex[1] = maxIndex[1] + 1;
 		ll_max = indexToLatLong(maxIndex);
 	}
-	console.log(toAdd);
-	var tilesReady = 0;
-	var tilesTarget = toAdd.length;
+	//console.log(toAdd);
+	tilesReady = 0;
+	tilesTarget = toAdd.length;
 
 	for (var i = 0; i < toAdd.length; i++) {
-		tileMap[indexToString(toAdd[i])] = new Tile(index);
+		tileMap[indexToString(toAdd[i])] = new Tile(toAdd[i]);
 	}	
 	paintMap();
 }
@@ -375,8 +374,8 @@ function updateVisible() {
 
 
 function latLongToXY(lat, lon) {
-	var y = (ANCHOR_LAT - lat)/TILE_LAT*lat_over_y; 
-	var x = (lon - ANCHOR_LONG)/TILE_LONG*long_over_x; 
+	var y = ((ANCHOR_LAT - lat)/TILE_LAT)*lat_over_y; 
+	var x = ((lon - ANCHOR_LONG)/TILE_LONG)*long_over_x; 
 
 	return [x, y]; 
 }
@@ -398,7 +397,7 @@ function paintPoint(ctx, x, y) {
 }
 
 function paintGrid(ctx) {
-	ctx.globalAlpha = 0.1;
+	//ctx.globalAlpha = 0.1;
 	ctx.fillStyle = GRID_LINE; 
 
 	var longWidth = MAP_WIDTH / width;
@@ -417,12 +416,13 @@ function paintGrid(ctx) {
 
 function paintMap() {
 	if (tilesReady == tilesTarget) {
+		console.log("painting map")
 		updateVisible();
 		var ctx = $("#map")[0].getContext("2d"); 
 		ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); 
 		ctx.beginPath(); 
 
-		//paintGrid(ctx); 
+		paintGrid(ctx); 
 		//ctx.stroke(); 
 		//ctx.globalAlpha = 1;
 
@@ -431,7 +431,7 @@ function paintMap() {
 		}
 
 		ctx.stroke(); 
-		paintPath(ctx);
+		//paintPath(ctx);
 
 		tilesReady = 0;
 		tilesTarget = 0;
@@ -482,7 +482,10 @@ function paintNodes(ctx, nodes) {
 function paintLine(ctx, start, end) {
 	var p1 = latLongToXY(start.lat, start.lon); 
 	var p2 = latLongToXY(end.lat, end.lon); 
+	console.log(start.lat) 
+	console.log(start.lon)
 	console.log(p1)
+
 	ctx.moveTo(p1[0], p1[1]);
 	ctx.lineTo(p2[0], p2[1]);
 }
