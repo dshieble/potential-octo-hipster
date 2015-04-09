@@ -184,8 +184,7 @@ public class MapsTest {
     //System.out.println(Arrays.toString(nodes.toArray()));
   }
 
-  //@Test
-  //TODO: PUT THIS BACK IN LATER
+  @Test
   public void getWaysWithin() throws ClassNotFoundException, SQLException {
     PathFinder p = new PathFinder("/course/cs032/data/maps/smallMaps.sqlite3",
         null);

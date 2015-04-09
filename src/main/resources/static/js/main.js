@@ -1,12 +1,19 @@
-//hash table to store tiles
-//bigger tiles
-//zoom inside of a tile
-//drag so tiles can be partially on the screen
-//make array "shown tiles" that contains all rendered tiles - change this array on each map view change
-//make method that returns all tiles that should be rendered given some top left corner lat long
+//TODO:
+//Intersection shortest path selection
+//Traffic colors and A* stuff
+//Optimize shortest path to speed up no connection situations?
+//street names on map (SWAG)
+//wider roads (SWAG)
+
+//Directions:
+//scroll to zoom. The Anchor lat and long will change so that zooming occurs based on the map center
+//click and drag to move the map. release the mouse to stop dragging
+//click twice on the map to find a path. click a third time to clear the path.
+
+
 //
-INITIAL_LAT = 41.83; // Top Left Latitude
-INTITIAL_LONG = -71.4032;  // Top Left Longitude
+INITIAL_LAT = 41.83000001; // Top Left Latitude
+INTITIAL_LONG = -71.40320000001;  // Top Left Longitude
 
 //Get rid of these
 
@@ -71,6 +78,13 @@ var dragging = false;
 // window.onwheel = function() { 
 // 	return false;
 // }
+
+//DO NOT REMOVE THIS - this is essential for the case where the user leaves the map and releases the mouse
+window.onmouseup = function() { 
+	mouseHold = false; 
+	dragging = false;
+}
+
 
 
 $(function() {
@@ -194,7 +208,7 @@ $(function() {
 	$("#map").mousedown(function(event) {
 		lastX = event.pageX - map.offsetLeft; 
 		lastY = event.pageY - map.offsetTop;
-		console.log("click " + [lastX, lastY] + " " + xyToLatLong(lastX, lastY));
+		//console.log("click " + [lastX, lastY] + " " + xyToLatLong(lastX, lastY));
 		mouseHold = true; 
 	})
 
@@ -219,44 +233,44 @@ $(function() {
 
 	//CLICK - NEAREST NEIGHBOR
 	$("#map").mouseup(function(event) {
-		mouseHold = false; 
-		dragging = false;
-		// var map = $("#map")[0];
+		var map = $("#map")[0];
 
-		// var x = event.pageX - map.offsetLeft; 
-		// var y = event.pageY - map.offsetTop; 
+		var x = event.pageX - map.offsetLeft; 
+		var y = event.pageY - map.offsetTop; 
 
-		// if (x == lastX && y == lastY) {
-		// 	//console.log("Click.");
-		// 	var latlong = clickToRowCol(x, y);
-		// 	var postParameters = {
-		// 		lat : ANCHOR_LAT - latlong[0] * TILE_LAT,
-		// 		lng : ANCHOR_LONG + latlong[1] * TILE_LONG 
-		// 	}; 
+		if (x == lastX && y == lastY) {
+			//console.log("Click.");
+			var latlong = xyToLatLong(x, y);
+			var postParameters = {
+				lat : latlong[0],
+				lng : latlong[1]
+			}; 
 
-		// 	$.post("/closest", postParameters, function(responseJSON) {
-		// 		responseObject = JSON.parse(responseJSON);
-		// 		// Find Take Closest Node
-		// 		var lat = responseObject.lat;
-		// 		var lon = responseObject.lon;
-		// 		var id = responseObject.id; 
+			$.post("/closest", postParameters, function(responseJSON) {
+				responseObject = JSON.parse(responseJSON);
+				// Find Take Closest Node
+				var lat = responseObject.lat;
+				var lon = responseObject.lon;
+				var id = responseObject.id; 
 
-		// 		if (input_state == 1) {
-		// 			// Highlight Node
-		// 			node1 = new Node(lat, lon, id);
-		// 			input_state = 2; 
-		// 		} else if (input_state == 2) {
-		// 			node2 = new Node(lat, lon, id);
-		// 			input_state = 3; 
-		// 		} else if (input_state == 3) {
-		// 			//console.log("Input State 3: ")
-		// 		} else {
-		// 			alert("you done fucked up");
-		// 		}
+				if (input_state == 1) {
+					// Highlight Node
+					node1 = new Node(lat, lon, id);
+					input_state = 2; 
+				} else if (input_state == 2) {
+					node2 = new Node(lat, lon, id);
+					input_state = 3;
+				} else if (input_state == 3) {
+					input_state = 1;
+					node1 = undefined;
+					node2 = undefined;
+				} else {
+					alert("you done fucked up");
+				}
 
-		// 		paintMap(); 
-		// 	});
-		// }
+				paintMap(); 
+			});
+		}
 	})
 	
 	$('html').on('mousewheel', function(event) {
@@ -288,12 +302,12 @@ $(function() {
 
 });
 
-function clickToRowCol(x, y) {
+// function clickToRowCol(x, y) {
 
-	var latlong = [height * y / MAP_HEIGHT, width * x / MAP_WIDTH];
+// 	var latlong = [height * y / MAP_HEIGHT, width * x / MAP_WIDTH];
 
-	return latlong;
-}
+// 	return latlong;
+// }
 
 function search() {
 	var fromBox = document.getElementById("fromArea"); 
@@ -326,9 +340,6 @@ function addTilesAndDraw() {
 	toAdd = [];
 	//bottom
 	while (ANCHOR_LAT < ll_min[0]) {
-		// console.log(ll_min)
-		// 		console.log(ANCHOR_LAT)
-
 		for (var i = minIndex[1]; i <= maxIndex[1]; i++) {
 			toAdd.push([minIndex[0] - 1, i]);
 		}
@@ -338,8 +349,6 @@ function addTilesAndDraw() {
 
 	//top
 	while (ANCHOR_LAT > ll_max[0]) {
-				console.log(2)
-
 		for (var i = minIndex[1]; i <= maxIndex[1]; i++) {
 			toAdd.push([maxIndex[0] + 1, i]);
 		}
@@ -349,8 +358,6 @@ function addTilesAndDraw() {
 
 	//left
 	while (ANCHOR_LONG < ll_min[1]) {
-				console.log(3)
-
 		for (var i = minIndex[0]; i <= maxIndex[0]; i++) {
 			toAdd.push([i, minIndex[1] - 1]);
 		}
@@ -360,8 +367,6 @@ function addTilesAndDraw() {
 
 	//right
 	while (ANCHOR_LONG > ll_max[1]) {
-		console.log(ll_max)
-		console.log(ANCHOR_LONG)
 		for (var i = minIndex[0]; i <= maxIndex[0]; i++) {
 			toAdd.push([i, maxIndex[1] + 1]);
 		}
@@ -428,10 +433,6 @@ function indexToString(index) {
 	return "(" + String(index[0]) + ", " + String(index[1]) + ")";
 }
 
-function paintPoint(ctx, x, y) {
-  ctx.fillRect(x, y, 2, 2)
-}
-
 function paintGrid(ctx) {
 	//ctx.globalAlpha = 0.1;
 	ctx.fillStyle = GRID_LINE; 
@@ -460,14 +461,17 @@ function paintMap() {
 
 		paintGrid(ctx); 
 		//ctx.stroke(); 
-		//ctx.globalAlpha = 1;
 
 		for (t in visibleTiles) {
 			visibleTiles[t].paint(ctx);
 		}
-
+		ctx.strokeStyle = DEFAULT_WAY;
+		ctx.globalAlpha = 0.2;
 		ctx.stroke(); 
-		//paintPath(ctx);
+
+		//draw the path
+		paintPath(ctx)
+
 
 		tilesReady = 0;
 		tilesTarget = 0;
@@ -477,30 +481,43 @@ function paintMap() {
 
 
 function paintPath(ctx) {
-	if (input_state == 2) {
-		// TODO Paint node1
+	if (input_state >= 2) {
+		//just paint the first node
+		ctx.beginPath(); 
+		ctx.globalAlpha = 1;
+		ctx.strokeStyle = PATH_COLOR;
 		node1.paint(ctx); 
-	} else if (input_state == 3) {
-		// TODO Paint Path from node1 and node2
- 		node2.paint(ctx); 
+		ctx.stroke();	
+	}
+	if (input_state == 3) {
+		//paint the second node and draw the path - repeated multiple times due to use of arc
+		ctx.beginPath(); 
+		ctx.globalAlpha = 1;
+		ctx.strokeStyle = PATH_COLOR;
+		node2.paint(ctx); 
+		ctx.stroke();
 
- 		postParameters = { start : node1.id, end : node2.id }; 
+ 		postParameters = { 
+ 						   start : node1.id, 
+ 						   end : node2.id
+ 						 };
 
  		$.post("/path", postParameters, function(responseJSON) {
- 			var nodes = JSON.parse(responseJSON); 
- 			paintNodes(ctx, nodes); 
+ 			var nodes = JSON.parse(responseJSON);
+ 			if (nodes.length == 0) {
+ 				alert("No path found!")
+ 			} else {
+ 				ctx.beginPath(); 
+				ctx.globalAlpha = 1;
+				ctx.strokeStyle = PATH_COLOR;
+ 				paintNodes(ctx, nodes);
+ 				ctx.stroke();
+ 			}
 
- 			input_state = 1; 
-			node1 = null;
-			node2 = null; 
  		})
 
-	} else if (input_state == 1) {
-		// Nothing
-		// TODO Display message saying to click map? 
-	} else {
-		// TODO 
-		alert("Fucked up states");
+
+
 	}
 }
 
@@ -518,10 +535,6 @@ function paintNodes(ctx, nodes) {
 function paintLine(ctx, start, end) {
 	var p1 = latLongToXY(start.lat, start.lon); 
 	var p2 = latLongToXY(end.lat, end.lon); 
-	// console.log(start.lat) 
-	// console.log(start.lon)
-	// console.log(p1)
-
 	ctx.moveTo(p1[0], p1[1]);
 	ctx.lineTo(p2[0], p2[1]);
 }
@@ -534,7 +547,7 @@ function Node(lat, lon, id) {
 
 Node.prototype.paint = function(ctx) {
 	var A = latLongToXY(this.lat, this.lon);
-	paintPoint(ctx, A[0], A[1]); 
+	ctx.arc(A[0], A[1], 4, 0, 2 * Math.PI, false);
 }
 
 
