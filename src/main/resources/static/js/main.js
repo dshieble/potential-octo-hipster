@@ -5,14 +5,19 @@
 //make array "shown tiles" that contains all rendered tiles - change this array on each map view change
 //make method that returns all tiles that should be rendered given some top left corner lat long
 //
-INITIAL_LAT = 41.82; // Top Left Latitude
+INITIAL_LAT = 41.83; // Top Left Latitude
 INTITIAL_LONG = -71.4032;  // Top Left Longitude
 
 //Get rid of these
-// MIN_WIDTH = 5; 
-// MIN_HEIGHT = 3; 
+
 TILE_LAT = 0.01; // Degrees
 TILE_LONG = 0.01; // Degrees
+
+MIN_WIDTH = TILE_LONG/100; 
+MIN_HEIGHT = TILE_LAT/100; 
+
+MAX_WIDTH = TILE_LONG*100; 
+MAX_HEIGHT = TILE_LAT*100; 
 
 DEFAULT_WAY = "#0000FF";
 GRID_LINE = "#D1D2F2";
@@ -21,23 +26,20 @@ PATH_COLOR = "#FF0000";
 MAP_WIDTH = 500; 
 MAP_HEIGHT = 300; 
 
-// TILE_X_px = 250;
-// TILE_Y_px = 300;
-
-var WORLD_WIDTH;  // Number of Tiles in Width 
-var WORLD_HEIGHT;  // Number of Tiles in Height
 
 var ANCHOR_LAT = INITIAL_LAT; // Top Left Latitude
 var ANCHOR_LONG = INTITIAL_LONG;  // Top Left Longitude
 
-var minIndex = [0, 0];
-var maxIndex = [1, 1];
+var minIndex = [-1, 0]; //index increases going up and right and decreases going down and left. 
+var maxIndex = [0, 1]; //initial lat andf long correspond to index 0,0
 
+//---------------USE updateMapDim to change these variables - do not modify them directly
 var width = TILE_LAT*2;
 var height = TILE_LONG*2;
 
 var lat_over_y = height/MAP_HEIGHT;
 var long_over_x = width/MAP_WIDTH;
+//-------------------------------------------------
 
 var tileMap = {};
 var visibleTiles = [];
@@ -113,9 +115,9 @@ $(function() {
 
 	tileMap[indexToString([0, 0])] = new Tile([0, 0]);
 	tileMap[indexToString([0, 1])] = new Tile([0, 1]);
-	tileMap[indexToString([1, 0])] = new Tile([1, 0]);
-	tileMap[indexToString([1, 1])] = new Tile([1, 1]);
-	visibleTiles = [tileMap[indexToString([0, 0])], tileMap[indexToString([0, 1])], tileMap[indexToString([1, 0])], tileMap[indexToString([1, 1])]];
+	tileMap[indexToString([-1, 0])] = new Tile([-1, 0]);
+	tileMap[indexToString([-1, 1])] = new Tile([-1, 1]);
+	visibleTiles = [tileMap[indexToString([0, 0])], tileMap[indexToString([0, 1])], tileMap[indexToString([-1, 0])], tileMap[indexToString([-1, 1])]];
 
 	$('#suggest').change(function(event) {
 
@@ -192,6 +194,7 @@ $(function() {
 	$("#map").mousedown(function(event) {
 		lastX = event.pageX - map.offsetLeft; 
 		lastY = event.pageY - map.offsetTop;
+		console.log("click " + [lastX, lastY] + " " + xyToLatLong(lastX, lastY));
 		mouseHold = true; 
 	})
 
@@ -205,8 +208,8 @@ $(function() {
 				//console.log("x " + dX)
 				//console.log("y " + dY)
 				dragging = true;
-				ANCHOR_LAT = ANCHOR_LAT + lat_over_y*dY;
-				ANCHOR_LONG = ANCHOR_LONG - long_over_x*dX;
+				ANCHOR_LAT = ANCHOR_LAT + lat_over_y*dY*0.01;
+				ANCHOR_LONG = ANCHOR_LONG - long_over_x*dX*0.01;
 				addTilesAndDraw();
 				// console.log(event)
 			}
@@ -218,60 +221,66 @@ $(function() {
 	$("#map").mouseup(function(event) {
 		mouseHold = false; 
 		dragging = false;
-		var map = $("#map")[0];
+		// var map = $("#map")[0];
 
-		var x = event.pageX - map.offsetLeft; 
-		var y = event.pageY - map.offsetTop; 
+		// var x = event.pageX - map.offsetLeft; 
+		// var y = event.pageY - map.offsetTop; 
 
-		if (x == lastX && y == lastY) {
-			console.log("Click.");
-			var latlong = clickToRowCol(x, y);
-			var postParameters = {
-				lat : ANCHOR_LAT - latlong[0] * TILE_LAT,
-				lng : ANCHOR_LONG + latlong[1] * TILE_LONG 
-			}; 
+		// if (x == lastX && y == lastY) {
+		// 	//console.log("Click.");
+		// 	var latlong = clickToRowCol(x, y);
+		// 	var postParameters = {
+		// 		lat : ANCHOR_LAT - latlong[0] * TILE_LAT,
+		// 		lng : ANCHOR_LONG + latlong[1] * TILE_LONG 
+		// 	}; 
 
-			$.post("/closest", postParameters, function(responseJSON) {
-				responseObject = JSON.parse(responseJSON);
-				// Find Take Closest Node
-				var lat = responseObject.lat;
-				var lon = responseObject.lon;
-				var id = responseObject.id; 
+		// 	$.post("/closest", postParameters, function(responseJSON) {
+		// 		responseObject = JSON.parse(responseJSON);
+		// 		// Find Take Closest Node
+		// 		var lat = responseObject.lat;
+		// 		var lon = responseObject.lon;
+		// 		var id = responseObject.id; 
 
-				if (input_state == 1) {
-					// Highlight Node
-					node1 = new Node(lat, lon, id);
-					input_state = 2; 
-				} else if (input_state == 2) {
-					node2 = new Node(lat, lon, id);
-					input_state = 3; 
-				} else if (input_state == 3) {
-					//console.log("Input State 3: ")
-				} else {
-					alert("you done fucked up");
-				}
+		// 		if (input_state == 1) {
+		// 			// Highlight Node
+		// 			node1 = new Node(lat, lon, id);
+		// 			input_state = 2; 
+		// 		} else if (input_state == 2) {
+		// 			node2 = new Node(lat, lon, id);
+		// 			input_state = 3; 
+		// 		} else if (input_state == 3) {
+		// 			//console.log("Input State 3: ")
+		// 		} else {
+		// 			alert("you done fucked up");
+		// 		}
 
-				paintMap(); 
-			});
-		}
+		// 		paintMap(); 
+		// 	});
+		// }
 	})
 	
 	$('html').on('mousewheel', function(event) {
 		// console.log("scrolled");
-
-
-		// var delta = event.originalEvent.wheelDelta; 
-
-		// if (delta < 0) {
-		// 	// Scroll Down
-		// 	width = Math.min(width * 2, WORLD_WIDTH);
-		// 	height = Math.min(height * 2, WORLD_HEIGHT);  
-		// } else {
-		// 	// Scroll Up
-		// 	//TODO Fix this so we can zoom in more (more than a tile size)
-		// 	width = Math.max(width / 2, MIN_WIDTH);
-		// 	height = Math.max(height / 2, MIN_HEIGHT);
-		// }
+		// xy = latLongToXY(ANCHOR_LAT, ANCHOR_LONG);
+		// dX = event.pageX - map.offsetLeft - xy[0]; 
+		// dY = event.pageY - map.offsetTop - xy[1];
+		// ANCHOR_LAT = ANCHOR_LAT + lat_over_y*dY;
+		// ANCHOR_LONG = ANCHOR_LONG - long_over_x*dX;
+		var delta = event.originalEvent.wheelDelta; 
+		// ANCHOR_LAT = event.pageX - map.offsetLeft;
+		// ANCHOR_LONG = event.pageY - map.offsetTop;
+		if (delta < 0) {
+			// Scroll Down - zoom out
+			ANCHOR_LAT = ANCHOR_LAT + height*.5;
+			ANCHOR_LONG = ANCHOR_LONG - width*.5;
+			updateMapDim(Math.min(width * 2, MAX_WIDTH), Math.min(height * 2, MAX_HEIGHT)); 
+		} else {
+			// Scroll Up - zoom in
+			ANCHOR_LAT = ANCHOR_LAT - height*.25;
+			ANCHOR_LONG = ANCHOR_LONG + width*.25;
+			updateMapDim(Math.max(width / 2, MIN_WIDTH), Math.max(height / 2, MIN_HEIGHT));
+		}
+		addTilesAndDraw();
 
 		// paintMap();
 
@@ -316,36 +325,45 @@ function addTilesAndDraw() {
 	//if anchor lat + height is greater than ll_min[1], add tiles along the top side ll_max[0] ++
 	toAdd = [];
 	//bottom
-	if (ANCHOR_LAT < ll_min[0]) {
+	while (ANCHOR_LAT < ll_min[0]) {
+		// console.log(ll_min)
+		// 		console.log(ANCHOR_LAT)
+
 		for (var i = minIndex[1]; i <= maxIndex[1]; i++) {
-			toAdd.push(minIndex[0] - 1, i);
+			toAdd.push([minIndex[0] - 1, i]);
 		}
 		minIndex[0] = minIndex[0] - 1;
 		ll_min = indexToLatLong(minIndex);
 	}
 
 	//top
-	if (ANCHOR_LAT > ll_max[0]) {
+	while (ANCHOR_LAT > ll_max[0]) {
+				console.log(2)
+
 		for (var i = minIndex[1]; i <= maxIndex[1]; i++) {
-			toAdd.push(maxIndex[0] + 1, i);
+			toAdd.push([maxIndex[0] + 1, i]);
 		}
 		maxIndex[0] = maxIndex[0] + 1;
 		ll_max = indexToLatLong(maxIndex);
 	}
 
 	//left
-	if (ANCHOR_LONG < ll_min[1]) {
+	while (ANCHOR_LONG < ll_min[1]) {
+				console.log(3)
+
 		for (var i = minIndex[0]; i <= maxIndex[0]; i++) {
-			toAdd.push(i, minIndex[1] - 1);
+			toAdd.push([i, minIndex[1] - 1]);
 		}
 		minIndex[1] = minIndex[1] - 1;
 		ll_min = indexToLatLong(minIndex);
 	}
 
 	//right
-	if (ANCHOR_LONG > ll_max[1]) {
+	while (ANCHOR_LONG > ll_max[1]) {
+		console.log(ll_max)
+		console.log(ANCHOR_LONG)
 		for (var i = minIndex[0]; i <= maxIndex[0]; i++) {
-			toAdd.push(i, maxIndex[1] + 1);
+			toAdd.push([i, maxIndex[1] + 1]);
 		}
 		maxIndex[1] = maxIndex[1] + 1;
 		ll_max = indexToLatLong(maxIndex);
@@ -358,6 +376,16 @@ function addTilesAndDraw() {
 		tileMap[indexToString(toAdd[i])] = new Tile(toAdd[i]);
 	}	
 	paintMap();
+}
+
+function updateMapDim(newHeight, newWidth) {
+	width = newWidth;
+	height = newHeight;
+
+	lat_over_y = height/MAP_HEIGHT;
+	long_over_x = width/MAP_WIDTH;
+	
+
 }
 
 //updates the visible tile array based on the anchors, width and height
@@ -374,15 +402,23 @@ function updateVisible() {
 
 
 function latLongToXY(lat, lon) {
-	var y = ((ANCHOR_LAT - lat)/TILE_LAT)*lat_over_y; 
-	var x = ((lon - ANCHOR_LONG)/TILE_LONG)*long_over_x; 
+	var y = ((ANCHOR_LAT - lat))/lat_over_y; 
+	var x = ((lon - ANCHOR_LONG))/long_over_x; 
 
 	return [x, y]; 
 }
 
+
+function xyToLatLong(x, y) {
+	var lat = ANCHOR_LAT - y*lat_over_y;
+	var lon =  x*long_over_x + ANCHOR_LONG;
+	return [lat, lon]; 
+}
+
+
 //The index is the number of tile rows from the Initial Lat Long
 function indexToLatLong(index) {
-	var lat = INITIAL_LAT - TILE_LAT*index[0];
+	var lat = INITIAL_LAT + TILE_LAT*index[0];
 	var lon = INTITIAL_LONG + TILE_LONG*index[1];
 	return [lat, lon]
 }
@@ -416,7 +452,7 @@ function paintGrid(ctx) {
 
 function paintMap() {
 	if (tilesReady == tilesTarget) {
-		console.log("painting map")
+		//console.log("painting map")
 		updateVisible();
 		var ctx = $("#map")[0].getContext("2d"); 
 		ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); 
@@ -482,9 +518,9 @@ function paintNodes(ctx, nodes) {
 function paintLine(ctx, start, end) {
 	var p1 = latLongToXY(start.lat, start.lon); 
 	var p2 = latLongToXY(end.lat, end.lon); 
-	console.log(start.lat) 
-	console.log(start.lon)
-	console.log(p1)
+	// console.log(start.lat) 
+	// console.log(start.lon)
+	// console.log(p1)
 
 	ctx.moveTo(p1[0], p1[1]);
 	ctx.lineTo(p2[0], p2[1]);
