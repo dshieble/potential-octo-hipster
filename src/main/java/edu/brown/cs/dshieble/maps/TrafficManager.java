@@ -45,7 +45,7 @@ public class TrafficManager {
   private int port;
 
   /**
-   * simple constructor that initlaizes the threadsafe variables
+   * simple constructor that initializes the threadsafe variables
    */
   public TrafficManager(int p) {
     port = p;

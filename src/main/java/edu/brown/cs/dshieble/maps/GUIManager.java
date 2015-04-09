@@ -8,6 +8,7 @@ import java.lang.reflect.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -106,6 +107,8 @@ public class GUIManager {
     Spark.post("/closest", new ClosestHandler());
     Spark.post("/path", new PathHandler());
     Spark.post("/suggestions", new SuggestionsHandler());
+    Spark.post("/traffic", new TrafficHandler());
+
   }
 
   /**
@@ -255,6 +258,44 @@ public class GUIManager {
       return GSON.toJson(suggestions);
     }
   }
+  
+  /**
+   * TODO
+   *
+   * @author sjl2
+   *
+   */
+  private class TrafficHandler implements Route {
+    @Override
+    /**
+     * receives a list of way ids, returns a map from way id to traffic level
+     * 
+     * TODO: Transfer the data in the format
+     * tile1: "wayid1_wayid2_wayid3" etc
+     * return the data in the form:
+     * ["num1_num2_num3", "num1_num2" etc]
+     * 
+     */
+    public Object handle(final Request req, final Response res) {
+      QueryParamsMap qm = req.queryMap();
+      tm.updateTraffic();
+      List<String> traffic = new ArrayList<String>();
+      int i = 0; 
+      while (qm.value("tile" + i) != null) {
+        String[] ways = qm.value("tile" + i).split("_");
+        String out = "";
+        for (int j = 0; j < ways.length; j++) {
+          out += tm.getTrafficLevel(ways[i]);
+          if (j != out.length()) {
+            out += "_";
+          }
+        }
+        traffic.add(out);
+      }
+      return GSON.toJson(traffic);
+    }
+  }
+  
 
   /**
    * Handler for printing exceptions. Allows for easier debugging by having any

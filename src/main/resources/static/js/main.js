@@ -405,6 +405,25 @@ function updateVisible() {
 	}
 }
 
+function updateTraffic() {
+	var postParameters = {};
+	for (var i = 0; i < visibleTiles.length; i++) {
+		postParameters["tile" + i] = "";
+		for (var j = 0; j < visibleTiles[i].ways.length; j++) {
+			postParameters["tile" + i] += visibleTiles[i].ways;
+			if (j != visibleTiles[i].ways.length - 1) {
+				postParameters["tile" + i] += "_";
+			}
+		}
+
+	}
+
+	$.post("/search", postParameters, function(responseJSON){
+		var responseObject = JSON.parse(responseJSON);
+		var path = responseObject.path;
+		option.innerHTML = path;
+	})
+}
 
 function latLongToXY(lat, lon) {
 	var y = ((ANCHOR_LAT - lat))/lat_over_y; 
