@@ -84,7 +84,12 @@ window.onmouseup = function() {
 	mouseHold = false; 
 	dragging = false;
 }
-
+//setInterval(function(){ updateTraffic(); }, 1000);
+setTimeout(
+	function(){ 
+		updateTraffic(); 
+	}, 3000
+);
 
 
 $(function() {
@@ -132,6 +137,8 @@ $(function() {
 	tileMap[indexToString([-1, 0])] = new Tile([-1, 0]);
 	tileMap[indexToString([-1, 1])] = new Tile([-1, 1]);
 	visibleTiles = [tileMap[indexToString([0, 0])], tileMap[indexToString([0, 1])], tileMap[indexToString([-1, 0])], tileMap[indexToString([-1, 1])]];
+	//handle traffic with update
+
 
 	$('#suggest').change(function(event) {
 
@@ -406,22 +413,32 @@ function updateVisible() {
 }
 
 function updateTraffic() {
+	//TODO - FIX THIS FUNCTION
+
+	console.log("ffff")
 	var postParameters = {};
 	for (var i = 0; i < visibleTiles.length; i++) {
 		postParameters["tile" + i] = "";
 		for (var j = 0; j < visibleTiles[i].ways.length; j++) {
-			postParameters["tile" + i] += visibleTiles[i].ways;
+			postParameters["tile" + i] += visibleTiles[i].ways[j].id;
 			if (j != visibleTiles[i].ways.length - 1) {
 				postParameters["tile" + i] += "_";
 			}
 		}
-
 	}
-
-	$.post("/search", postParameters, function(responseJSON){
+	console.log(postParameters);
+	$.post("/traffic", postParameters, function(responseJSON){
 		var responseObject = JSON.parse(responseJSON);
-		var path = responseObject.path;
-		option.innerHTML = path;
+		var traffic = responseObject;
+		for (var i = 0; i < visibleTiles.length; i++) {
+			if (traffic[i].length > 0) {
+				trafficArray = traffic[i].split("_");
+				for (var j = 0; j < trafficArray.length; j++) {
+					visibleTiles[i].ways[j].traffic = trafficArray[j]
+				}
+			}
+		}
+		console.log(visibleTiles);
 	})
 }
 
@@ -587,7 +604,7 @@ function Tile(index) {
 	this.minLong = ll[1];
 	this.maxLong = ll[1] + TILE_LONG;
 	this.index = index;
-
+	this.ways = [];
 	var postParameters = { 
 		minLat : this.minLat,
 		maxLat : this.maxLat,

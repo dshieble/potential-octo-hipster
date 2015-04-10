@@ -36,7 +36,7 @@ public class GUIManager {
   private String db;
 
   private static final int SUGGESTIONS = 5;
-  private static final int DEFAULT_PORT = 8585;
+  private static final int DEFAULT_PORT = 8686;
   private static final int TRAFFIC_PORT = 8080;
   private static final int STATUS = 500;
   private static final Gson GSON = new Gson();
@@ -74,11 +74,6 @@ public class GUIManager {
       e.printStackTrace();
     }
     runSparkServer(DEFAULT_PORT);
-  }
-
-  public void update() {
-    // TODO
-
   }
 
   private static FreeMarkerEngine createEngine() {
@@ -229,7 +224,7 @@ public class GUIManager {
 
       List<Node> path;
       try (PathFinder p = new PathFinder(db, tm)) {
-         path = p.findPath(startID, endID, false);
+         path = p.findPath(startID, endID, true);
       } catch (ClassNotFoundException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -282,16 +277,20 @@ public class GUIManager {
       List<String> traffic = new ArrayList<String>();
       int i = 0; 
       while (qm.value("tile" + i) != null) {
-        String[] ways = qm.value("tile" + i).split("_");
         String out = "";
-        for (int j = 0; j < ways.length; j++) {
-          out += tm.getTrafficLevel(ways[i]);
-          if (j != out.length()) {
-            out += "_";
+        if (qm.value("tile" + i).length() > 0) {
+          String[] ways = qm.value("tile" + i).split("_");
+          for (int j = 0; j < ways.length; j++) {
+            out += tm.getTrafficLevel(ways[i]);
+            if (j != out.length()) {
+              out += "_";
+            }
           }
         }
         traffic.add(out);
+        i++;
       }
+      System.out.println(traffic.size());
       return GSON.toJson(traffic);
     }
   }
