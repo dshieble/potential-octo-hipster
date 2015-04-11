@@ -52,6 +52,7 @@ $(function() {
 		ANCHOR_LONG = extrema[2] - 4*TILE_LONG; 
 		WORLD_WIDTH = Math.ceil((extrema[3] - extrema[2]) / TILE_LONG) + 8; // deg. Long
 
+		//TODO make sparse
 		grid = new Array(WORLD_HEIGHT);
 
 		for (var i = 0; i < WORLD_HEIGHT; i++) {
