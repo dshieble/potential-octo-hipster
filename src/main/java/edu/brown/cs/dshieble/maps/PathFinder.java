@@ -294,16 +294,7 @@ public class PathFinder implements AutoCloseable {
           + "AND longitude >= ? "
           + "AND longitude <= ?"
           + ") "
-        + "AS A ON way.start = A.id "
-        + "UNION "
-        + "SELECT start, end, way.id, name FROM way INNER JOIN "
-        + "(SELECT id FROM node "
-          + "WHERE latitude >= ? "
-          + "AND latitude <= ? "
-          + "AND longitude >= ? "
-          + "AND longitude <= ?"
-          + ") "
-        + "AS B ON way.end = B.id";
+        + "AS A ON way.start = A.id";
 
     try (PreparedStatement prep = conn.prepareStatement(query)) {
       // Execute the query and retrieve a ResultStatement
@@ -311,10 +302,6 @@ public class PathFinder implements AutoCloseable {
       prep.setDouble(2, lat2);
       prep.setDouble(3, lon1);
       prep.setDouble(4, lon2);
-      prep.setDouble(5, lat1);
-      prep.setDouble(6, lat2);
-      prep.setDouble(7, lon1);
-      prep.setDouble(8, lon2);
       try (ResultSet rs = prep.executeQuery()) {
         while (rs.next()) {
           Node start = idToNode(rs.getString(1));

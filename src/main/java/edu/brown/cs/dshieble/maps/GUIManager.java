@@ -8,6 +8,7 @@ import java.lang.reflect.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class GUIManager {
   private String db;
 
   private static final int SUGGESTIONS = 5;
-  private static final int DEFAULT_PORT = 8585;
+  private static final int DEFAULT_PORT = 8686;
   private static final int TRAFFIC_PORT = 8080;
   private static final int STATUS = 500;
   private static final Gson GSON = new Gson();
@@ -75,11 +76,6 @@ public class GUIManager {
     runSparkServer(DEFAULT_PORT);
   }
 
-  public void update() {
-    // TODO
-
-  }
-
   private static FreeMarkerEngine createEngine() {
     Configuration config = new Configuration();
     File templates = new File("src/main/resources/spark/template/freemarker");
@@ -106,6 +102,8 @@ public class GUIManager {
     Spark.post("/closest", new ClosestHandler());
     Spark.post("/path", new PathHandler());
     Spark.post("/suggestions", new SuggestionsHandler());
+    Spark.post("/traffic", new TrafficHandler());
+
   }
 
   /**
@@ -226,7 +224,7 @@ public class GUIManager {
 
       List<Node> path;
       try (PathFinder p = new PathFinder(db, tm)) {
-         path = p.findPath(startID, endID, false);
+         path = p.findPath(startID, endID, true);
       } catch (ClassNotFoundException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -255,6 +253,48 @@ public class GUIManager {
       return GSON.toJson(suggestions);
     }
   }
+  
+  /**
+   * TODO
+   *
+   * @author sjl2
+   *
+   */
+  private class TrafficHandler implements Route {
+    @Override
+    /**
+     * receives a list of way ids, returns a map from way id to traffic level
+     * 
+     * TODO: Transfer the data in the format
+     * tile1: "wayid1_wayid2_wayid3" etc
+     * return the data in the form:
+     * ["num1_num2_num3", "num1_num2" etc]
+     * 
+     */
+    public Object handle(final Request req, final Response res) {
+      QueryParamsMap qm = req.queryMap();
+      tm.updateTraffic();
+      List<String> traffic = new ArrayList<String>();
+      int i = 0; 
+      while (qm.value("tile" + i) != null) {
+        String out = "";
+        if (qm.value("tile" + i).length() > 0) {
+          String[] ways = qm.value("tile" + i).split("_");
+          for (int j = 0; j < ways.length; j++) {
+            out += tm.getTrafficLevel(ways[i]);
+            if (j != out.length()) {
+              out += "_";
+            }
+          }
+        }
+        traffic.add(out);
+        i++;
+      }
+      System.out.println(traffic.size());
+      return GSON.toJson(traffic);
+    }
+  }
+  
 
   /**
    * Handler for printing exceptions. Allows for easier debugging by having any
