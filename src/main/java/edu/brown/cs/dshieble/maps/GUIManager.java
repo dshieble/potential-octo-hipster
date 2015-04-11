@@ -143,15 +143,6 @@ public class GUIManager {
     }
   }
 
-  // TODO
-//  private class Tile {
-//    private List<Way> ways;
-//
-//    Tile(List<Way> ways) {
-//      this.ways = ways;
-//    }
-//  }
-
   private class WaysHandler implements Route {
     @Override
     public Object handle(final Request req, final Response res) {
@@ -253,7 +244,7 @@ public class GUIManager {
       return GSON.toJson(suggestions);
     }
   }
-  
+
   /**
    * TODO
    *
@@ -264,26 +255,26 @@ public class GUIManager {
     @Override
     /**
      * receives a list of way ids, returns a map from way id to traffic level
-     * 
+     *
      * TODO: Transfer the data in the format
      * tile1: "wayid1_wayid2_wayid3" etc
      * return the data in the form:
      * ["num1_num2_num3", "num1_num2" etc]
-     * 
+     *
      */
     public Object handle(final Request req, final Response res) {
       QueryParamsMap qm = req.queryMap();
       tm.updateTraffic();
       List<String> traffic = new ArrayList<String>();
-      int i = 0; 
+      int i = 0;
       while (qm.value("tile" + i) != null) {
         String out = "";
         if (qm.value("tile" + i).length() > 0) {
-          String[] ways = qm.value("tile" + i).split("_");
+          String[] ways = qm.value("tile" + i).split("A");
           for (int j = 0; j < ways.length; j++) {
-            out += tm.getTrafficLevel(ways[i]);
+            out += tm.getTrafficLevel("/w/" + ways[i]);
             if (j != out.length()) {
-              out += "_";
+              out += "A";
             }
           }
         }
@@ -294,7 +285,7 @@ public class GUIManager {
       return GSON.toJson(traffic);
     }
   }
-  
+
 
   /**
    * Handler for printing exceptions. Allows for easier debugging by having any

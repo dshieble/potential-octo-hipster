@@ -75,13 +75,13 @@ public final class Main {
 //          }
 //        }
       } else {
-        System.out.println("ERROR: Arguements are: "
+        System.out.println("ERROR: Arguments are: "
             + "[--gui] <sql database>");
         return;
       }
     //bad input
     } else if (args.length != 1) {
-      System.out.println("ERROR: Arguements are:"
+      System.out.println("ERROR: Arguments are:"
           + "[--gui] <sql database>");
       return;
     //matching names
