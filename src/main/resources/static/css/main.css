@@ -5,6 +5,10 @@ body {
 	background-size:cover;
 }
 
+textarea {
+	resize: none;
+}
+
 #pathDiv {
     position: absolute;
     top: 10%;

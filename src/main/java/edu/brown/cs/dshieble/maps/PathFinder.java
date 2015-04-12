@@ -280,6 +280,24 @@ public class PathFinder implements AutoCloseable {
     return list;
   }
 
+  public final List<String> getStreetNames() throws SQLException {
+    List<String> names = new ArrayList<>();
+    String query = "SELECT DISTINCT name FROM way;";
+    try (PreparedStatement prep = conn.prepareStatement(query)) {
+      try (ResultSet rs = prep.executeQuery()) {
+        while (rs.next()) {
+          names.add(rs.getString(1));
+        }
+      } catch (SQLException e1) {
+        throw (e1);
+      }
+    } catch (SQLException e2) {
+      throw (e2);
+    }
+
+    return names;
+  }
+
   /**
    * @return a list of all ways whose starts or ends are in the tile
    * @throws SQLException

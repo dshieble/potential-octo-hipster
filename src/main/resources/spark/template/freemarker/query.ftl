@@ -3,27 +3,18 @@
 	<h1>Providence Maps</h1>
 	<div id="wrapper">
 		<div id="query">
-			<form method="POST" action="/path">
-				Start Street 1 <input id="suggest" type="text" name="source1" rows="1" cols="85"></input> 
-				<div class="suggestions">
-					<select id="list"></select>
-				</div>
-				Start Street 2 <input id="suggest2" type="text" name="source2" rows="1" cols="85"></input> 
-				<div class="suggestions">
-					<select id="list2"></select>
-				</div>
-				<br>
-				End Street 1 <input id="suggest3" type="text" name="target1" rows="1" cols="85"></input> 
-				<div class="suggestions">
-					<select id="list3"></select>
-				</div>
-				End Street 2 <input id="suggest4" type="text" name="target2" rows="1" cols="85"></input> 
-				<div class="suggestions">
-					<select id="list4"></select>
-				</div>
-				<br>
-			  <input type="submit">
-			</form>
+			<textarea id="suggest" name="source1" rows="1" cols="85">From Street 1</textarea>
+			<select class="suggestions" id="list"></select>
+			
+			<textarea id="suggest2" name="source2" rows="1" cols="85">From Street 2</textarea>
+			<select class="suggestions" id="list2"></select>
+			
+			<textarea id="suggest3" name="target1" rows="1" cols="85">To Street 1</textarea>
+			<select class="suggestions" id="list3"></select>
+						
+			<textarea id="suggest4" name="target2" rows="1" cols="85">To Street 2</textarea>
+			<select class="suggestions" id="list4"></select>
+			<button type="button">Get Path</button>
 		</div>
 		<canvas id="map"></canvas>
 	</div>

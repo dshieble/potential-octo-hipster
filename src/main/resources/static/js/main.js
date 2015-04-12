@@ -74,17 +74,21 @@ var tilesTarget = 0;
 var mouseHold = false;
 var dragging = false;
 
+var trafficLevels = { normal: [], light: [], medium: [], aboveAverage: [], heavy: [], stayHome: [] }; 
+
 //lock the mouse wheel
-// window.onwheel = function() { 
-// 	return false;
-// }
+window.onwheel = function() { 
+	return false;
+}
 
 //DO NOT REMOVE THIS - this is essential for the case where the user leaves the map and releases the mouse
 window.onmouseup = function() { 
 	mouseHold = false; 
 	dragging = false;
 }
-//setInterval(function(){ updateTraffic(); }, 1000);
+
+setInterval(function(){ updateTraffic(); }, 1000);
+
 setTimeout(
 	function(){ 
 		updateTraffic(); 
@@ -140,7 +144,7 @@ $(function() {
 	//handle traffic with update
 
 
-	$('#suggest').change(function(event) {
+	$('#suggest').keypress(function(event) {
 
 		var postParameters = { rawText: $('#suggest').val() };
 
@@ -152,6 +156,10 @@ $(function() {
 					$('<option>', {id: "remove", value : suggestions[i]}).text(suggestions[i]));
 			}
 		})
+	})
+
+	$("#list").change(function(event) {
+		$('#suggest').val($("#list option:selected").val());
 	})
 
 	$('#suggest2').change(function(event) {
@@ -194,10 +202,6 @@ $(function() {
 					$('<option>', {id: "remove 4", value : suggestions[i]}).text(suggestions[i]));
 			}
 		})
-	})
-
-	$("#list").change(function(event) {
-		$('#suggest').val($("#list option:selected").val());
 	})
 
 	$("#list2").change(function(event) {
@@ -413,40 +417,39 @@ function updateVisible() {
 }
 
 function updateTraffic() {
-	//TODO - FIX THIS FUNCTION
-
-	// PROBLEM: Request is too damn big
-
-	// SOLUTIONS:
-		// 1. Send tiles coordinates to backend instead of the way ids, back end sends some sort of big 
-		// object that somehow skirts this problem
-		// 2. 
-	console.log("ffff")
 	var postParameters = {};
-	for (var i = 0; i < visibleTiles.length; i++) {
-		postParameters["tile" + i] = "";
-		for (var j = 0; j < visibleTiles[i].ways.length; j++) {
-			postParameters["tile" + i] += visibleTiles[i].ways[j].id;
-			if (j != visibleTiles[i].ways.length - 1) {
-				postParameters["tile" + i] += "A";
-			}
-		}
-	}
 
-	console.log(postParameters);
-	$.post("/traffic", postParameters, function(responseJSON){
-		var responseObject = JSON.parse(responseJSON);
-		var traffic = responseObject;
-		for (var i = 0; i < visibleTiles.length; i++) {
-			if (traffic[i].length > 0) {
-				trafficArray = traffic[i].split("A");
-				for (var j = 0; j < trafficArray.length; j++) {
-					visibleTiles[i].ways[j].traffic = trafficArray[j]
+	for (var i = 0; i < visibleTiles.length; i++) {
+		postParameters["index"] = i; 
+		//postParameters["ids"] = "";
+		var ids = []; 
+		
+		for (var j = 0; j < visibleTiles[i].ways.length; j++) {
+			//postParameters["ids"] += visibleTiles[i].ways[j].id;
+			ids.push(visibleTiles[i].ways[j].id);
+
+			// if (j != visibleTiles[i].ways.length - 1) {
+			// 	postParameters["ids"] += "A";
+			// }
+		}
+		postParameters["ids"] = JSON.stringify(ids);
+		
+		$.post("/traffic", postParameters, function(responseJSON){
+			var responseObject = JSON.parse(responseJSON);
+			var i = responseObject["index"]; 
+			var traffic = responseObject["traffic"];
+
+			if (traffic.length > 0) {
+				for (var j = 0; j < traffic.length; j++) {
+					visibleTiles[i].ways[j].traffic = traffic[j];
 				}
 			}
-		}
-		console.log(visibleTiles);
-	})
+		})
+	}
+
+	for (var i = 0; i < visibleTiles.length; i++) {
+		
+	}
 }
 
 function latLongToXY(lat, lon) {
@@ -508,6 +511,11 @@ function paintMap() {
 		for (t in visibleTiles) {
 			visibleTiles[t].paint(ctx);
 		}
+
+		for (t in visibleTiles) {
+			visibleTiles[t].divideByTraffic(); 
+		}
+
 		ctx.strokeStyle = DEFAULT_WAY;
 		ctx.globalAlpha = 0.2;
 		ctx.stroke(); 
@@ -628,10 +636,6 @@ function Tile(index) {
 }
 
 Tile.prototype.setWays = function(ways) {
-	for (i in ways) {
-		var str = ways[i].id;
-		ways[i].id = str.substring(3, str.length); 
-	}
 	this.ways = ways;
 
 
@@ -737,11 +741,31 @@ Tile.prototype.paint = function(ctx) {
 	}
 }
 
+Tile.prototype.divideByTraffic = function () {
+	for (var w in this.ways) {
+		var t = this.ways[w].traffic; 
+		if (t <= 1) {
+
+		} else if (t < 3) {
+
+		} else if (t < 5) {
+
+		} else if (t < 7) {
+
+		} else if (t < 9) {
+
+		} else {
+
+		}
+	}
+}
+
 function paintWay(ctx, w) {
 	ctx.fillStyle = DEFAULT_WAY;
 	paintLine(ctx, w.start, w.end);
 }
 
+function remove
 
 
 

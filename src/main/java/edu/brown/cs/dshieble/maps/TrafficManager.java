@@ -34,7 +34,7 @@ public class TrafficManager {
   private ConcurrentHashMap<String, Double> map;
 
   /**
-   * stores the locations that were just updated - bcuz there is 
+   * stores the locations that were just updated - bcuz there is
    * no ConcurrentHashSet
    */
   private ConcurrentHashMap<String, Boolean> updated;
@@ -67,7 +67,7 @@ public class TrafficManager {
       HttpURLConnection connection =
           (HttpURLConnection) url.openConnection();
       connection.setRequestMethod("GET");
-      connection.connect(); 
+      connection.connect();
       try (BufferedReader reader =
         new BufferedReader(
         new InputStreamReader(connection.getInputStream()))) {
@@ -104,7 +104,7 @@ public class TrafficManager {
   }
 
   /**
-   * 
+   *
    * @return returns a set of all way ids whose traffic was updated
    * in last iteration
    */
@@ -120,12 +120,12 @@ public class TrafficManager {
   }
 
   /**
-   * 
+   *
    * @param id the way id
    * @return the traffic of that way
    */
   public double getTrafficLevel(String id) {
-    return map.get(id);
+    return map.get(id) != null ? map.get(id) : 1.0;
   }
 
 }

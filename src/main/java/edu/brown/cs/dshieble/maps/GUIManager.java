@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import spark.ExceptionHandler;
 import spark.ModelAndView;
@@ -46,6 +48,9 @@ public class GUIManager {
     this.db = db;
     try (PathFinder p = new PathFinder(db, tm)) {
       this.tree = new KDTree<Node>(2, new ArrayList<>(p.getAllNodes()));
+
+      initializeAutocorrect(p.getStreetNames());
+
     } catch (ClassNotFoundException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -66,6 +71,7 @@ public class GUIManager {
     this.db = db;
     try (PathFinder p = new PathFinder(db, tm)) {
       this.tree = new KDTree<Node>(2, new ArrayList<>(p.getAllNodes()));
+      initializeAutocorrect(p.getStreetNames());
     } catch (ClassNotFoundException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -74,6 +80,14 @@ public class GUIManager {
       e.printStackTrace();
     }
     runSparkServer(DEFAULT_PORT);
+  }
+
+  private void initializeAutocorrect(List<String> names) {
+    Autocorrect.Builder b = new Autocorrect.Builder(names);
+    b.useLED(true, 2);
+    b.usePrefix(true);
+    b.useWhitespace(true);
+    this.autocorrect = b.build();
   }
 
   private static FreeMarkerEngine createEngine() {
@@ -92,11 +106,12 @@ public class GUIManager {
   private void runSparkServer(int port) {
     Spark.setPort(port);
     Spark.externalStaticFileLocation("src/main/resources/static");
-    Spark.exception(Exception.class, new ExceptionPrinter());
+    //Spark.exception(Exception.class, new ExceptionPrinter());
 
     FreeMarkerEngine freeMarker = createEngine();
 
     Spark.get("/maps", new FrontHandler(), freeMarker);
+    Spark.post("/intersections", new IntersectionHandler(), freeMarker);
     Spark.get("/anchor", new AnchorHandler());
     Spark.post("/ways", new WaysHandler());
     Spark.post("/closest", new ClosestHandler());
@@ -115,6 +130,23 @@ public class GUIManager {
   private class FrontHandler implements TemplateViewRoute {
     @Override
     public ModelAndView handle(Request req, Response res) {
+      Map<String, Object> variables =
+        ImmutableMap.of("title", "Maps");
+      return new ModelAndView(variables, "query.ftl");
+    }
+  }
+
+  /**
+   * Default Handler for maps.
+   *
+   * @author sjl2
+   *
+   */
+  private class IntersectionHandler implements TemplateViewRoute {
+    @Override
+    public ModelAndView handle(Request req, Response res) {
+
+
       Map<String, Object> variables =
         ImmutableMap.of("title", "Maps");
       return new ModelAndView(variables, "query.ftl");
@@ -265,24 +297,20 @@ public class GUIManager {
     public Object handle(final Request req, final Response res) {
       QueryParamsMap qm = req.queryMap();
       tm.updateTraffic();
-      List<String> traffic = new ArrayList<String>();
-      int i = 0;
-      while (qm.value("tile" + i) != null) {
-        String out = "";
-        if (qm.value("tile" + i).length() > 0) {
-          String[] ways = qm.value("tile" + i).split("A");
-          for (int j = 0; j < ways.length; j++) {
-            out += tm.getTrafficLevel("/w/" + ways[i]);
-            if (j != out.length()) {
-              out += "A";
-            }
-          }
-        }
-        traffic.add(out);
-        i++;
+
+      Type stringListType = new TypeToken<List<String>>() {}.getType();
+      List<String> ways = GSON.fromJson(qm.value("ids"), stringListType);
+
+      List<Double> out = new ArrayList<>();
+
+      for (String w : ways) {
+        out.add(tm.getTrafficLevel(w));
       }
-      System.out.println(traffic.size());
-      return GSON.toJson(traffic);
+
+      Map<String, Object> variables =
+          ImmutableMap.of("index", qm.value("index"), "traffic", out);
+
+      return GSON.toJson(variables);
     }
   }
 
