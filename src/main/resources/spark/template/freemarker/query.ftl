@@ -11,7 +11,7 @@
 			</div>
 			<div id="centerpiece">
 				<h2>Ye High-Tech, Olde Providence</h1>
-				<button type="button">Get Path</button>
+				<button id="get_path"type="button">Get Path</button>
 			</div>
 			
 			<div class="source">
@@ -23,8 +23,12 @@
 			</div>
 
 		</div>
-		<canvas id="map"></canvas>
-		<img id = "compass" src="http://www.clipartbest.com/cliparts/dT8/57M/dT857MjTe.png" alt="a compass">
+		<div class="map">
+			<canvas id="map"></canvas>
+			<img id = "compass" src="http://www.clipartbest.com/cliparts/dT8/57M/dT857MjTe.png" alt="a compass">
+			<button id="clear" type="button">Clear</button>
+		</div>
+
 	</div>
 </#assign>
 <#include "main.ftl">

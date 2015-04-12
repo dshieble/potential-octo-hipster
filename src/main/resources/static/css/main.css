@@ -77,6 +77,15 @@ textarea {
 	margin-right : 285px;
 }
 
+#clear {
+	visibility: hidden; 
+	width: 200px;
+	position: relative;
+	top: -29px;
+	margin-left: 283px; 
+	z-index: 3;
+}
+
 
 
 

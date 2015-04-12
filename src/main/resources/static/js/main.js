@@ -58,6 +58,8 @@ var long_over_x = width/MAP_WIDTH;
 var tileMap = {};
 var visibleTiles = [];
 
+var nodes = null; 
+
 var topLeftCol; 
 var topLeftRow; 
 var width; 
@@ -599,6 +601,7 @@ function paintTraffic(ctx) {
 
 function paintPath(ctx) {
 	if (input_state >= 2) {
+		nodes = null; 
 		//just paint the first node
 		ctx.beginPath(); 
 		ctx.globalAlpha = 1;
@@ -620,31 +623,36 @@ function paintPath(ctx) {
 	   end : node2.id
  		};
 
- 		$.post("/path", postParameters, function(responseJSON) {
- 			var nodes = JSON.parse(responseJSON);
- 			if (nodes.length == 0) {
- 				alert("No path found!")
- 			} else {
- 				ctx.beginPath(); 
-				ctx.globalAlpha = 1;
-				ctx.strokeStyle = PATH_COLOR;
- 				paintNodes(ctx, nodes);
- 				ctx.stroke();
- 			}
-
- 		})
-
+ 		if (nodes == null) {
+ 			$.post("/path", postParameters, function(responseJSON) {
+	 			nodes = JSON.parse(responseJSON);
+	 			if (nodes.length == 0) {
+	 				alert("No path found!")
+	 			} else {
+	 				paintNodes(ctx);
+	 			}
+	 		})
+ 		} else {
+ 			paintNodes(ctx);
+ 		}
 	}
 }
 
-function paintNodes(ctx, nodes) {
-	for (var i = 0; i < (nodes.length - 1); i++) {
-		var start = nodes[i];
-		var end = nodes[i + 1]; 
-		ctx.fillStyle = PATH_COLOR; 
-		paintLine(ctx, start, end); 
+function paintNodes(ctx) {
+	if (nodes != null || nodes.length > 0) {
+		ctx.beginPath(); 
+		ctx.globalAlpha = 1;
+		ctx.strokeStyle = PATH_COLOR;
+		
+		for (var i = 0; i < (nodes.length - 1); i++) {
+			var start = nodes[i];
+			var end = nodes[i + 1]; 
+			ctx.fillStyle = PATH_COLOR; 
+			paintLine(ctx, start, end); 
+		}
+
+		ctx.stroke(); 
 	}
-	ctx.stroke(); 
 }
 
 
