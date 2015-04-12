@@ -123,7 +123,8 @@ public class PathFinder implements AutoCloseable {
                 node.getLat(), node.getLong());
             double multiplier = 1;
             if (usingTraffic) {
-              multiplier = tm.getTrafficLevel(wayId);
+              //multiplier = tm.getTrafficLevel(wayId);
+              System.out.println(multiplier);
             }
             Node n = new Node(lat, lon, id, node,
                 wayName, wayId, heur, multiplier);
