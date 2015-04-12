@@ -26,9 +26,9 @@
 		<div class="map">
 			<canvas id="map"></canvas>
 			<img id = "compass" src="http://www.clipartbest.com/cliparts/dT8/57M/dT857MjTe.png" alt="a compass">
-			<button id="clear" type="button">Clear</button>
+			
 		</div>
-
+		<button id="clear" type="button">Clear</button>
 	</div>
 </#assign>
 <#include "main.ftl">

@@ -37,8 +37,8 @@ ABOVE_AVERAGE = "#F29348";
 HEAVY = "#B23026";
 STAY_HOME = "#8C0000";
 
-MAP_WIDTH = 700; 
-MAP_HEIGHT = 500; 
+MAP_WIDTH = 500; 
+MAP_HEIGHT = 664; 
 
 
 var ANCHOR_LAT = INITIAL_LAT; // Top Left Latitude
@@ -58,7 +58,6 @@ var long_over_x = width/MAP_WIDTH;
 var tileMap = {};
 var visibleTiles = [];
 
-var nodes = null; 
 
 var topLeftCol; 
 var topLeftRow; 
@@ -70,6 +69,7 @@ var grid;
 var input_state = 1; 
 var node1; 
 var node2; 
+var nodes = []; 
 
 var lastX;
 var lastY;
@@ -275,41 +275,48 @@ $(function() {
 				var lon = responseObject.lon;
 				var id = responseObject.id; 
 
-				if (input_state == 1) {
+				if (input_state == 1 || input_state == 3) {
 					// Highlight Node
+					clearNodes();
 					node1 = new Node(lat, lon, id);
 					input_state = 2; 
 				} else if (input_state == 2) {
 					node2 = new Node(lat, lon, id);
 					input_state = 3;
-				} else if (input_state == 3) {
-					input_state = 1;
-					node1 = undefined;
-					node2 = undefined;
 				} else {
 					alert("you done fucked up");
 				}
-
 				paintMap(); 
 			});
 		}
 	})
 
-	$("button").click(function (event) {
-		var postParameters = { 
-			source1 : $("[name='source1']").val(), 
-			source2 : $("[name='source2']").val(),
-			target1 : $("[name='target1']").val(),
-			target2 : $("[name='target2']").val()
-		}
+	$("#get_path").click(function (event) {
+		// if (input_state == 3) {
+		// 	input_state = 1;
+		// 	node1 = undefined;
+		// 	node2 = undefined;
+		// }
 
-		$.post("/intersections", postParameters, function (responseJSON) {
-			responseObject = JSON.parse(responseJSON);
-			paintNodes(responseObject);
-			input_state = 1;
-		})
+		// var postParameters = { 
+		// 	source1 : $("[name='source1']").val(), 
+		// 	source2 : $("[name='source2']").val(),
+		// 	target1 : $("[name='target1']").val(),
+		// 	target2 : $("[name='target2']").val()
+		// }
+
+		// $.post("/intersections", postParameters, function (responseJSON) {
+		// 	responseObject = JSON.parse(responseJSON);
+		// 	paintNodes(responseObject);
+		// 	input_state = 1;
+		// })
 	})
 	
+	$("#clear").click(function (event) {
+		clearNodes();
+		paintMap();
+	})
+
 	$('html').on('mousewheel', function(event) {
 		// console.log("scrolled");
 		// xy = latLongToXY(ANCHOR_LAT, ANCHOR_LONG);
@@ -412,12 +419,20 @@ function addTilesAndDraw() {
 	}
 	//console.log(toAdd);
 	tilesReady = 0;
+
 	tilesTarget = toAdd.length;
 
 	for (var i = 0; i < toAdd.length; i++) {
 		tileMap[indexToString(toAdd[i])] = new Tile(toAdd[i]);
 	}	
 	paintMap();
+}
+
+function clearNodes() {
+	input_state = 1;
+	node1 = undefined;
+	node2 = undefined;
+	nodes.length = 0;
 }
 
 function updateMapDim(newHeight, newWidth) {
@@ -601,7 +616,6 @@ function paintTraffic(ctx) {
 
 function paintPath(ctx) {
 	if (input_state >= 2) {
-		nodes = null; 
 		//just paint the first node
 		ctx.beginPath(); 
 		ctx.globalAlpha = 1;
@@ -619,11 +633,11 @@ function paintPath(ctx) {
 		ctx.stroke();
 
  		postParameters = { 
-	   start : node1.id, 
-	   end : node2.id
+	    	start : node1.id, 
+	    	end : node2.id
  		};
 
- 		if (nodes == null) {
+ 		if (nodes.length == 0) {
  			$.post("/path", postParameters, function(responseJSON) {
 	 			nodes = JSON.parse(responseJSON);
 	 			if (nodes.length == 0) {
@@ -639,7 +653,7 @@ function paintPath(ctx) {
 }
 
 function paintNodes(ctx) {
-	if (nodes != null || nodes.length > 0) {
+	if (nodes.length > 0) {
 		ctx.beginPath(); 
 		ctx.globalAlpha = 1;
 		ctx.strokeStyle = PATH_COLOR;
