@@ -30,8 +30,15 @@ DEFAULT_WAY = "#0000FF";
 GRID_LINE = "#D1D2F2";
 PATH_COLOR = "#FF0000"; 
 
-MAP_WIDTH = 500; 
-MAP_HEIGHT = 300; 
+NORMAL = "#23E523";
+LIGHT = "#CDE516";
+MEDIUM = "#F0D01A";
+ABOVE_AVERAGE = "#F29348";
+HEAVY = "#B23026";
+STAY_HOME = "#8C0000";
+
+MAP_WIDTH = 700; 
+MAP_HEIGHT = 500; 
 
 
 var ANCHOR_LAT = INITIAL_LAT; // Top Left Latitude
@@ -74,7 +81,7 @@ var tilesTarget = 0;
 var mouseHold = false;
 var dragging = false;
 
-var trafficLevels = { normal: [], light: [], medium: [], aboveAverage: [], heavy: [], stayHome: [] }; 
+var trafficLevels = { normal : [], light : [], medium : [], aboveAverage : [], heavy : [], stayHome : [] }; 
 
 //lock the mouse wheel
 window.onwheel = function() { 
@@ -87,7 +94,7 @@ window.onmouseup = function() {
 	dragging = false;
 }
 
-setInterval(function(){ updateTraffic(); }, 1000);
+//setInterval(function(){ updateTraffic(); }, 3000);
 
 setTimeout(
 	function(){ 
@@ -132,6 +139,8 @@ $(function() {
 	var canvas = $("#map")[0]; 
 	canvas.width = MAP_WIDTH;
 	canvas.height = MAP_HEIGHT;
+	canvas.style.width = MAP_WIDTH + "px"; 
+	canvas.style.height = MAP_HEIGHT + "px"; 
 
 	//Initialize Tile Map, and paint it
 	tilesTarget = 4;
@@ -283,6 +292,21 @@ $(function() {
 			});
 		}
 	})
+
+	$("button").click(function (event) {
+		var postParameters = { 
+			source1 : $("[name='source1']").val(), 
+			source2 : $("[name='source2']").val(),
+			target1 : $("[name='target1']").val(),
+			target2 : $("[name='target2']").val()
+		}
+
+		$.post("/intersection", postParameters, function (responseJSON) {
+			responseObject = JSON.parse(responseJSON);
+			paintNodes(responseObject);
+			input_state = 1;
+		})
+	})
 	
 	$('html').on('mousewheel', function(event) {
 		// console.log("scrolled");
@@ -416,7 +440,8 @@ function updateVisible() {
 	}
 }
 
-function updateTraffic() {
+function updateTraffic() { 
+	cleanTraffic(); 
 	var postParameters = {};
 
 	for (var i = 0; i < visibleTiles.length; i++) {
@@ -439,17 +464,14 @@ function updateTraffic() {
 			var i = responseObject["index"]; 
 			var traffic = responseObject["traffic"];
 
-			if (traffic.length > 0) {
-				for (var j = 0; j < traffic.length; j++) {
-					visibleTiles[i].ways[j].traffic = traffic[j];
-				}
+			for (var j = 0; j < traffic.length; j++) {
+				visibleTiles[i].ways[j].traffic = traffic[j];
+				sortTrafficLevel(visibleTiles[i].ways[j]);
 			}
 		})
 	}
 
-	for (var i = 0; i < visibleTiles.length; i++) {
-		
-	}
+	paintMap(); 
 }
 
 function latLongToXY(lat, lon) {
@@ -505,16 +527,14 @@ function paintMap() {
 		ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); 
 		ctx.beginPath(); 
 
-		paintGrid(ctx); 
-		//ctx.stroke(); 
+		//paintGrid(ctx); 
+		ctx.stroke(); 
 
 		for (t in visibleTiles) {
 			visibleTiles[t].paint(ctx);
 		}
 
-		for (t in visibleTiles) {
-			visibleTiles[t].divideByTraffic(); 
-		}
+		//paintTraffic(ctx); 
 
 		ctx.strokeStyle = DEFAULT_WAY;
 		ctx.globalAlpha = 0.2;
@@ -526,9 +546,55 @@ function paintMap() {
 
 		tilesReady = 0;
 		tilesTarget = 0;
+
 	}
 }
 
+function paintTraffic(ctx) {
+	ctx.beginPath(); 
+	ctx.strokeStyle = NORMAL; 
+	ctx.globalAlpha = 1;
+	for (var w in trafficLevels.normal) {
+		paintWay(trafficLevels.normal[w]); 
+	}
+	ctx.stroke(); 
+
+	ctx.beginPath(); 
+	ctx.strokeStyle = LIGHT;
+	for (var w in trafficLevels.light) {
+		paintWay(trafficLevels.light[w]); 
+	}
+	ctx.stroke(); 
+
+	ctx.beginPath();
+	ctx.strokeStyle = MEDIUM;  
+	for (var w in trafficLevels.medium) {
+		paintWay(trafficLevels.medium[w]); 
+	}
+	ctx.stroke(); 
+
+	ctx.beginPath(); 
+	ctx.strokeStyle = ABOVE_AVERAGE;
+	for (var w in trafficLevels.aboveAverage) {
+		paintWay(trafficLevels.aboveAverage[w]); 
+	}
+	ctx.stroke(); 
+
+	ctx.beginPath(); 
+	ctx.strokeStyle = HEAVY;
+	for (var w in trafficLevels.heavy) {
+		paintWay(trafficLevels.heavy[w]); 
+	}
+	ctx.stroke(); 
+
+	ctx.beginPath(); 
+	ctx.strokeStyle = STAY_HOME;
+	for (var w in trafficLevels.stayHome) {
+		paintWay(trafficLevels.stayHome[w]); 
+	}
+	ctx.stroke(); 
+
+}
 
 
 function paintPath(ctx) {
@@ -540,6 +606,7 @@ function paintPath(ctx) {
 		node1.paint(ctx); 
 		ctx.stroke();	
 	}
+
 	if (input_state == 3) {
 		//paint the second node and draw the path - repeated multiple times due to use of arc
 		ctx.beginPath(); 
@@ -566,8 +633,6 @@ function paintPath(ctx) {
  			}
 
  		})
-
-
 
 	}
 }
@@ -608,6 +673,24 @@ function Way(lat1, long1, lat2, long2, id) {
 	this.long1 = long1;
 	this.long2 = long2; 
 	this.id = id;  
+}
+
+function sortTrafficLevel(w) {
+	var t = w.traffic; 
+
+	if (t <= 1) {
+		trafficLevels.normal.push(w);  
+	} else if (t < 3) {
+		trafficLevels.light.push(w); 
+	} else if (t < 5) {
+		trafficLevels.medium.push(w); 
+	} else if (t < 7) {
+		trafficLevels.aboveAverage.push(w); 
+	} else if (t < 9) {
+		trafficLevels.heavy.push(w); 
+	} else {
+		trafficLevels.stayHome.push(w); 
+	}
 }
 
 //index is a 2 element array (y,x) corresponding to the top left point
@@ -741,34 +824,17 @@ Tile.prototype.paint = function(ctx) {
 	}
 }
 
-Tile.prototype.divideByTraffic = function () {
-	for (var w in this.ways) {
-		
-		var t = this.ways[w].traffic; 
-
-		if (t <= 1) {
-
-		} else if (t < 3) {
-
-		} else if (t < 5) {
-
-		} else if (t < 7) {
-
-		} else if (t < 9) {
-
-		} else {
-
-		}
-	}
-}
-
 function paintWay(ctx, w) {
-	ctx.fillStyle = DEFAULT_WAY;
 	paintLine(ctx, w.start, w.end);
 }
 
 function cleanTraffic() {
-	
+	trafficLevels.normal = []; 
+	trafficLevels.light = []; 
+	trafficLevels.medium = []; 
+	trafficLevels.aboveAverage = []; 
+	trafficLevels.heavy = []; 
+	trafficLevels.stayHome = []; 
 }
 
 

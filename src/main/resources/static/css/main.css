@@ -1,12 +1,20 @@
 body {
-	color:#ffffff;
+	color:#000000;
 	background-color: blue;
 	/*background-image: url(../images/background_image.gif);*/
 	background-size:cover;
 }
 
+#wrapper {
+	margin: 5px
+}
 textarea {
 	resize: none;
+}
+
+.suggestions {
+	width: 371px;
+	height: 25px;
 }
 
 #pathDiv {
@@ -18,20 +26,55 @@ textarea {
     text-align:center;
 }
 
+#query {
+	width: 100%;
+	height: 130px;
+	padding: 5px;
+	background-color: #6A7070; 
+	border: ridge;
+	border-color: #666565; 
+}
+.source, .target {
+	width: 35%;
+	padding-left: 30px; 
+	padding-right: 30px; 
+}
+
+.target, .target * {
+	float: right;
+} 
+
+#centerpiece {
+	float: right;
+	width: 20%;
+}
+
+.target *, .source * {
+	padding-top: 5px;
+}
+
+
 #map {
-	width: 500px;
-	height: 300px;
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 70px;
 	border: 1px solid #000000;
-	background-color: #FFFFFF; 
-	border: ridge;
+	background-color: #F5F1CB; 
 }
 
 .invisible {
 	visibility: hidden;
+}
+
+#compass {
+	position: relative;
+	top: -110px;
+	width:100px;
+	height:100px;
+	z-index: 3;
+	float: right;
+	margin-right : 285px;
 }
 
 

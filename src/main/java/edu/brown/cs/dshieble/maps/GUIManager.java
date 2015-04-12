@@ -106,16 +106,16 @@ public class GUIManager {
   private void runSparkServer(int port) {
     Spark.setPort(port);
     Spark.externalStaticFileLocation("src/main/resources/static");
-    //Spark.exception(Exception.class, new ExceptionPrinter());
+    Spark.exception(Exception.class, new ExceptionPrinter());
 
     FreeMarkerEngine freeMarker = createEngine();
 
     Spark.get("/maps", new FrontHandler(), freeMarker);
-    Spark.post("/intersections", new IntersectionHandler(), freeMarker);
     Spark.get("/anchor", new AnchorHandler());
     Spark.post("/ways", new WaysHandler());
     Spark.post("/closest", new ClosestHandler());
     Spark.post("/path", new PathHandler());
+    Spark.post("/intersections", new IntersectionHandler());
     Spark.post("/suggestions", new SuggestionsHandler());
     Spark.post("/traffic", new TrafficHandler());
 
@@ -136,22 +136,7 @@ public class GUIManager {
     }
   }
 
-  /**
-   * Default Handler for maps.
-   *
-   * @author sjl2
-   *
-   */
-  private class IntersectionHandler implements TemplateViewRoute {
-    @Override
-    public ModelAndView handle(Request req, Response res) {
 
-
-      Map<String, Object> variables =
-        ImmutableMap.of("title", "Maps");
-      return new ModelAndView(variables, "query.ftl");
-    }
-  }
 
   /**
    * TODO
@@ -262,6 +247,43 @@ public class GUIManager {
     }
   }
 
+  /**
+   * Default Handler for maps.
+   *
+   * @author sjl2
+   *
+   */
+  private class IntersectionHandler implements Route {
+    @Override
+    public Object handle(Request req, Response res) {
+      QueryParamsMap qm = req.queryMap();
+
+      String source1 = qm.value("source1");
+      String source2 = qm.value("source2");
+
+      String target1 = qm.value("target1");
+      String target2 = qm.value("target2");
+
+      List<Node> path;
+      try (PathFinder p = new PathFinder(db, tm)) {
+         path = p.findPath(
+             p.getIntersection(source1, source2),
+             p.getIntersection(target1, target2),
+             true
+         );
+      } catch (ClassNotFoundException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        path = new ArrayList<>();
+      } catch (SQLException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        path = new ArrayList<>();
+      }
+
+      return GSON.toJson(path);
+    }
+  }
 
   private class SuggestionsHandler implements Route {
     @Override

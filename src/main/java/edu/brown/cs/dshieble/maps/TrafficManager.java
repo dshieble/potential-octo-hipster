@@ -58,7 +58,6 @@ public class TrafficManager {
    * Updates the concurrent hash map with traffic data
    */
   public void updateTraffic() {
-    System.out.println("updating");
     updated.clear();
     try {
       String urlString = "http://localhost:" + port + "?last=" + time;
