@@ -96,12 +96,11 @@ window.onmouseup = function() {
 	dragging = false;
 }
 
-//setInterval(function(){ updateTraffic(); }, 3000);
 
 setTimeout(
 	function(){ 
-		updateTraffic(); 
-	}, 3000
+		setInterval(function(){ updateTraffic(); }, 250);
+	}, 500
 );
 
 
@@ -458,37 +457,52 @@ function updateVisible() {
 }
 
 function updateTraffic() { 
-	cleanTraffic(); 
+	//cleanTraffic(); 
 	var postParameters = {};
 
+	var tilesPassed = 0;
+	var trafficLevelsTemp = { normal : [], light : [], medium : [], aboveAverage : [], heavy : [], stayHome : [] }; 
 	for (var i = 0; i < visibleTiles.length; i++) {
 		postParameters["index"] = i; 
-		//postParameters["ids"] = "";
 		var ids = []; 
 		
 		for (var j = 0; j < visibleTiles[i].ways.length; j++) {
-			//postParameters["ids"] += visibleTiles[i].ways[j].id;
 			ids.push(visibleTiles[i].ways[j].id);
-
-			// if (j != visibleTiles[i].ways.length - 1) {
-			// 	postParameters["ids"] += "A";
-			// }
 		}
+
 		postParameters["ids"] = JSON.stringify(ids);
-		
-		$.post("/traffic", postParameters, function(responseJSON){
+		$.post("/traffic", postParameters, function(responseJSON) {
+
 			var responseObject = JSON.parse(responseJSON);
 			var i = responseObject["index"]; 
 			var traffic = responseObject["traffic"];
 
 			for (var j = 0; j < traffic.length; j++) {
 				visibleTiles[i].ways[j].traffic = traffic[j];
-				sortTrafficLevel(visibleTiles[i].ways[j]);
+				var w = visibleTiles[i].ways[j];
+				var t = w.traffic; 
+				if (t <= 1) {
+					trafficLevelsTemp.normal.push(w);  
+				} else if (t < 3) {
+					trafficLevelsTemp.light.push(w); 
+				} else if (t < 5) {
+					trafficLevelsTemp.medium.push(w); 
+				} else if (t < 7) {
+					trafficLevelsTemp.aboveAverage.push(w); 
+				} else if (t < 9) {
+					trafficLevelsTemp.heavy.push(w); 
+				} else {
+					trafficLevelsTemp.stayHome.push(w); 
+				}
+			}
+			tilesPassed ++;
+			if (tilesPassed == visibleTiles.length) {
+				trafficLevels = trafficLevelsTemp;
+				paintMap(); 
 			}
 		})
 	}
 
-	paintMap(); 
 }
 
 function latLongToXY(lat, lon) {
@@ -538,7 +552,7 @@ function paintGrid(ctx) {
 
 function paintMap() {
 	if (tilesReady == tilesTarget) {
-		//console.log("painting map")
+		console.log("painting map");
 		updateVisible();
 		var ctx = $("#map")[0].getContext("2d"); 
 		ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); 
@@ -547,11 +561,11 @@ function paintMap() {
 		//paintGrid(ctx); 
 		ctx.stroke(); 
 
-		for (t in visibleTiles) {
-			visibleTiles[t].paint(ctx);
-		}
+		// for (t in visibleTiles) {
+		// 	visibleTiles[t].paint(ctx);
+		// }
 
-		//paintTraffic(ctx); 
+		paintTraffic(ctx); 
 
 		ctx.strokeStyle = DEFAULT_WAY;
 		ctx.globalAlpha = 0.2;
@@ -572,42 +586,45 @@ function paintTraffic(ctx) {
 	ctx.strokeStyle = NORMAL; 
 	ctx.globalAlpha = 1;
 	for (var w in trafficLevels.normal) {
-		paintWay(trafficLevels.normal[w]); 
+		// window.x = trafficLevels.normal[w];
+		// console.log(window.x)
+		paintWay(ctx, trafficLevels.normal[w]); 
 	}
 	ctx.stroke(); 
 
 	ctx.beginPath(); 
 	ctx.strokeStyle = LIGHT;
 	for (var w in trafficLevels.light) {
-		paintWay(trafficLevels.light[w]); 
+		//console.log(trafficLevels.light[w])
+		paintWay(ctx, trafficLevels.light[w]); 
 	}
 	ctx.stroke(); 
 
 	ctx.beginPath();
 	ctx.strokeStyle = MEDIUM;  
 	for (var w in trafficLevels.medium) {
-		paintWay(trafficLevels.medium[w]); 
+		paintWay(ctx, trafficLevels.medium[w]); 
 	}
 	ctx.stroke(); 
 
 	ctx.beginPath(); 
 	ctx.strokeStyle = ABOVE_AVERAGE;
 	for (var w in trafficLevels.aboveAverage) {
-		paintWay(trafficLevels.aboveAverage[w]); 
+		paintWay(ctx, trafficLevels.aboveAverage[w]); 
 	}
 	ctx.stroke(); 
 
 	ctx.beginPath(); 
 	ctx.strokeStyle = HEAVY;
 	for (var w in trafficLevels.heavy) {
-		paintWay(trafficLevels.heavy[w]); 
+		paintWay(ctx, trafficLevels.heavy[w]); 
 	}
 	ctx.stroke(); 
 
 	ctx.beginPath(); 
 	ctx.strokeStyle = STAY_HOME;
 	for (var w in trafficLevels.stayHome) {
-		paintWay(trafficLevels.stayHome[w]); 
+		paintWay(ctx, trafficLevels.stayHome[w]); 
 	}
 	ctx.stroke(); 
 
@@ -847,16 +864,17 @@ Tile.prototype.paint = function(ctx) {
 }
 
 function paintWay(ctx, w) {
+	//console.log(window.x)
 	paintLine(ctx, w.start, w.end);
 }
 
 function cleanTraffic() {
-	trafficLevels.normal = []; 
-	trafficLevels.light = []; 
-	trafficLevels.medium = []; 
-	trafficLevels.aboveAverage = []; 
-	trafficLevels.heavy = []; 
-	trafficLevels.stayHome = []; 
+	trafficLevels.normal.length = 0; 
+	trafficLevels.light.length = 0; 
+	trafficLevels.medium.length = 0; 
+	trafficLevels.aboveAverage.length = 0; 
+	trafficLevels.heavy.length = 0; 
+	trafficLevels.stayHome.length = 0; 
 }
 
 
