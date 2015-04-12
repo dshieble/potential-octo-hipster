@@ -743,7 +743,9 @@ Tile.prototype.paint = function(ctx) {
 
 Tile.prototype.divideByTraffic = function () {
 	for (var w in this.ways) {
+		
 		var t = this.ways[w].traffic; 
+
 		if (t <= 1) {
 
 		} else if (t < 3) {
@@ -765,7 +767,9 @@ function paintWay(ctx, w) {
 	paintLine(ctx, w.start, w.end);
 }
 
-function remove
+function cleanTraffic() {
+	
+}
 
 
 
