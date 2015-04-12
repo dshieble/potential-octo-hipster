@@ -3,10 +3,6 @@ package edu.brown.cs.dshieble.maps;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The Main Class for the Bacon project.

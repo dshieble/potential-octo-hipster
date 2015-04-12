@@ -1,8 +1,8 @@
 body {
 	color:#000000;
 	background-color: blue;
-	/*background-image: url(../images/background_image.gif);*/
-	background-size:cover;
+	background-image: url(../images/OldMapPaper.jpg);
+	background-size: cover;
 }
 
 #wrapper {

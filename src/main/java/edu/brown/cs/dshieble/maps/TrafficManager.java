@@ -4,13 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -121,7 +115,7 @@ public class TrafficManager {
   /**
    *
    * @param id the way id
-   * @return the traffic of that way
+   * @return the traffic of that way or 1.0 if normal traffic
    */
   public double getTrafficLevel(String id) {
     return map.get(id) != null ? map.get(id) : 1.0;

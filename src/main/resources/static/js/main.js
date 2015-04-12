@@ -301,7 +301,7 @@ $(function() {
 			target2 : $("[name='target2']").val()
 		}
 
-		$.post("/intersection", postParameters, function (responseJSON) {
+		$.post("/intersections", postParameters, function (responseJSON) {
 			responseObject = JSON.parse(responseJSON);
 			paintNodes(responseObject);
 			input_state = 1;

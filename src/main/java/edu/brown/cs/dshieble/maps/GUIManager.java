@@ -4,12 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -136,14 +133,7 @@ public class GUIManager {
     }
   }
 
-
-
-  /**
-   * TODO
-   *
-   * @author sjl2
-   *
-   */
+  // TODO Remove?
   private class AnchorHandler implements Route {
     @Override
     public Object handle(final Request req, final Response res) {
@@ -160,6 +150,12 @@ public class GUIManager {
     }
   }
 
+  /**
+   * Handler for determining the ways within a tile.
+   *
+   * @author sjl2
+   *
+   */
   private class WaysHandler implements Route {
     @Override
     public Object handle(final Request req, final Response res) {
@@ -194,7 +190,8 @@ public class GUIManager {
   }
 
   /**
-   * TODO
+   * Handler for finding the closest node to a lat, long sent back from the
+   * front end.
    *
    * @author sjl2
    *
@@ -217,7 +214,8 @@ public class GUIManager {
   }
 
   /**
-   * TODO
+   * Handler for when two nodes are selected on the front end. Returns the path
+   * between them if one exists.
    *
    * @author sjl2
    *
@@ -248,7 +246,8 @@ public class GUIManager {
   }
 
   /**
-   * Default Handler for maps.
+   * Handler for when the front end sends a request for the path between two
+   * intersections.
    *
    * @author sjl2
    *
@@ -256,6 +255,7 @@ public class GUIManager {
   private class IntersectionHandler implements Route {
     @Override
     public Object handle(Request req, Response res) {
+      System.out.println("Finding Intersection.");
       QueryParamsMap qm = req.queryMap();
 
       String source1 = qm.value("source1");
@@ -285,6 +285,12 @@ public class GUIManager {
     }
   }
 
+  /**
+   * Handler for returning autocorrect suggestions for an input
+   *
+   * @author sjl2
+   *
+   */
   private class SuggestionsHandler implements Route {
     @Override
     public Object handle(final Request req, final Response res) {
@@ -300,22 +306,13 @@ public class GUIManager {
   }
 
   /**
-   * TODO
+   * receives a list of way ids, returns a map from way id to traffic level
    *
-   * @author sjl2
-   *
+   * @author dshieble
    */
   private class TrafficHandler implements Route {
+
     @Override
-    /**
-     * receives a list of way ids, returns a map from way id to traffic level
-     *
-     * TODO: Transfer the data in the format
-     * tile1: "wayid1_wayid2_wayid3" etc
-     * return the data in the form:
-     * ["num1_num2_num3", "num1_num2" etc]
-     *
-     */
     public Object handle(final Request req, final Response res) {
       QueryParamsMap qm = req.queryMap();
       tm.updateTraffic();
