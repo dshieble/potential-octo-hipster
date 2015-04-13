@@ -7,7 +7,7 @@
 				<select class="suggestions" id="list3"></select>
 							
 				<textarea id="suggest4" name="target2" rows="1" cols="50" placeholder="To Street 2"></textarea>
-				<select class="suggestions" id="list4"></select>
+				<select class="suggestions" id="list4"> </select>
 			</div>
 			<div id="centerpiece">
 				<h2>Ye High-Tech, Olde Providence</h1>

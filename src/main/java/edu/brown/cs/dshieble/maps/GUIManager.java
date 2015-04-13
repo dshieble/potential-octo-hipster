@@ -7,6 +7,8 @@ import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -23,13 +25,14 @@ import spark.Route;
 import spark.Spark;
 import spark.TemplateViewRoute;
 import spark.template.freemarker.FreeMarkerEngine;
+import edu.brown.cs.dshieble.autocorrect.TrieManager;
 import edu.brown.cs.sjl2.autocorrect.Autocorrect;
 import edu.brown.cs.sjl2.kd.KDTree;
 import freemarker.template.Configuration;
 
 public class GUIManager {
 
-  private Autocorrect autocorrect;
+  private TrieManager autocorrect;
   private KDTree<Node> tree;
   private TrafficManager tm;
   private String db;
@@ -46,8 +49,10 @@ public class GUIManager {
     try (PathFinder p = new PathFinder(db, tm)) {
       this.tree = new KDTree<Node>(2, new ArrayList<>(p.getAllNodes()));
 
-      initializeAutocorrect(p.getStreetNames());
-
+      //initializeAutocorrect(p.getStreetNames());
+      Collection<String> names = p.getStreetNames();
+      autocorrect = new TrieManager(
+          names.toArray(new String[names.size()]));
     } catch (ClassNotFoundException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -68,8 +73,10 @@ public class GUIManager {
     this.db = db;
     try (PathFinder p = new PathFinder(db, tm)) {
       this.tree = new KDTree<Node>(2, new ArrayList<>(p.getAllNodes()));
-      initializeAutocorrect(p.getStreetNames());
-    } catch (ClassNotFoundException e) {
+      Collection<String> names = p.getStreetNames();
+      autocorrect = new TrieManager(
+          names.toArray(new String[names.size()]));
+      } catch (ClassNotFoundException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (SQLException e) {
@@ -79,13 +86,13 @@ public class GUIManager {
     runSparkServer(DEFAULT_PORT);
   }
 
-  private void initializeAutocorrect(List<String> names) {
-    Autocorrect.Builder b = new Autocorrect.Builder(names);
-    b.useLED(true, 2);
-    b.usePrefix(true);
-    b.useWhitespace(true);
-    this.autocorrect = b.build();
-  }
+//  private void initializeAutocorrect(List<String> names) {
+//    Autocorrect.Builder b = new Autocorrect.Builder(names);
+//    b.useLED(true, 2);
+//    b.usePrefix(true);
+//    b.useWhitespace(true);
+//    this.autocorrect = b.build();
+//  }
 
   private static FreeMarkerEngine createEngine() {
     Configuration config = new Configuration();
@@ -264,24 +271,48 @@ public class GUIManager {
       String target1 = qm.value("target1");
       String target2 = qm.value("target2");
 
-      List<Node> path;
+
+
+      
+      List<Node> inter = new ArrayList<Node>();
       try (PathFinder p = new PathFinder(db, tm)) {
-         path = p.findPath(
-             p.getIntersection(source1, source2),
-             p.getIntersection(target1, target2),
-             true
-         );
+        String i1 = p.getIntersection(source1, source2);
+        String i2 = p.getIntersection(target1, target2);
+        if (i1 != null) {
+          inter.add(p.idToNode(i1));
+        } else {
+          inter.add(null);
+        }
+        if (i1 != null) {
+          inter.add(p.idToNode(i2));
+        } else {
+          inter.add(null);
+        }        
+        
+//        System.out.println(source1);
+//        System.out.println(source2);
+//
+//        System.out.println();
+//        System.out.println(p.getIntersection(target1, target2));
+//         path = p.findPath(
+//             p.getIntersection(source1, source2),
+//             p.getIntersection(target1, target2),
+//             true
+//         );
+//         if (path == null) {
+//           path = new ArrayList<>();
+//         }
       } catch (ClassNotFoundException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
-        path = new ArrayList<>();
+        inter = new ArrayList<>();
       } catch (SQLException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
-        path = new ArrayList<>();
+        inter = new ArrayList<>();
       }
-
-      return GSON.toJson(path);
+      
+      return GSON.toJson(inter);
     }
   }
 
@@ -296,11 +327,13 @@ public class GUIManager {
     public Object handle(final Request req, final Response res) {
       QueryParamsMap qm = req.queryMap();
 
-      String input = qm.value("rawText");
-
-      List<String> suggestions =
-          autocorrect.getNSuggestions(SUGGESTIONS, input);
-
+      String input[] = new String[] {qm.value("rawText")};
+      String[] suggestions = autocorrect.getSuggestions(input,
+              true,
+              0,
+              true,
+              false);
+      //System.out.println(Arrays.toString(suggestions));
       return GSON.toJson(suggestions);
     }
   }

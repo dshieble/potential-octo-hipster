@@ -1,8 +1,10 @@
 //TODO:
-//Intersection shortest path selection
-//Traffic colors and A* stuff
-//Optimize shortest path to speed up no connection situations?
+//Traffic A* stuff
 //street names on map (SWAG)
+//make system tests - re-email TA list
+//mvn site
+//write README
+//sparse representation from server (SWAG)
 //wider roads (SWAG)
 
 //Directions:
@@ -37,7 +39,7 @@ ABOVE_AVERAGE = "#0000FF";
 HEAVY = "#B23026";
 STAY_HOME = "#8C0000";
 TRAFFIC_COLORS = [undefined, NORMAL, ABOVE_AVERAGE, HEAVY, STAY_HOME];
-TRAFFIC_CUTOFFS = [0, 1, 3, 5, 7];
+TRAFFIC_CUTOFFS = [0, 1, 3, 5, 10];
 
 
 MAP_WIDTH = 500; 
@@ -83,6 +85,8 @@ var tol = 3;
 
 var tilesReady = 0;
 var tilesTarget = 0;
+var updateLock = false; 
+var requestPending = false;
 
 var mouseHold = false;
 var dragging = false;
@@ -102,7 +106,11 @@ window.onmouseup = function() {
 
 setTimeout(
 	function(){ 
-		setInterval(function(){ updateTraffic(); }, 1000);
+		setInterval(function(){ 
+			if (!requestPending) {
+				updateTraffic(); 
+			}
+		}, 1000);
 	}, 500
 );
 
@@ -159,7 +167,7 @@ $(function() {
 
 	$('#suggest').keypress(function(event) {
 
-		var postParameters = { rawText: $('#suggest').val() };
+		var postParameters = { rawText: $('#suggest').val() + String.fromCharCode(event.charCode) };
 
 		$.post("/suggestions", postParameters, function(responseJSON) {
 			$("#list").find('option').remove().end();
@@ -171,13 +179,9 @@ $(function() {
 		})
 	})
 
-	$("#list").change(function(event) {
-		$('#suggest').val($("#list option:selected").val());
-	})
+	$('#suggest2').keypress(function(event) {
 
-	$('#suggest2').change(function(event) {
-
-		var postParameters = { rawText: $('#suggest2').val() };
+		var postParameters = { rawText: $('#suggest2').val() + String.fromCharCode(event.charCode) };
 
 		$.post("/suggestions", postParameters, function(responseJSON) {
 			$("#list2").find('option').remove().end();
@@ -189,9 +193,9 @@ $(function() {
 		})
 	})
 
-	$('#suggest3').change(function(event) {
+	$('#suggest3').keypress(function(event) {
 
-		var postParameters = { rawText: $('#suggest3').val() };
+		var postParameters = { rawText: $('#suggest3').val() + String.fromCharCode(event.charCode) };
 
 		$.post("/suggestions", postParameters, function(responseJSON) {
 			$("#list3").find('option').remove().end();
@@ -203,9 +207,9 @@ $(function() {
 		})
 	})
 
-	$('#suggest4').change(function(event) {
+	$('#suggest4').keypress(function(event) {
 
-		var postParameters = { rawText: $('#suggest4').val() };
+		var postParameters = { rawText: $('#suggest4').val() + String.fromCharCode(event.charCode) };
 
 		$.post("/suggestions", postParameters, function(responseJSON) {
 			$("#list4").find('option').remove().end();
@@ -215,6 +219,11 @@ $(function() {
 					$('<option>', {id: "remove 4", value : suggestions[i]}).text(suggestions[i]));
 			}
 		})
+	})
+
+
+	$("#list").change(function(event) {
+		$('#suggest').val($("#list option:selected").val());
 	})
 
 	$("#list2").change(function(event) {
@@ -241,15 +250,17 @@ $(function() {
 		if (mouseHold) {
 			dX = event.pageX - map.offsetLeft - lastX; 
 			dY = event.pageY - map.offsetTop - lastY;
-
+			lastX = event.pageX - map.offsetLeft;
+			lastY = event.pageY - map.offsetTop;
 			if (dragging || Math.pow(dX, 2) + Math.pow(dY, 2) > 300) {
 				//console.log("x " + dX)
 				//console.log("y " + dY)
 				dragging = true;
-				ANCHOR_LAT = ANCHOR_LAT + lat_over_y*dY*0.01;
-				ANCHOR_LONG = ANCHOR_LONG - long_over_x*dX*0.01;
+				ANCHOR_LAT = ANCHOR_LAT + lat_over_y*dY;
+				ANCHOR_LONG = ANCHOR_LONG - long_over_x*dX;
 				addTilesAndDraw();
 				// console.log(event)
+				paintMap();
 			}
 		}
 	})
@@ -257,19 +268,21 @@ $(function() {
 
 	//CLICK - NEAREST NEIGHBOR
 	$("#map").mouseup(function(event) {
+		console.log(444)
 		var map = $("#map")[0];
 
 		var x = event.pageX - map.offsetLeft; 
 		var y = event.pageY - map.offsetTop; 
 
 		if (x == lastX && y == lastY) {
+			requestPending = true;
 			//console.log("Click.");
 			var latlong = xyToLatLong(x, y);
 			var postParameters = {
 				lat : latlong[0],
 				lng : latlong[1]
 			}; 
-
+			document.getElementById('clear').innerHTML = "Thinking...";
 			$.post("/closest", postParameters, function(responseJSON) {
 				responseObject = JSON.parse(responseJSON);
 				// Find Take Closest Node
@@ -288,30 +301,52 @@ $(function() {
 				} else {
 					alert("you done fucked up");
 				}
+				requestPending = false;
 				paintMap(); 
+				document.getElementById('clear').innerHTML = "Clear";
 			});
 		}
 	})
 
 	$("#get_path").click(function (event) {
-		// if (input_state == 3) {
-		// 	input_state = 1;
-		// 	node1 = undefined;
-		// 	node2 = undefined;
-		// }
+		clearNodes();
+		requestPending = true;
+		var postParameters = { 
+			source1 : $("[name='source1']").val(), 
+			source2 : $("[name='source2']").val(),
+			target1 : $("[name='target1']").val(),
+			target2 : $("[name='target2']").val()
+		}
+		console.log(postParameters)
 
-		// var postParameters = { 
-		// 	source1 : $("[name='source1']").val(), 
-		// 	source2 : $("[name='source2']").val(),
-		// 	target1 : $("[name='target1']").val(),
-		// 	target2 : $("[name='target2']").val()
-		// }
+		$.post("/intersections", postParameters, function (responseJSON) {
+			responseObject = JSON.parse(responseJSON);
+			console.log(responseObject);
+			if (responseObject.length == 2) {
+				if (responseObject[0] == null) {
+					alert("No Intersection between Source Streets.");
+				} else if (responseObject[1] == null) {
+					alert("No Intersection between Target Streets.");
+				} else {
+					var lat = responseObject[0].lat;
+					var lon = responseObject[0].lon;
+					var id = responseObject[0].id; 
 
-		// $.post("/intersections", postParameters, function (responseJSON) {
-		// 	responseObject = JSON.parse(responseJSON);
-		// 	paintNodes(responseObject);
-		// 	input_state = 1;
-		// })
+					node1 = new Node(lat, lon, id);
+
+					lat = responseObject[1].lat;
+					lon = responseObject[1].lon;
+					id = responseObject[1].id; 
+
+					node2 = new Node(lat, lon, id);
+
+					input_state = 3;
+				}
+			} else {
+				alert("Backend SQL Exception. Sorry... This is awkward...");
+			}
+			requestPending = false;
+		})
 	})
 	
 	$("#clear").click(function (event) {
@@ -449,19 +484,14 @@ function updateMapDim(newHeight, newWidth) {
 
 //updates the visible tile array based on the anchors, width and height
 function updateVisible() {
-	visibleTiles.length = 0;
-	visibleWays.length = 0;
-	for (t in tileMap) {
-		if (tileMap.hasOwnProperty(t)) {
-			if (tileMap[t].onScreen()) {
-				visibleTiles.push(tileMap[t]);
+	if (!updateLock) {
+		visibleTiles.length = 0;
+		for (t in tileMap) {
+			if (tileMap.hasOwnProperty(t)) {
+				if (tileMap[t].onScreen()) {
+					visibleTiles.push(tileMap[t]);
+				}
 			}
-		}
-	}
-	for (var i = 0; i < visibleTiles.length; i++) {
-		visibleWays.push([]);
-		for (var j = 0; j < visibleTiles[i].ways.length; j++) {
-			visibleWays[i].push(visibleTiles[i].ways[j].id);
 		}
 	}
 }
@@ -470,6 +500,14 @@ function updateVisible() {
 function updateTraffic() { 
 	var postParameters = {};
 	var tilesPassed = 0;
+	updateLock = true;
+	visibleWays.length = 0;
+	for (var i = 0; i < visibleTiles.length; i++) {
+		visibleWays.push([]);
+		for (var j = 0; j < visibleTiles[i].ways.length; j++) {
+			visibleWays[i].push(visibleTiles[i].ways[j].id);
+		}
+	}
 	for (var i = 0; i < visibleTiles.length; i++) {
 		postParameters["index"] = i; 
 		postParameters["ids"] = JSON.stringify(visibleWays[i]);
@@ -479,12 +517,14 @@ function updateTraffic() {
 			var responseObject = JSON.parse(responseJSON);
 			var i = responseObject["index"]; 
 			var traffic = responseObject["traffic"];
-
-			for (var j = 0; j < traffic.length; j++) {
-				visibleTiles[i].ways[j].traffic = traffic[j];
+			if (visibleTiles[i] != undefined) {
+				for (var j = 0; j < visibleTiles[i].ways.length; j++) {
+					visibleTiles[i].ways[j].traffic = traffic[j];
+				}
 			}
 			tilesPassed ++;
 			if (tilesPassed == visibleTiles.length) {
+				updateLock = false;
 				paintMap(); 
 			}
 		})
@@ -538,7 +578,7 @@ function paintGrid(ctx) {
 }
 
 function paintMap() {
-	if (tilesReady == tilesTarget) {
+	if (tilesReady == tilesTarget && !updateLock) {
 		console.log("painting map");
 		updateVisible();
 		var ctx = $("#map")[0].getContext("2d"); 
@@ -628,6 +668,7 @@ function paintPath(ctx) {
 	 			nodes = JSON.parse(responseJSON);
 	 			if (nodes.length == 0) {
 	 				alert("No path found!")
+	 				clearNodes();
 	 			} else {
 	 				paintNodes(ctx);
 	 			}
@@ -709,7 +750,12 @@ function Tile(index) {
 }
 
 Tile.prototype.setWays = function(ways) {
-	this.ways = ways;
+	this.ways.length = 0;
+	for (w in ways) {
+		if (ways[w] != undefined) {
+			this.ways.push(ways[w]);
+		}
+	}
 
 
 	// var left = [[this.minLat, this.minLong], [this.maxLat, this.minLong]];

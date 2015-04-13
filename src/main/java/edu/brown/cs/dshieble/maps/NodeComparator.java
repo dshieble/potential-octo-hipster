@@ -27,8 +27,8 @@ public class NodeComparator implements Comparator<Node> {
    */
   @Override
   public final int compare(final Node o1, final Node o2) {
-    double w1 = o1.getHeuristic() + o1.getWeight();
-    double w2 = o2.getHeuristic() + o2.getWeight();
+    double w1 = o1.getWeight() + o1.getHeuristic();
+    double w2 = o2.getWeight() + o2.getHeuristic();
     if (w1 > w2) {
       return 1;
     } else if (w1 < w2) {

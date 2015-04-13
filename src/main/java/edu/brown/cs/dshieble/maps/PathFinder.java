@@ -61,6 +61,7 @@ public class PathFinder implements AutoCloseable {
       return null;
     }
     double[] latLong = getLatLong(startId);
+    double[] latLongEnd = getLatLong(endId);
     Node d = new Node(latLong[0], latLong[1],
         startId,
         null, null,
@@ -71,10 +72,11 @@ public class PathFinder implements AutoCloseable {
     while (!pq.isEmpty()) {
       Node head = pq.remove();
       if (head.getID().equals(endId)) {
+        //System.out.println(head);
         return head.getPath();
       } else if (!explored.contains(head.getID())) {
         explored.add(head.getID());
-        Set<Node> nodes = findNodes(head, usingTraffic);
+        Set<Node> nodes = findNodes(head, usingTraffic, latLongEnd);
         for (Node n : nodes) {
           if (!explored.contains(n.getID())) {
             pq.add(n);
@@ -94,7 +96,8 @@ public class PathFinder implements AutoCloseable {
    * @throws SQLException
    */
   public final Set<Node> findNodes(
-      final Node node, final boolean usingTraffic)
+      final Node node, final boolean usingTraffic,
+      final double[] target)
       throws SQLException {
     Set<Node> output = new HashSet<Node>();
     String[] queries = {
@@ -120,14 +123,16 @@ public class PathFinder implements AutoCloseable {
             String wayId = rs.getString(4);
             String wayName = rs.getString(5);
             double heur = UtilityClass.getDistance(lat, lon,
-                node.getLat(), node.getLong());
+                target[0], target[1]);
             double multiplier = 1;
             if (usingTraffic) {
-              //multiplier = tm.getTrafficLevel(wayId);
-              System.out.println(multiplier);
+              multiplier = tm.getTrafficLevel(wayId);
+              //System.out.println(multiplier);
             }
             Node n = new Node(lat, lon, id, node,
                 wayName, wayId, heur, multiplier);
+            //System.out.println(id);
+            //System.out.println(multiplier);
             output.add(n);
           }
         } catch (SQLException e1) {

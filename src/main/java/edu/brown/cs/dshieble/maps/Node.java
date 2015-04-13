@@ -72,7 +72,6 @@ public class Node implements KDimensional {
       this.weight = 0;
     } else {
       this.weight = multiplier*getDistance(parent) + parent.getWeight();
-      System.out.println(this.weight);
     }
   }
 
