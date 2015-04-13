@@ -1,6 +1,7 @@
 //TODO:
-//Traffic A* stuff
-//street names on map (SWAG)
+//street names on map (SWAG) 
+		// Can center street names by storing a street object. the street object has it's start and end and the line between start and end is captioned with the street name. (or written once every x degrees)
+// no ghost clicks for finding path (also drag sometimes clicks)
 //make system tests - re-email TA list
 //mvn site
 //write README
@@ -79,14 +80,13 @@ var nodes = [];
 
 var lastX;
 var lastY;
-
-var lastScrollTop = 0; 
-var tol = 3; 
+var zoom = 0;
 
 var tilesReady = 0;
 var tilesTarget = 0;
 var updateLock = false; 
 var requestPending = false;
+var drawnWays= {};
 
 var mouseHold = false;
 var dragging = false;
@@ -369,11 +369,13 @@ $(function() {
 			ANCHOR_LAT = ANCHOR_LAT + height*.5;
 			ANCHOR_LONG = ANCHOR_LONG - width*.5;
 			updateMapDim(Math.min(width * 2, MAX_WIDTH), Math.min(height * 2, MAX_HEIGHT)); 
+			zoom ++;
 		} else {
 			// Scroll Up - zoom in
 			ANCHOR_LAT = ANCHOR_LAT - height*.25;
 			ANCHOR_LONG = ANCHOR_LONG + width*.25;
 			updateMapDim(Math.max(width / 2, MIN_WIDTH), Math.max(height / 2, MIN_HEIGHT));
+			zoom --;
 		}
 		addTilesAndDraw();
 
@@ -581,22 +583,15 @@ function paintMap() {
 	if (tilesReady == tilesTarget && !updateLock) {
 		console.log("painting map");
 		updateVisible();
+		drawnWays = {};
 		var ctx = $("#map")[0].getContext("2d"); 
 		ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); 
-		ctx.beginPath(); 
-
-		//paintGrid(ctx); 
-		ctx.stroke(); 
 
 		// for (t in visibleTiles) {
 		// 	visibleTiles[t].paint(ctx);
 		// }
 
 		paintTraffic(ctx); 
-
-		ctx.strokeStyle = DEFAULT_WAY;
-		ctx.globalAlpha = 0.2;
-		ctx.stroke(); 
 
 		//draw the path
 		paintPath(ctx)
@@ -863,6 +858,19 @@ Tile.prototype.paint = function(ctx) {
 function paintWay(ctx, w) {
 	//console.log(window.x)
 	paintLine(ctx, w.start, w.end);
+	xy1 = latLongToXY(w.start.lat, w.start.lon)
+	xy2 = latLongToXY(w.end.lat, w.end.lon)
+	//console.log(w)
+	if (zoom <= -3 && w.id[w.id.length - 1] == "1" && drawnWays[w.name] == undefined) {
+		ctx.save();
+		ctx.textAlign = "center";
+		ctx.translate(xy1[0] + 0.5 * (xy2[0]-xy1[0]), xy1[1] + 0.5 * (xy2[1] - xy1[1])); 
+		ctx.rotate(Math.atan2(xy2[1] - xy1[1], xy2[0] - xy1[0])); 
+		ctx.fillStyle = DEFAULT_WAY;
+		ctx.fillText(w.name, 0, 0); 
+		ctx.restore(); 
+		drawnWays[w.name] = true;
+	}
 }
 
 

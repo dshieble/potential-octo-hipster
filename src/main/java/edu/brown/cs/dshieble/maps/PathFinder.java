@@ -104,11 +104,12 @@ public class PathFinder implements AutoCloseable {
         "SELECT node.id, node.latitude, node.longitude, W.id, W.name "
         + "FROM node INNER JOIN "
           + "(SELECT id, name, end FROM way WHERE start = ?) AS W "
-        + "ON W.end = node.id;",
-        "SELECT node.id, node.latitude, node.longitude, W.id, W.name "
-        + "FROM node INNER JOIN "
-          + "(SELECT id, name, start FROM way WHERE end = ?) AS W "
-        + "ON W.start = node.id;"
+        + "ON W.end = node.id;"
+//        ,
+//        "SELECT node.id, node.latitude, node.longitude, W.id, W.name "
+//        + "FROM node INNER JOIN "
+//          + "(SELECT id, name, start FROM way WHERE end = ?) AS W "
+//        + "ON W.start = node.id;"
     };
     for (int i = 0; i < queries.length; i++) {
       try (PreparedStatement prep = conn.prepareStatement(queries[i])) {
@@ -122,18 +123,20 @@ public class PathFinder implements AutoCloseable {
             double lon = rs.getDouble(3);
             String wayId = rs.getString(4);
             String wayName = rs.getString(5);
-            double heur = UtilityClass.getDistance(lat, lon,
-                target[0], target[1]);
-            double multiplier = 1;
-            if (usingTraffic) {
-              multiplier = tm.getTrafficLevel(wayId);
+            if (id != node.getID()) {
+              double heur = 0; //UtilityClass.getDistance(lat, lon,
+                  //target[0], target[1]);
+              double multiplier = 1;
+              if (usingTraffic) {
+                multiplier = tm.getTrafficLevel(wayId);
+                //System.out.println(multiplier);
+              }
+              Node n = new Node(lat, lon, id, node,
+                  wayName, wayId, heur, multiplier);
+              //System.out.println(id);
               //System.out.println(multiplier);
+              output.add(n);
             }
-            Node n = new Node(lat, lon, id, node,
-                wayName, wayId, heur, multiplier);
-            //System.out.println(id);
-            //System.out.println(multiplier);
-            output.add(n);
           }
         } catch (SQLException e1) {
           throw(e1);
@@ -310,7 +313,7 @@ public class PathFinder implements AutoCloseable {
   public final List<Way> getWaysWithin(double lat1, double lat2,
       double lon1, double lon2) throws SQLException {
     List<Way> list = new ArrayList<Way>();
-    String query = "SELECT start, end, way.id, name FROM way INNER JOIN "
+    String query = "SELECT start, end, way.id, way.name FROM way INNER JOIN "
         + "(SELECT id FROM node "
           + "WHERE latitude >= ? "
           + "AND latitude <= ? "
@@ -330,7 +333,7 @@ public class PathFinder implements AutoCloseable {
           Node start = idToNode(rs.getString(1));
           Node end = idToNode(rs.getString(2));
           String id = rs.getString(3);
-          String name = rs.getString(3);
+          String name = rs.getString(4);
           Way w = new Way(start, end, name, id);
           list.add(w);
         }
