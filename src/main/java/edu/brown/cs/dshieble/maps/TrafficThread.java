@@ -1,16 +1,16 @@
 package edu.brown.cs.dshieble.maps;
 
-import java.util.Set;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Class that manages the Traffic data
- * @author dshieble
- *
- */
-
-public class TrafficManager {
+public class TrafficThread extends Thread {
 
   /**
    * the unix time
@@ -29,20 +29,38 @@ public class TrafficManager {
   private ConcurrentHashMap<String, Boolean> updated;
 
   /**
-   * simple constructor that initializes the threadsafe variables
+   * the port number
    */
-  public TrafficManager(int p) {
-    time = new AtomicInteger(0);
-    map = new ConcurrentHashMap<String, Double>();
-    updated = new ConcurrentHashMap<String, Boolean>();
+  private int port;
 
-    Thread t = new TrafficThread(p, time, map, updated);
-    t.start();
+  public TrafficThread(
+      int port,
+      AtomicInteger time,
+      ConcurrentHashMap<String, Double> map,
+      ConcurrentHashMap<String, Boolean> updated) {
 
+    this.port = port;
+    this.time = time;
+    this.map = map;
+    this.updated = updated;
   }
 
-  /*
+  @Override
+  public void run() {
+    Timer t = new Timer();
+    TimerTask task = new TimerTask() {
+      @Override
+      public void run() {
+        updateTraffic();
+      }
+    };
 
+    t.scheduleAtFixedRate(task, 0, 500);
+  }
+
+  /**
+   * Updates the concurrent hash map with traffic data
+   */
   public void updateTraffic() {
     updated.clear();
     try {
@@ -87,31 +105,4 @@ public class TrafficManager {
       e.printStackTrace();
     }
   }
-  */
-
-  /**
-   *
-   * @return returns a set of all way ids whose traffic was updated
-   * in last iteration
-   */
-  public Set<String> getUpdated() {
-    return updated.keySet();
-  }
-
-  /**
-   * @return simple getter
-   */
-  public ConcurrentHashMap<String, Double> getMap() {
-    return map;
-  }
-
-  /**
-   *
-   * @param id the way id
-   * @return the traffic of that way or 1.0 if normal traffic
-   */
-  public double getTrafficLevel(String id) {
-    return map.get(id) != null ? map.get(id) : 1.0;
-  }
-
 }

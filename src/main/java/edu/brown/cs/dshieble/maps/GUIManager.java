@@ -7,7 +7,6 @@ import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import spark.Spark;
 import spark.TemplateViewRoute;
 import spark.template.freemarker.FreeMarkerEngine;
 import edu.brown.cs.dshieble.autocorrect.TrieManager;
-import edu.brown.cs.sjl2.autocorrect.Autocorrect;
 import edu.brown.cs.sjl2.kd.KDTree;
 import freemarker.template.Configuration;
 
@@ -37,7 +35,6 @@ public class GUIManager {
   private TrafficManager tm;
   private String db;
 
-  private static final int SUGGESTIONS = 5;
   private static final int DEFAULT_PORT = 8686;
   private static final int TRAFFIC_PORT = 8080;
   private static final int STATUS = 500;
@@ -85,14 +82,6 @@ public class GUIManager {
     }
     runSparkServer(DEFAULT_PORT);
   }
-
-//  private void initializeAutocorrect(List<String> names) {
-//    Autocorrect.Builder b = new Autocorrect.Builder(names);
-//    b.useLED(true, 2);
-//    b.usePrefix(true);
-//    b.useWhitespace(true);
-//    this.autocorrect = b.build();
-//  }
 
   private static FreeMarkerEngine createEngine() {
     Configuration config = new Configuration();
@@ -173,12 +162,6 @@ public class GUIManager {
 
       double maxLong = GSON.fromJson(qm.value("maxLong"), Double.class);
       double minLong = GSON.fromJson(qm.value("minLong"), Double.class);
-
-//      System.out.println("minLat:" + minLat);
-//      System.out.println("maxLat:" + maxLat);
-
-//      System.out.println("minLong:" + minLong);
-//      System.out.println("maxLong:" + maxLong);
 
       List<Way> ways;
 
@@ -273,7 +256,7 @@ public class GUIManager {
 
 
 
-      
+
       List<Node> inter = new ArrayList<Node>();
       try (PathFinder p = new PathFinder(db, tm)) {
         String i1 = p.getIntersection(source1, source2);
@@ -287,8 +270,8 @@ public class GUIManager {
           inter.add(p.idToNode(i2));
         } else {
           inter.add(null);
-        }        
-        
+        }
+
 //        System.out.println(source1);
 //        System.out.println(source2);
 //
@@ -311,7 +294,7 @@ public class GUIManager {
         e.printStackTrace();
         inter = new ArrayList<>();
       }
-      
+
       return GSON.toJson(inter);
     }
   }
@@ -348,7 +331,6 @@ public class GUIManager {
     @Override
     public Object handle(final Request req, final Response res) {
       QueryParamsMap qm = req.queryMap();
-      tm.updateTraffic();
 
       Type stringListType = new TypeToken<List<String>>() {}.getType();
       List<String> ways = GSON.fromJson(qm.value("ids"), stringListType);

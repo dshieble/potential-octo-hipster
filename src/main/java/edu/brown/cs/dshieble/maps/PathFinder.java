@@ -53,9 +53,7 @@ public class PathFinder implements AutoCloseable {
   public final List<Node> findPath(final String startId,
       final String endId, final boolean usingTraffic)
           throws SQLException {
-    if (usingTraffic) {
-      tm.updateTraffic();
-    }
+
     Set<String> explored = new HashSet<String>();
     if (startId == null || endId == null) {
       return null;
@@ -100,51 +98,50 @@ public class PathFinder implements AutoCloseable {
       final double[] target)
       throws SQLException {
     Set<Node> output = new HashSet<Node>();
-    String[] queries = {
+    String query =
         "SELECT node.id, node.latitude, node.longitude, W.id, W.name "
         + "FROM node INNER JOIN "
-          + "(SELECT id, name, end FROM way WHERE start = ?) AS W "
-        + "ON W.end = node.id;"
-//        ,
-//        "SELECT node.id, node.latitude, node.longitude, W.id, W.name "
-//        + "FROM node INNER JOIN "
-//          + "(SELECT id, name, start FROM way WHERE end = ?) AS W "
-//        + "ON W.start = node.id;"
-    };
-    for (int i = 0; i < queries.length; i++) {
-      try (PreparedStatement prep = conn.prepareStatement(queries[i])) {
-        prep.setString(1, node.getID());
-        // Execute the query and retrieve a ResultStatement
-        try (ResultSet rs = prep.executeQuery()) {
-          //Add the results to a list
-          while (rs.next()) {
-            String id = rs.getString(1);
-            double lat = rs.getDouble(2);
-            double lon = rs.getDouble(3);
-            String wayId = rs.getString(4);
-            String wayName = rs.getString(5);
-            if (id != node.getID()) {
-              double heur = 0; //UtilityClass.getDistance(lat, lon,
-                  //target[0], target[1]);
-              double multiplier = 1;
-              if (usingTraffic) {
-                multiplier = tm.getTrafficLevel(wayId);
-                //System.out.println(multiplier);
-              }
-              Node n = new Node(lat, lon, id, node,
-                  wayName, wayId, heur, multiplier);
-              //System.out.println(id);
+        + "(SELECT id, name, end FROM way WHERE start = ?) AS W "
+        + "ON W.end = node.id;";
+//  ,
+//  "SELECT node.id, node.latitude, node.longitude, W.id, W.name "
+//  + "FROM node INNER JOIN "
+//    + "(SELECT id, name, start FROM way WHERE end = ?) AS W "
+//  + "ON W.start = node.id;"
+
+    try (PreparedStatement prep = conn.prepareStatement(query)) {
+      prep.setString(1, node.getID());
+      // Execute the query and retrieve a ResultStatement
+      try (ResultSet rs = prep.executeQuery()) {
+        //Add the results to a list
+        while (rs.next()) {
+          String id = rs.getString(1);
+          double lat = rs.getDouble(2);
+          double lon = rs.getDouble(3);
+          String wayId = rs.getString(4);
+          String wayName = rs.getString(5);
+          if (id != node.getID()) {
+            double heur = 0; //UtilityClass.getDistance(lat, lon,
+                //target[0], target[1]);
+            double multiplier = 1;
+            if (usingTraffic) {
+              multiplier = tm.getTrafficLevel(wayId);
               //System.out.println(multiplier);
-              output.add(n);
             }
+            Node n = new Node(lat, lon, id, node,
+                wayName, wayId, heur, multiplier);
+            //System.out.println(id);
+            //System.out.println(multiplier);
+            output.add(n);
           }
-        } catch (SQLException e1) {
-          throw(e1);
         }
-      } catch (SQLException e2) {
-        throw(e2);
+      } catch (SQLException e1) {
+        throw(e1);
       }
+    } catch (SQLException e2) {
+      throw(e2);
     }
+
     return output;
   }
 
