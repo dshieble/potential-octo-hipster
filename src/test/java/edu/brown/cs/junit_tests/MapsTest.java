@@ -108,22 +108,25 @@ public class MapsTest {
     Node Node3 = new Node(ll3[0], ll3[1], "/n/3", null, null, null, 0, 1);
     Node Node5 = new Node(ll5[0], ll5[1], "/n/5", null, null, null, 0, 1);
     Set<Node> nodes0 = p.findNodes(Node0, false, ll0);
+
+
     assertTrue(nodes0.size() == 2);
     for (Node n : nodes0) {
       assertTrue(n.getID().equals("/n/1") || n.getID().equals("/n/3"));
     }
 
     Set<Node> nodes3 = p.findNodes(Node3, false, ll0);
-    assertTrue(nodes3.size() == 2);
+    assertTrue(nodes3.size() == 1);
     for (Node n : nodes3) {
-      assertTrue(n.getID().equals("/n/0") || n.getID().equals("/n/4"));
+      assertTrue(n.getID().equals("/n/4"));
     }
 
     Set<Node> nodes5 = p.findNodes(Node5, false, ll0);
-    assertTrue(nodes5.size() == 2);
-    for (Node n : nodes5) {
-      assertTrue(n.getID().equals("/n/2") || n.getID().equals("/n/4"));
-    }
+    assertTrue(nodes5.size() == 0);
+
+    System.out.println(Arrays.toString(nodes0.toArray()));
+    System.out.println(Arrays.toString(nodes3.toArray()));
+    System.out.println(Arrays.toString(nodes5.toArray()));
   }
 
   //KDimensional interface
