@@ -10,24 +10,24 @@ import edu.brown.cs.sjl2.kd.KDimensional;
 public class Way implements KDimensional {
 
   /**
-   * start node
+   * start node.
    */
   private Node start;
   /**
-   * end node
+   * end node.
    */
   private Node end;
   /**
-   * actor's name.
+   * Street name.
    */
   private String name;
   /**
-   * actor's id.
+   * Way ID.
    */
   private String id;
 
   /**
-   *
+   * Constructor for a Way representing a one-way street in maps.
    * @param s start node
    * @param e end node
    * @param n name of way
@@ -43,7 +43,7 @@ public class Way implements KDimensional {
 
   @Override
   /**
-   * KDimensional Class method
+   * KDimensional Class method.
    * @param n the dimension to find
    * @return the value of the nth dimension
    */

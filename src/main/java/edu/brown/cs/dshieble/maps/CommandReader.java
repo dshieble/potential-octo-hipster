@@ -17,6 +17,12 @@ import edu.brown.cs.sjl2.kd.KDTree;
  */
 public final class CommandReader {
 
+  private static final int SPACE_ARR_LENGTH = 4;
+  private static final int C1_INDEX = 3;
+  private static final int S2_INDEX = 5;
+  private static final int C2_INDEX = 7;
+  private static final int QUOTE_ARR_LENGTH = 8;
+
   /**
    * Prevents this class from being instantiated.
    */
@@ -25,14 +31,15 @@ public final class CommandReader {
   }
 
   /**
-   * Static function for MAPS REPL
+   * Static function for MAPS REPL.
    * @param file The String for the name of the maps database.
    */
   public static void readCommands(String file) {
     try (PathFinder p = new PathFinder(file, null)) {
       try (BufferedReader reader =
-        new BufferedReader(new InputStreamReader(System.in))) {
-        KDTree<Node> kd = new KDTree<Node>(2, new ArrayList<Node>(p.getAllNodes()));
+          new BufferedReader(new InputStreamReader(System.in))) {
+        KDTree<Node> kd =
+            new KDTree<Node>(2, new ArrayList<Node>(p.getAllNodes()));
         String command = null;
         while ((command = reader.readLine())  != null) {
           if (command.length() == 0) {
@@ -44,18 +51,18 @@ public final class CommandReader {
           String toId = null;
           if (quoteArr.length == 1) {
             String[] spaceArr = command.split(" ");
-            if (spaceArr.length != 4) {
+            if (spaceArr.length != SPACE_ARR_LENGTH) {
               throw new IOException("Incorrect number of Arguments.");
             }
             double[] from = new double[2];
             double[] to = new double[2];
-            for (int i = 0; i < from.length + to.length; i ++) {
+            for (int i = 0; i < from.length + to.length; i++) {
               try {
                 double d = Double.parseDouble(spaceArr[i]);
                 if (i < 2) {
                   from[i] = d;
                 } else {
-                  to[i-2] = d;
+                  to[i - 2] = d;
                 }
               } catch (NumberFormatException e) {
                 throw new IOException("An expected double was not found.");
@@ -67,13 +74,13 @@ public final class CommandReader {
 
           //if quotation input type
           } else {
-            if (quoteArr.length != 8) {
+            if (quoteArr.length != QUOTE_ARR_LENGTH) {
               throw new IOException("Incorrect Number of Inputs.");
             } else {
               String s1 = quoteArr[1];
-              String c1 = quoteArr[3];
-              String s2 = quoteArr[5];
-              String c2 = quoteArr[7];
+              String c1 = quoteArr[C1_INDEX];
+              String s2 = quoteArr[S2_INDEX];
+              String c2 = quoteArr[C2_INDEX];
               fromId = p.getIntersection(s1, c1);
               toId = p.getIntersection(s2, c2);
             }

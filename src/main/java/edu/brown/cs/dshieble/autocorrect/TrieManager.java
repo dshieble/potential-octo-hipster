@@ -28,6 +28,7 @@ import edu.brown.cs.dshieble.Trie.Trie;
  */
 public class TrieManager {
 
+  private static final int CAPACITY = 5;
   /**
    * stores unigram freq.
    */
@@ -78,7 +79,7 @@ public class TrieManager {
       final boolean usePrefix,
       final int levenshtein, final boolean useWhitespace,
       final boolean useSmartComparator) {
-    int capacity = 5;
+    int capacity = CAPACITY;
     HashMultiset<String> bHash = null;
     String prefix = userInput[userInput.length - 1];
     //If the previous word is not an actual word, then we ignore bigram

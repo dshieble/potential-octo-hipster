@@ -125,33 +125,33 @@ public class KDTree<E extends KDimensional> implements Iterable<E> {
       }
     }
 
-    private E medianHelper(List<E> points, int k, int left, int right) {
+    private E medianHelper(List<E> points, int kD, int leftI, int rightI) {
       if (points.isEmpty()) {
         throw new IllegalArgumentException("Shit's broke yo");
       }
-      int index = left;
+      int index = leftI;
       E pivot = points.get(index);
-      if (right - left <= 1) {
+      if (rightI - leftI <= 1) {
         return pivot;
       }
 
-      swap(points, index, right);
+      swap(points, index, rightI);
 
-      int frontier = left;
+      int frontier = leftI;
 
-      for (int i = left; i <= right; i++) {
+      for (int i = leftI; i <= rightI; i++) {
         if (points.get(i).getDimension(dim) < pivot.getDimension(dim)) {
           swap(points, i, frontier);
           frontier++;
         }
       }
 
-      swap(points, frontier, right);
+      swap(points, frontier, rightI);
 
-      if (k < frontier) {
-        return medianHelper(points, k, left, frontier - 1);
-      } else if (k > frontier) {
-        return medianHelper(points, k, frontier + 1, right);
+      if (kD < frontier) {
+        return medianHelper(points, kD, leftI, frontier - 1);
+      } else if (kD > frontier) {
+        return medianHelper(points, kD, frontier + 1, rightI);
       } else {
         return pivot;
       }
@@ -169,8 +169,8 @@ public class KDTree<E extends KDimensional> implements Iterable<E> {
         return null;
       }
       int n = points.size();
-      int k = (int) Math.ceil(n / 2.0) - 1;
-      return medianHelper(points, k, 0, n - 1);
+      int kD = (int) Math.ceil(n / 2.0) - 1;
+      return medianHelper(points, kD, 0, n - 1);
     }
 
     /**

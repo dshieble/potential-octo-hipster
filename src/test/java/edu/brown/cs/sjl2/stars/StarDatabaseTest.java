@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class StarDatabaseTest {
-  /* TODO Uncomment
   private StarDatabase fullDB;
   private StarDatabase tenStars;
   private StarDatabase oneStar;
@@ -225,5 +224,5 @@ public class StarDatabaseTest {
         fullDB.radius(10, "Rigel Kentaurus A").equals(
         fullTest.radius(10, "Rigel Kentaurus A")));
   }
-  */
+
 }

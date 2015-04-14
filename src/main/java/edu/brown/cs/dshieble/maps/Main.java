@@ -10,6 +10,7 @@ package edu.brown.cs.dshieble.maps;
  */
 public final class Main {
 
+  private static final int TRAFFIC_PORT = 8080;
 
   /**
    * Prevents this class from being instantiated.
@@ -24,10 +25,10 @@ public final class Main {
    */
   public static void main(final String[] args) {
 
-    if (args.length == 2 ) {
+    if (args.length == 2) {
       if (args[0].equals("--gui")) {
         String file = args[1];
-        TrafficManager t = new TrafficManager(8080);
+        TrafficManager t = new TrafficManager(TRAFFIC_PORT);
         new GUIManager(file, t);
 
       } else {

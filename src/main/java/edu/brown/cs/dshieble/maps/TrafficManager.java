@@ -5,26 +5,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Class that manages the Traffic data
+ * Class that manages the Traffic data.
+ *
  * @author dshieble
  *
  */
-
 public class TrafficManager {
 
   /**
-   * the unix time
+   * the unix time.
    */
   private AtomicInteger time;
 
   /**
-   * stores traffic data
+   * stores traffic data.
    */
   private ConcurrentHashMap<String, Double> map;
 
   /**
-   * stores the locations that were just updated - bcuz there is
-   * no ConcurrentHashSet
+   * stores the locations that were just updated bcuz there is
+   * no ConcurrentHashSet.
    */
   private ConcurrentHashMap<String, Boolean> updated;
 
@@ -44,7 +44,7 @@ public class TrafficManager {
   }
 
   /**
-   *
+   * Getter for the keys that have been updated.
    * @return returns a set of all way ids whose traffic was updated
    * in last iteration
    */
@@ -53,14 +53,15 @@ public class TrafficManager {
   }
 
   /**
-   * @return simple getter
+   * Getter for the Map.
+   * @return Concurrent HashMap for GUIManager
    */
   public ConcurrentHashMap<String, Double> getMap() {
     return map;
   }
 
   /**
-   *
+   * Getter for the traffic level of a way id.
    * @param id the way id
    * @return the traffic of that way or 1.0 if normal traffic
    */

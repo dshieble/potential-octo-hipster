@@ -6,30 +6,30 @@ import java.util.List;
 import edu.brown.cs.sjl2.kd.KDimensional;
 
 /**
- * This class represents an actor and stores the parent, weight, id and name.
+ * This class represents an node and stores the parent, weight, id and name.
  * @author dshieble
  *
  */
 public class Node implements KDimensional {
 
   /**
-   * latitude of node
+   * latitude of node.
    */
   private double lat;
   /**
-   * longitude of node
+   * longitude of node.
    */
   private double lon;
   /**
-   * actor's parent.
+   * node's parent.
    */
   private Node parent;
   /**
-   * distance from start to this node
+   * distance from start to this node.
    */
   private double weight;
   /**
-   * actor's id.
+   * node's id.
    */
   private String id;
   /**
@@ -41,10 +41,11 @@ public class Node implements KDimensional {
    */
   private String edgeId;
   /**
-   * heuristic guess
+   * heuristic guess.
    */
   private double heuristic;
   /**
+   * Constructor for a Node that represents an intersection of two ways.
    * @param la the latitude of this node
    * @param lo the longitude of this node
    * @param i this node's id
@@ -68,13 +69,12 @@ public class Node implements KDimensional {
     if (parent == null) {
       this.weight = 0;
     } else {
-      this.weight = multiplier*getDistance(parent) + parent.getWeight();
+      this.weight = multiplier * getDistance(parent) + parent.getWeight();
     }
   }
 
   /**
-   *
-   * @return A list of actors that form a pathto this actor
+   * @return A list of Nodes that represent the path.
    */
   public final List<Node> getPath() {
     List<Node> path;
@@ -162,74 +162,66 @@ public class Node implements KDimensional {
   }
 
   /**
-  *
-  * @return this node's latitude
-  */
+   *
+   * @return this node's latitude
+   */
   public final double getLat() {
     return lat;
   }
 
   /**
-  *
-  * @return this node's longitude
-  */
+   *
+   * @return this node's longitude
+   */
   public final double getLong() {
     return lon;
   }
 
   /**
-  *
-  * @return this actor's id
-  */
+   *
+   * @return this node's id
+   */
   @Override
   public final String getID() {
     return id;
   }
 
-//  /**
-//  *
-//  * @return this actor's name
-//  */
-//  public final String getName() {
-//    return name;
-//  }
-
   /**
-  *
-  * @return the name of the movie this actor costarred in with its parent
-  */
+   *
+   * @return the name of the movie this node costarred in with its parent
+   */
   public final String getEdgeName() {
     return edgeName;
   }
 
   /**
-  *
-  * @return the id of the movie this actor costarred in with its parent
-  */
+   *
+   * @return the id of the movie this node costarred in with its parent
+   */
   public final String getEdgeId() {
     return edgeId;
   }
 
   /**
-  *
-  * @return this actor's parent
-  */
+   *
+   * @return this node's parent
+   */
   public final Node getParent() {
     return parent;
   }
 
   /**
    *
-   * @return the weight of the path to this actor
+   * @return the weight of the path to this node
    */
   public final double getWeight() {
     return weight;
   }
 
   /**
-  *
-  * @return the weight of the path to this actor
-  */
+   *
+   * @return the weight of the path to this node
+   */
   public final double getHeuristic() {
     return heuristic;
   }
@@ -238,8 +230,8 @@ public class Node implements KDimensional {
 
   /**
    *
-    * @param o the actor to compare to
-   * @return true if the actors id is equivalent
+   * @param o the node to compare to
+   * @return true if the nodes id is equivalent
    */
   @Override
   public final boolean equals(final Object o) {
@@ -249,22 +241,22 @@ public class Node implements KDimensional {
     if (!(o instanceof Node)) {
       return false;
     }
-    Node actor = (Node) o;
-    return actor.getID().equals(id);
+    Node node = (Node) o;
+    return node.getID().equals(id);
   }
 
   /**
-  *
-  * @return string version of object
-  */
- @Override
-public final String toString() {
-   if (parent != null) {
-     return " Parent: " + parent.getID() + " Weight: " + weight
-            + " ID: " + id + " Edge Name: " + edgeName;
-   } else {
-     return " Parent: null" + " Weight: " + weight
-            + " ID: " + id + " Edge Name: null";
-   }
- }
+   *
+   * @return string version of object
+   */
+  @Override
+  public final String toString() {
+    if (parent != null) {
+      return " Parent: " + parent.getID() + " Weight: " + weight
+          + " ID: " + id + " Edge Name: " + edgeName;
+    } else {
+      return " Parent: null" + " Weight: " + weight
+          + " ID: " + id + " Edge Name: null";
+    }
+  }
 }

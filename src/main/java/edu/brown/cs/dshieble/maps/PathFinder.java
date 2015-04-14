@@ -12,12 +12,15 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 /**
- * This class uses the input database to find the shortest distance
- * between two nodes.
+ * This class uses the input database to find the shortest distance between two
+ * nodes.
  * @author dshieble
  *
  */
 public class PathFinder implements AutoCloseable {
+  private static final int THREE = 3;
+  private static final int FOUR = 4;
+  private static final int FIVE = 5;
 
   /**
    * connection to db.
@@ -25,17 +28,17 @@ public class PathFinder implements AutoCloseable {
   private Connection conn;
 
   /**
-   * connection to Traffic
+   * connection to Traffic.
    */
   private TrafficManager tm;
 
-/**
- * Constructor for the PathFinder class
- * @param db The database to build the nodes from
- * @param tm_input The traffic Manager to use
- */
-  public PathFinder(final String db, TrafficManager tm_input) {
-    tm = tm_input;
+  /**
+   * Constructor for the PathFinder class.
+   * @param db The database to build the nodes from
+   * @param trafficManager The traffic Manager to use
+   */
+  public PathFinder(final String db, TrafficManager trafficManager) {
+    this.tm = trafficManager;
     try {
       Class.forName("org.sqlite.JDBC");
       String urlToDB = "jdbc:sqlite:" + db;
@@ -51,7 +54,7 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   * Finds a path from the first node to the final node
+   * Finds a path from the first node to the final node.
    * @param startId the first node id
    * @param endId the final node
    * @param usingTraffic True if we are using traffic, false to ignore
@@ -94,7 +97,7 @@ public class PathFinder implements AutoCloseable {
 
 
   /**
-   * Finds all nodes that share an edge with this node
+   * Finds all nodes that share an edge with this node.
    * @param node the node
    * @param usingTraffic true if traffic is to be factored in. False otherwise.
    * @param target The lat long of the target. Used to find heuristic
@@ -106,9 +109,9 @@ public class PathFinder implements AutoCloseable {
     Set<Node> output = new HashSet<Node>();
     String query =
         "SELECT node.id, node.latitude, node.longitude, W.id, W.name "
-        + "FROM node INNER JOIN "
-        + "(SELECT id, name, end FROM way WHERE start = ?) AS W "
-        + "ON W.end = node.id;";
+            + "FROM node INNER JOIN "
+            + "(SELECT id, name, end FROM way WHERE start = ?) AS W "
+            + "ON W.end = node.id;";
 
     try (PreparedStatement prep = conn.prepareStatement(query)) {
       prep.setString(1, node.getID());
@@ -118,12 +121,12 @@ public class PathFinder implements AutoCloseable {
         while (rs.next()) {
           String id = rs.getString(1);
           double lat = rs.getDouble(2);
-          double lon = rs.getDouble(3);
-          String wayId = rs.getString(4);
-          String wayName = rs.getString(5);
+          double lon = rs.getDouble(THREE);
+          String wayId = rs.getString(FOUR);
+          String wayName = rs.getString(FIVE);
           if (id != node.getID()) {
             double heur = 0; //UtilityClass.getDistance(lat, lon,
-                //target[0], target[1]);
+            //target[0], target[1]);
             double multiplier = 1;
             if (usingTraffic) {
               multiplier = tm.getTrafficLevel(wayId);
@@ -149,7 +152,7 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   * returns the heuristic vale
+   * returns the heuristic value.
    * @param node the node we are recording heuristic fir
    * @param target the final node
    * @return the heuristic value (euclidian)
@@ -159,7 +162,7 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   * Getter for the Latitude and Longitude of a Node using ID
+   * Getter for the Latitude and Longitude of a Node using ID.
    * @param id of a node
    * @return a 2 element array containg the latitude, longtiude of that node
    */
@@ -220,29 +223,29 @@ public class PathFinder implements AutoCloseable {
   public final String getIntersection(final String name1, final String name2) {
     String name = null;
     String[] queries =
-      {
-        "SELECT A.start FROM "
-          + "(SELECT start FROM way WHERE name = ?) AS A "
+    {
+      "SELECT A.start FROM "
+        + "(SELECT start FROM way WHERE name = ?) AS A "
         + "INNER JOIN "
-          + "(SELECT end FROM way WHERE name = ?) AS B "
-        + "ON A.start = B.end;"
-          ,
-        "SELECT A.end FROM "
-            + "(SELECT end FROM way WHERE name = ?) AS A "
-          + "INNER JOIN "
-            + "(SELECT start FROM way WHERE name = ?) AS B "
-          + "ON A.end = B.start;",
-        "SELECT A.start FROM "
-            + "(SELECT start FROM way WHERE name = ?) AS A "
-          + "INNER JOIN "
-            + "(SELECT start FROM way WHERE name = ?) AS B "
-          + "ON A.start = B.start;",
-        "SELECT A.end FROM "
-            + "(SELECT end FROM way WHERE name = ?) AS A "
-          + "INNER JOIN "
-            + "(SELECT end FROM way WHERE name = ?) AS B "
-          + "ON A.end = B.end;"
-      };
+        + "(SELECT end FROM way WHERE name = ?) AS B "
+        + "ON A.start = B.end;",
+      "SELECT A.end FROM "
+        + "(SELECT end FROM way WHERE name = ?) AS A "
+        + "INNER JOIN "
+        + "(SELECT start FROM way WHERE name = ?) AS B "
+        + "ON A.end = B.start;",
+      "SELECT A.start FROM "
+        + "(SELECT start FROM way WHERE name = ?) AS A "
+        + "INNER JOIN "
+        + "(SELECT start FROM way WHERE name = ?) AS B "
+        + "ON A.start = B.start;",
+      "SELECT A.end FROM "
+        + "(SELECT end FROM way WHERE name = ?) AS A "
+        + "INNER JOIN "
+        + "(SELECT end FROM way WHERE name = ?) AS B "
+        + "ON A.end = B.end;"
+    };
+
     for (int i = 0; i < queries.length; i++) {
       try (PreparedStatement prep = conn.prepareStatement(queries[i])) {
         prep.setString(1, name1);
@@ -277,7 +280,7 @@ public class PathFinder implements AutoCloseable {
         while (rs.next()) {
           String id = rs.getString(1);
           double lat = rs.getDouble(2);
-          double lon = rs.getDouble(3);
+          double lon = rs.getDouble(THREE);
           Node n = new Node(lat, lon, id, null, null, null, 0, 1);
           list.add(n);
         }
@@ -290,6 +293,10 @@ public class PathFinder implements AutoCloseable {
     return list;
   }
 
+  /**
+   * Getter for all the unique street names in the database.
+   * @return Returns a list of strings of all the streets
+   */
   public final List<String> getStreetNames() {
     List<String> names = new ArrayList<>();
     String query = "SELECT DISTINCT name FROM way;";
@@ -322,25 +329,25 @@ public class PathFinder implements AutoCloseable {
     List<Way> list = new ArrayList<Way>();
     String query = "SELECT start, end, way.id, way.name FROM way INNER JOIN "
         + "(SELECT id FROM node "
-          + "WHERE latitude >= ? "
-          + "AND latitude <= ? "
-          + "AND longitude >= ? "
-          + "AND longitude <= ?"
-          + ") "
+        + "WHERE latitude >= ? "
+        + "AND latitude <= ? "
+        + "AND longitude >= ? "
+        + "AND longitude <= ?"
+        + ") "
         + "AS A ON way.start = A.id";
 
     try (PreparedStatement prep = conn.prepareStatement(query)) {
       // Execute the query and retrieve a ResultStatement
       prep.setDouble(1, lat1);
       prep.setDouble(2, lat2);
-      prep.setDouble(3, lon1);
-      prep.setDouble(4, lon2);
+      prep.setDouble(THREE, lon1);
+      prep.setDouble(FOUR, lon2);
       try (ResultSet rs = prep.executeQuery()) {
         while (rs.next()) {
           Node start = idToNode(rs.getString(1));
           Node end = idToNode(rs.getString(2));
-          String id = rs.getString(3);
-          String name = rs.getString(4);
+          String id = rs.getString(THREE);
+          String name = rs.getString(FOUR);
           Way w = new Way(start, end, name, id);
           list.add(w);
         }
@@ -390,8 +397,10 @@ public class PathFinder implements AutoCloseable {
    * @return a 4 elements double array where
    */
   public double[] getMaxMin() {
-    double[] output = new double[4];
-    String query = "SELECT  MIN(latitude), MAX(latitude), MIN(longitude), MAX(longitude) FROM node";
+    double[] output = new double[FOUR];
+    String query = "SELECT  "
+        + "MIN(latitude), MAX(latitude), MIN(longitude), MAX(longitude) "
+        + "FROM node";
     try (PreparedStatement prep = conn.prepareStatement(query)) {
       // Execute the query and retrieve a ResultStatement
       try (ResultSet rs = prep.executeQuery()) {

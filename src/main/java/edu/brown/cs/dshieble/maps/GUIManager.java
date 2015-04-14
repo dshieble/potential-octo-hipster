@@ -14,6 +14,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import edu.brown.cs.dshieble.autocorrect.TrieManager;
+import edu.brown.cs.sjl2.kd.KDTree;
+
+import freemarker.template.Configuration;
+
 import spark.ExceptionHandler;
 import spark.ModelAndView;
 import spark.QueryParamsMap;
@@ -23,10 +28,14 @@ import spark.Route;
 import spark.Spark;
 import spark.TemplateViewRoute;
 import spark.template.freemarker.FreeMarkerEngine;
-import edu.brown.cs.dshieble.autocorrect.TrieManager;
-import edu.brown.cs.sjl2.kd.KDTree;
-import freemarker.template.Configuration;
 
+/**
+ * Class for Running the GUI Server. Initializing the class will automatically
+ * run the server.
+ *
+ * @author sjl2
+ *
+ */
 public class GUIManager {
 
   private TrieManager autocorrect;
@@ -39,6 +48,12 @@ public class GUIManager {
   private static final int STATUS = 500;
   private static final Gson GSON = new Gson();
 
+  /**
+   * Constructor for a GUIManager that allows for the GUI port to be changed.
+   * @param db String of the db file name
+   * @param tm The Traffic Manager to update traffic
+   * @param port The port to run the GUI server off of.
+   */
   public GUIManager(String db, TrafficManager tm, int port) {
     this.tm = tm;
     this.db = db;
@@ -60,6 +75,12 @@ public class GUIManager {
     runSparkServer(port);
   }
 
+  /**
+   * Constructor for the GUIManager, runs the server automatically on the
+   * default port.
+   * @param db The string name of the database file
+   * @param tm The traffic manager to update the file.
+   */
   public GUIManager(String db, TrafficManager tm) {
     this.tm = tm;
     this.db = db;
@@ -107,7 +128,7 @@ public class GUIManager {
   }
 
   /**
-   * Default Handler for maps.
+   * Default Handler for maps homepage.
    *
    * @author sjl2
    *
@@ -164,7 +185,10 @@ public class GUIManager {
       Double latitude = GSON.fromJson(qm.value("lat"), Double.class);
       Double longitude = GSON.fromJson(qm.value("lng"), Double.class);
 
-      ArrayList<Node> n = tree.neighbors(1, new double[] { latitude, longitude });
+      double[] latlon = new double[] {latitude, longitude};
+      ArrayList<Node> n =
+          tree.neighbors(1, latlon);
+
       if (!n.isEmpty()) {
         return GSON.toJson(n.get(0));
       } else {
@@ -174,8 +198,7 @@ public class GUIManager {
   }
 
   /**
-   * Handler for when two nodes are selected on the front end. Returns the path
-   * between them if one exists.
+   * Handler for determining the path between two nodes.
    *
    * @author sjl2
    *
@@ -190,7 +213,7 @@ public class GUIManager {
 
       List<Node> path = new ArrayList<>();
       try (PathFinder p = new PathFinder(db, tm)) {
-         path = p.findPath(startID, endID, true);
+        path = p.findPath(startID, endID, true);
       } catch (RuntimeException e) {
         System.out.println("ERROR: " + e.getMessage());
       }
@@ -200,8 +223,7 @@ public class GUIManager {
   }
 
   /**
-   * Handler for when the front end sends a request for the path between two
-   * intersections.
+   * Handler for finding the intersections between the source and the target.
    *
    * @author sjl2
    *
@@ -236,19 +258,6 @@ public class GUIManager {
           inter.add(null);
         }
 
-//        System.out.println(source1);
-//        System.out.println(source2);
-//
-//        System.out.println();
-//        System.out.println(p.getIntersection(target1, target2));
-//         path = p.findPath(
-//             p.getIntersection(source1, source2),
-//             p.getIntersection(target1, target2),
-//             true
-//         );
-//         if (path == null) {
-//           path = new ArrayList<>();
-//         }
       } catch (RuntimeException e) {
         System.out.println("ERROR: " + e.getMessage());
       }
@@ -258,7 +267,7 @@ public class GUIManager {
   }
 
   /**
-   * Handler for returning autocorrect suggestions for an input
+   * Handler for returning autocorrect suggestions for an input.
    *
    * @author sjl2
    *
@@ -268,7 +277,7 @@ public class GUIManager {
     public Object handle(final Request req, final Response res) {
       QueryParamsMap qm = req.queryMap();
 
-      String input[] = new String[] {qm.value("rawText")};
+      String[] input = new String[] {qm.value("rawText")};
       String[] suggestions = autocorrect.getSuggestions(input,
               true,
               0,
@@ -280,7 +289,7 @@ public class GUIManager {
   }
 
   /**
-   * receives a list of way ids, returns a map from way id to traffic level
+   * Receives a list of way ids, returns a map from way id to traffic level.
    *
    * @author dshieble
    */
@@ -290,7 +299,8 @@ public class GUIManager {
     public Object handle(final Request req, final Response res) {
       QueryParamsMap qm = req.queryMap();
 
-      Type stringListType = new TypeToken<List<String>>() {}.getType();
+      Type stringListType = new TypeToken<List<String>>() { } .getType();
+
       List<String> ways = GSON.fromJson(qm.value("ids"), stringListType);
 
       List<Double> out = new ArrayList<>();
