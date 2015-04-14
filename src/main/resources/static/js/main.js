@@ -1,7 +1,4 @@
 //TODO:
-//Change errors to be graceful
-//pass error system tests
-//make big system tests
 //mvn site
 // README checkstyle
 

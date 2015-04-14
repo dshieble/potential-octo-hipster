@@ -115,7 +115,6 @@ public class MapsTest {
     assertTrue(nodes5.size() == 0);
   }
 
-  //KDimensional interface
 
 
 
@@ -154,7 +153,6 @@ public class MapsTest {
     assertTrue(p.getIntersection("Kamaji Pl", "Chihiro Ave").equals("/n/2"));
     assertTrue(p.getIntersection("Chihiro Ave", "Yubaba St") == null);
     assertTrue(p.getIntersection("Yubaba St", "Sootball Ln").equals("/n/4"));
-
   }
 
   @Test
@@ -169,8 +167,6 @@ public class MapsTest {
     assertTrue(nodes.get(3).getID().equals("/n/3"));
     assertTrue(nodes.get(4).getID().equals("/n/4"));
     assertTrue(nodes.get(5).getID().equals("/n/5"));
-
-    //System.out.println(Arrays.toString(nodes.toArray()));
   }
 
   @Test
@@ -210,14 +206,6 @@ public class MapsTest {
     double lon200 = -71.4;
 
     List<Way> ways3 = p.getWaysWithin(lat100, lat200, lon100, lon200);
-//    for (Way w: ways3) {
-//      System.out.println(w.getID());
-//    }
-//    assertTrue(ways3.size() == 0);
-
-
-    //System.out.println(Arrays.toString(ways.toArray()));
-
   }
 
   @Test
@@ -246,189 +234,5 @@ public class MapsTest {
     assertTrue(kd.neighbors(1, three).get(0).getID().equals("/n/4"));
 
   }
-
-  @Test
-  public void runTest() throws ClassNotFoundException, SQLException, InterruptedException {
-//    System.out.println("Printing: ");
-//    TrafficManager t = null();
-//    Map<String, Integer> wayToTraffic = t.getTraffic();
-//    for (String s : wayToTraffic.keySet()) {
-//      System.out.println(s);
-//      System.out.println(wayToTraffic.get(s));
-//    }
-//    Thread.sleep(4);
-//    Map<String, Integer> wayToTraffic2 = t.getTraffic();
-//    for (String s : wayToTraffic2.keySet()) {
-//      System.out.println(s);
-//      System.out.println(wayToTraffic.get(s));
-//    }
-
-  }
-
-
-//
-//  @Test
-//  public void nameTest() throws ClassNotFoundException, SQLException {
-//    String name1 = "Will Smith";
-//    String name2 = "Arnold Schwarzenegger";
-//    String name3 = "Samuel L. Jackson";
-//    String name7 = "Dave ad";
-//
-//    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
-//    assertTrue(!p.nameMatch(name1, name2));
-//    assertTrue(p.nameMatch(name2, name3));
-//    assertTrue(p.nameMatch(name7, name2));
-//    assertTrue(!p.nameMatch(name7, name3));
-//    assertTrue(!p.nameMatch(name1, name7));
-//    p.close();
-//  }
-//
-//  @Test
-//  public void findActorsTest1() throws ClassNotFoundException, SQLException {
-//    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
-//    Actor a1 = new Actor("Will Smith", "/m/0147dk", null, 0, null, null);
-//    Actor a2 = new Actor("Stephen Root", "/m/0309lm", a1, 0.2, "Jersey Girl", null);
-//    Actor a3 = new Actor("Robert Downey Jr.", "/m/0k6nymn", a2, 0.9, "The Soloist", null);
-//    //1
-//    Actor[] l1 = p.findActors(a1).toArray(new Actor[1]);
-//    assertTrue(l1.length == 1);
-//    assertTrue(l1[0].equals(a2));
-//    //2
-//    Actor[] l2 = p.findActors(a2).toArray(new Actor[1]);
-//    assertTrue(l2.length == 1);
-//    assertTrue(l2[0].equals(a3));
-//    //3
-//    Actor[] l3 = p.findActors(a3).toArray(new Actor[1]);
-//    assertTrue(l3[0] == null);
-//    p.close();
-//  }
-//
-//  @Test
-//  public void findActorsTest2() throws ClassNotFoundException, SQLException {
-//    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
-//    Actor a1 = new Actor("Arnold Schwarzenegger", "/m/0tc7",
-//        null, 0, null, null);
-//    Actor a2 = new Actor("Steve Coogan", "/m/01nfys", a1, 0,
-//        "Around the the World in 80 Days", null);
-//    Actor a3 = new Actor("Cate Blanchett", "/m/0154qm", a2, 0,
-//        "Hot Fuzz", null);
-//    Actor a4 = new Actor("Betty White", "/m/025mb_", a3, 0, "Ponyo", null);
-//    Actor a5 = new Actor("Willow Smith", "/m/03gq433", a4, 0,
-//        "The Lorax", null);
-//    //1
-//    Actor[] l1 = p.findActors(a1).toArray(new Actor[1]);
-//    assertTrue(l1.length == 1);
-//    assertTrue(l1[0].equals(a2));
-//    //2
-//    Actor[] l2 = p.findActors(a2).toArray(new Actor[1]);
-//    assertTrue(l2.length == 1);
-//    assertTrue(l2[0].equals(a3));
-//    //3
-//    Actor[] l3 = p.findActors(a3).toArray(new Actor[1]);
-//    assertTrue(l3.length == 1);
-//    assertTrue(l3[0].equals(a4));
-//    //4
-//    Actor[] l4 = p.findActors(a4).toArray(new Actor[1]);
-//    assertTrue(l4.length == 1);
-//    assertTrue(l4[0].equals(a5));
-//    //5
-//    Actor[] l5 = p.findActors(a5).toArray(new Actor[1]);
-//    assertTrue(l5[0] == null);
-//    p.close();
-//  }
-//
-//  @Test
-//  public void findPathTest1() throws ClassNotFoundException, SQLException {
-//    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
-//    Actor a1 = new Actor("Arnold Schwarzenegger", "/m/0tc7", null, 0, null, null);
-//    Actor a2 = new Actor("Steve Coogan", "/m/01nfys", a1, 0.5,
-//        "Around the World in 80 Days", null);
-//    Actor a3 = new Actor("Cate Blanchett", "/m/0154qm", a2, 0.5,
-//        "Hot Fuzz", null);
-//    Actor a4 = new Actor("Betty White", "/m/025mb_", a3, 0.5,
-//        "Ponyo", null);
-//    Actor a5 = new Actor("Willow Smith", "/m/03gq433", a4, 0.5,
-//        "The Lorax", null);
-//    //1
-//    Actor[] l = p.findActorPath(a1.getName(), a5.getName()).toArray(new Actor[5]);
-//    Actor[] expected = {a1, a2, a3, a4, a5};
-//    for (int i = 1; i < expected.length; i++) {
-//      assertTrue(l[i].equals(expected[i]));
-//      assertTrue(l[i].getWeight() == expected[i].getWeight());
-//      assertTrue(l[i].getParent().equals(expected[i].getParent()));
-//      assertTrue(l[i].getMovieName().equals(expected[i].getMovieName()));
-//    }
-//
-//    p.close();
-//  }
-//
-//  @Test
-//  public void findPathTest2() throws ClassNotFoundException, SQLException {
-//    PathFinder p = new PathFinder(
-//        "/course/cs032/data/bacon/smallBacon.sqlite3");
-//    Actor a6 = new Actor("Will Smith", "/m/0147dk", null, 0, null, null);
-//    Actor a7 = new Actor("Stephen Root", "/m/0309lm", a6, 0.5,
-//        "Jersey Girl", null);
-//    Actor a8 = new Actor("Robert Downey Jr.", "/m/0k6nymn", a7, 0.5,
-//        "The Soloist", null);
-//
-//    Actor[] l = p.findActorPath(a6.getName(), a8.getName()).toArray(new Actor[3]);
-//    Actor[] expected = {a6, a7, a8};
-//    for (int i = 1; i < expected.length; i++) {
-//      assertTrue(l[i].equals(expected[i]));
-//      assertTrue(l[i].getWeight() == expected[i].getWeight());
-//      assertTrue(l[i].getParent().equals(expected[i].getParent()));
-//      assertTrue(l[i].getMovieName().equals(expected[i].getMovieName()));
-//    }
-//    p.close();
-//  }
-//
-//  @Test
-//  public void findPathTest3() throws ClassNotFoundException, SQLException {
-//    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
-//    Actor a1 = new Actor("Arnold Schwarzenegger", "/m/0tc7", null, 0,
-//        null, null);
-//    Actor a2 = new Actor("Robert Downey Jr.", "/m/0k6nymn", null, 0.5,
-//        "The Soloist", null);
-//
-//    assertTrue(p.findActorPath(a1.getName(), a2.getName()).size() == 0);
-//    p.close();
-//  }
-//
-//  @Test
-//  public void getIDNameTest() throws ClassNotFoundException, SQLException {
-//    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
-//    String name1 = "Arnold Schwarzenegger";
-//    String name2 = "Pulp Fiction";
-//    String id1 = "/m/0tc7";
-//    String id2 = "/m/0f4_l";
-//    assertTrue(p.getID(name1).equals(id1));
-//    assertTrue(p.getID(name2).equals(id2));
-//    assertTrue(p.getName(id1).equals(name1));
-//    assertTrue(p.getName(id2).equals(name2));
-//    p.close();
-//  }
-//
-//
-//  @Test
-//  public void getActorMovieNamesTest() throws ClassNotFoundException, SQLException {
-//    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
-//    String name1 = "Arnold Schwarzenegger";
-//    String name2 = "Pulp Fiction";
-//    String[][] movies = p.getActorMovieNames(p.getID(name1));
-//    String[][] actors = p.getActorMovieNames(p.getID(name2));
-//    assertTrue(movies.length == 1);
-//    assertTrue(actors.length == 2);
-//    assertTrue(actors[0][0].equals("John Travolta") || actors[1][0].equals("John Travolta"));
-//    assertTrue(actors[0][0].equals("Samuel L. Jackson") || actors[1][0].equals("Samuel L. Jackson"));
-//    p.close();
-//  }
-//
-//  @Test
-//  public void getAllNamesTest() throws ClassNotFoundException, SQLException {
-//    PathFinder p = new PathFinder("/course/cs032/data/bacon/smallBacon.sqlite3");
-//    assertTrue(p.getActorNames().length == 33);
-//    p.close();
-//  }
 
 }

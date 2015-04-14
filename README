@@ -80,4 +80,9 @@ You can run them by running mvn package.
 The system tests are located in the mytests file. You can run them with the 
 cs032_system_tester_slow. Make sure to set a timeout of -t45.
 
+We also wrote some tests for the big maps.sqlite3 file, but we only used them by hand,
+rather than through the system tester. You can verfiy the output via the REPL.
+
+
+
 
