@@ -26,8 +26,8 @@ TILE_LONG = 0.01; // Degrees
 MIN_WIDTH = TILE_LONG/100; 
 MIN_HEIGHT = TILE_LAT/100; 
 
-MAX_WIDTH = TILE_LONG*100; 
-MAX_HEIGHT = TILE_LAT*100; 
+MAX_WIDTH = TILE_LONG*5; 
+MAX_HEIGHT = TILE_LAT*5; 
 
 DEFAULT_WAY = "#0000FF";
 GRID_LINE = "#D1D2F2";
@@ -80,6 +80,8 @@ var nodes = [];
 
 var lastX;
 var lastY;
+var clickX;
+var clickY; 
 var zoom = 0;
 
 var tilesReady = 0;
@@ -110,7 +112,7 @@ setTimeout(
 			if (!requestPending) {
 				updateTraffic(); 
 			}
-		}, 1000);
+		}, 500);
 	}, 500
 );
 
@@ -241,6 +243,8 @@ $(function() {
 	$("#map").mousedown(function(event) {
 		lastX = event.pageX - map.offsetLeft; 
 		lastY = event.pageY - map.offsetTop;
+		clickX = lastX; 
+		clickY = lastY; 
 		//console.log("click " + [lastX, lastY] + " " + xyToLatLong(lastX, lastY));
 		mouseHold = true; 
 	})
@@ -252,7 +256,7 @@ $(function() {
 			dY = event.pageY - map.offsetTop - lastY;
 			lastX = event.pageX - map.offsetLeft;
 			lastY = event.pageY - map.offsetTop;
-			if (dragging || Math.pow(dX, 2) + Math.pow(dY, 2) > 300) {
+			if (dragging || Math.pow(dX, 2) + Math.pow(dY, 2) > 5) {
 				//console.log("x " + dX)
 				//console.log("y " + dY)
 				dragging = true;
@@ -274,7 +278,7 @@ $(function() {
 		var x = event.pageX - map.offsetLeft; 
 		var y = event.pageY - map.offsetTop; 
 
-		if (x == lastX && y == lastY) {
+		if (x == clickX && y == clickY) {
 			requestPending = true;
 			//console.log("Click.");
 			var latlong = xyToLatLong(x, y);
@@ -581,7 +585,7 @@ function paintGrid(ctx) {
 
 function paintMap() {
 	if (tilesReady == tilesTarget && !updateLock) {
-		console.log("painting map");
+
 		updateVisible();
 		drawnWays = {};
 		var ctx = $("#map")[0].getContext("2d"); 
