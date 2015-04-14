@@ -1,12 +1,13 @@
 //TODO:
-//street names on map (SWAG) 
-		// Can center street names by storing a street object. the street object has it's start and end and the line between start and end is captioned with the street name. (or written once every x degrees)
-// no ghost clicks for finding path (also drag sometimes clicks)
+//Fix Traffic to be threaded
 //make system tests - re-email TA list
 //mvn site
 //write README
+
+
 //sparse representation from server (SWAG)
 //wider roads (SWAG)
+// Can center street names by storing a street object. the street object has it's start and end and the line between start and end is captioned with the street name. (or written once every x degrees)
 
 //Directions:
 //scroll to zoom. The Anchor lat and long will change so that zooming occurs based on the map center
@@ -23,11 +24,11 @@ INTITIAL_LONG = -71.40320000001;  // Top Left Longitude
 TILE_LAT = 0.01; // Degrees
 TILE_LONG = 0.01; // Degrees
 
-MIN_WIDTH = TILE_LONG/100; 
-MIN_HEIGHT = TILE_LAT/100; 
+// MIN_WIDTH = TILE_LONG/100; 
+// MIN_HEIGHT = TILE_LAT/100; 
 
-MAX_WIDTH = TILE_LONG*5; 
-MAX_HEIGHT = TILE_LAT*5; 
+// MAX_WIDTH = TILE_LONG*100; 
+// MAX_HEIGHT = TILE_LAT*100; 
 
 DEFAULT_WAY = "#0000FF";
 GRID_LINE = "#D1D2F2";
@@ -112,7 +113,7 @@ setTimeout(
 			if (!requestPending) {
 				updateTraffic(); 
 			}
-		}, 500);
+		}, 1000);
 	}, 500
 );
 
@@ -164,6 +165,9 @@ $(function() {
 	tileMap[indexToString([-1, 0])] = new Tile([-1, 0]);
 	tileMap[indexToString([-1, 1])] = new Tile([-1, 1]);
 	visibleTiles = [tileMap[indexToString([0, 0])], tileMap[indexToString([0, 1])], tileMap[indexToString([-1, 0])], tileMap[indexToString([-1, 1])]];
+	zoomIn(1);
+	zoomIn(1);
+	zoomIn(1);
 	//handle traffic with update
 
 
@@ -359,35 +363,38 @@ $(function() {
 	})
 
 	$('html').on('mousewheel', function(event) {
-		// console.log("scrolled");
-		// xy = latLongToXY(ANCHOR_LAT, ANCHOR_LONG);
-		// dX = event.pageX - map.offsetLeft - xy[0]; 
-		// dY = event.pageY - map.offsetTop - xy[1];
-		// ANCHOR_LAT = ANCHOR_LAT + lat_over_y*dY;
-		// ANCHOR_LONG = ANCHOR_LONG - long_over_x*dX;
 		var delta = event.originalEvent.wheelDelta; 
-		// ANCHOR_LAT = event.pageX - map.offsetLeft;
-		// ANCHOR_LONG = event.pageY - map.offsetTop;
-		if (delta < 0) {
+		if (delta < 0 && zoom < 1) {
 			// Scroll Down - zoom out
-			ANCHOR_LAT = ANCHOR_LAT + height*.5;
-			ANCHOR_LONG = ANCHOR_LONG - width*.5;
-			updateMapDim(Math.min(width * 2, MAX_WIDTH), Math.min(height * 2, MAX_HEIGHT)); 
-			zoom ++;
-		} else {
+			zoomOut();
+		} else if (delta > 0 && zoom > -5) {
 			// Scroll Up - zoom in
-			ANCHOR_LAT = ANCHOR_LAT - height*.25;
-			ANCHOR_LONG = ANCHOR_LONG + width*.25;
-			updateMapDim(Math.max(width / 2, MIN_WIDTH), Math.max(height / 2, MIN_HEIGHT));
-			zoom --;
+			zoomIn();
+
 		}
-		addTilesAndDraw();
-
-		// paintMap();
-
 	})
 
 });
+
+function zoomOut(suppress) {
+	ANCHOR_LAT = ANCHOR_LAT + height*.5;
+	ANCHOR_LONG = ANCHOR_LONG - width*.5;
+	updateMapDim(width * 2, height * 2); 
+	zoom ++;
+	if (suppress == undefined) {
+		addTilesAndDraw();
+	}
+
+}
+
+function zoomIn(suppress) {
+	ANCHOR_LAT = ANCHOR_LAT - height*.25;
+	ANCHOR_LONG = ANCHOR_LONG + width*.25;
+	updateMapDim(width / 2, height / 2);
+	zoom --;
+	if (suppress == undefined) {
+		addTilesAndDraw();
+	}}
 
 // function clickToRowCol(x, y) {
 
@@ -862,8 +869,9 @@ Tile.prototype.paint = function(ctx) {
 function paintWay(ctx, w) {
 	//console.log(window.x)
 	paintLine(ctx, w.start, w.end);
-	xy1 = latLongToXY(w.start.lat, w.start.lon)
-	xy2 = latLongToXY(w.end.lat, w.end.lon)
+	//xy1 = latLongToXY(w.start.lat + (w.end.lat-w.start.lat)/2, w.end.lon + (w.end.lon-w.start.lon)/2)
+	xy1 = latLongToXY(w.start.lat, w.start.lon);
+	xy2 = latLongToXY(w.end.lat, w.end.lon);
 	//console.log(w)
 	if (zoom <= -3 && w.id[w.id.length - 1] == "1" && drawnWays[w.name] == undefined) {
 		ctx.save();

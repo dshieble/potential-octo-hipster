@@ -123,10 +123,6 @@ public class MapsTest {
 
     Set<Node> nodes5 = p.findNodes(Node5, false, ll0);
     assertTrue(nodes5.size() == 0);
-
-    System.out.println(Arrays.toString(nodes0.toArray()));
-    System.out.println(Arrays.toString(nodes3.toArray()));
-    System.out.println(Arrays.toString(nodes5.toArray()));
   }
 
   //KDimensional interface
