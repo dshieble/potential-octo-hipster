@@ -52,6 +52,7 @@ public class Node implements KDimensional {
    * @param rN the name of the road to this node
    * @param rI the id of the road to this node
    * @param heur the heuristic value from this node
+   * @param multiplier the multiplier on the weight
    */
   public Node(final double la, final double lo,
       final String i, final Node p,

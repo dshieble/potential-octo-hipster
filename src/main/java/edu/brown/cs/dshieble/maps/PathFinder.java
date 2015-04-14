@@ -29,12 +29,11 @@ public class PathFinder implements AutoCloseable {
    */
   private TrafficManager tm;
 
-  /**
-   * This constructor takes in a path to the db file.
-   * @param db Path to the db file
-   * @throws ClassNotFoundException
-   * @throws SQLException
-   */
+/**
+ * Constructor for the PathFinder class
+ * @param db The database to build the nodes from
+ * @param tm_input The traffic Manager to use
+ */
   public PathFinder(final String db, TrafficManager tm_input) {
     tm = tm_input;
     try {
@@ -55,8 +54,8 @@ public class PathFinder implements AutoCloseable {
    * Finds a path from the first node to the final node
    * @param startId the first node id
    * @param endId the final node
+   * @param usingTraffic True if we are using traffic, false to ignore
    * @return a list representing a path
-   * @throws SQLException
    */
   public final List<Node> findPath(final String startId,
       final String endId, final boolean usingTraffic) {
@@ -97,8 +96,9 @@ public class PathFinder implements AutoCloseable {
   /**
    * Finds all nodes that share an edge with this node
    * @param node the node
+   * @param usingTraffic true if traffic is to be factored in. False otherwise.
+   * @param target The lat long of the target. Used to find heuristic
    * @return a list of nodes
-   * @throws SQLException
    */
   public final Set<Node> findNodes(
       final Node node, final boolean usingTraffic,
@@ -109,11 +109,6 @@ public class PathFinder implements AutoCloseable {
         + "FROM node INNER JOIN "
         + "(SELECT id, name, end FROM way WHERE start = ?) AS W "
         + "ON W.end = node.id;";
-//  ,
-//  "SELECT node.id, node.latitude, node.longitude, W.id, W.name "
-//  + "FROM node INNER JOIN "
-//    + "(SELECT id, name, start FROM way WHERE end = ?) AS W "
-//  + "ON W.start = node.id;"
 
     try (PreparedStatement prep = conn.prepareStatement(query)) {
       prep.setString(1, node.getID());
@@ -164,7 +159,7 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   *
+   * Getter for the Latitude and Longitude of a Node using ID
    * @param id of a node
    * @return a 2 element array containg the latitude, longtiude of that node
    */
@@ -191,10 +186,10 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-  * @param name - the id of the way
-  * @return the name of the way
-  * @throws SQLException
-  */
+   * Getter for the name of a way based on its id.
+   * @param id the id of the way
+   * @return the name of the way
+   */
   public final String getName(final String id) {
     String name = null;
     String query = "SELECT name FROM way WHERE id = ?";
@@ -216,10 +211,12 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-  * @param id - the names of 2 roads
-  * @return the id of the node at the intersection of these roads
-  * @throws SQLException
-  */
+   * Getter for Intersection using two street names.
+   * @param name1 A Street Name
+   * @param name2 A second street name that intersects the first.
+   * @return Returns the id of the node that is at the intersection of the two
+   * streets. Throws a runtime exception if there is no intersection.
+   */
   public final String getIntersection(final String name1, final String name2) {
     String name = null;
     String[] queries =
@@ -268,9 +265,8 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   *
+   * Getter for all the nodes in the database.
    * @return a list of all nodes
-   * @throws SQLException
    */
   public final List<Node> getAllNodes() {
     List<Node> list = new ArrayList<Node>();
@@ -314,8 +310,12 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
+   * Gets all ways within a certain bounding box. Used to find ways for tiles.
+   * @param lat1 The minimum Latitude of a box
+   * @param lat2 Max lat of a box
+   * @param lon1 min longitude of a box
+   * @param lon2 max longitude of a box
    * @return a list of all ways whose starts or ends are in the tile
-   * @throws SQLException
    */
   public final List<Way> getWaysWithin(double lat1, double lat2,
       double lon1, double lon2) {
@@ -355,10 +355,9 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   *
+   * Finds a node from an id.
    * @param id of a node
    * @return that node
-   * @throws SQLException
    */
   public Node idToNode(String id) {
     Node node = null;
@@ -383,12 +382,12 @@ public class PathFinder implements AutoCloseable {
   }
 
   /**
-   *
-   * @return a 4 elements double array where
+   * Getter for the extrema of a maps database.
    * 0 - min lat
    * 1 - max lat
    * 2 - min lon
    * 3 - max lon
+   * @return a 4 elements double array where
    */
   public double[] getMaxMin() {
     double[] output = new double[4];

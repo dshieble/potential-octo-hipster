@@ -29,7 +29,9 @@ public class TrafficManager {
   private ConcurrentHashMap<String, Boolean> updated;
 
   /**
-   * simple constructor that initializes the threadsafe variables
+   * Constructor for the Traffic Manger. Links the rest of the application with
+   * the thread that is repeatedly updating traffic.
+   * @param p The port to look for the traffic.
    */
   public TrafficManager(int p) {
     time = new AtomicInteger(0);
@@ -40,54 +42,6 @@ public class TrafficManager {
     t.start();
 
   }
-
-  /*
-
-  public void updateTraffic() {
-    updated.clear();
-    try {
-      String urlString = "http://localhost:" + port + "?last=" + time;
-      time.getAndSet((int) (System.currentTimeMillis() / 1000));
-      URL url = new URL(urlString);
-      HttpURLConnection connection =
-          (HttpURLConnection) url.openConnection();
-      connection.setRequestMethod("GET");
-      connection.connect();
-      try (BufferedReader reader =
-        new BufferedReader(
-        new InputStreamReader(connection.getInputStream()))) {
-        String line = reader.readLine();
-        if (line == null) {
-          throw new IOException();
-        }
-        String[] sArray = line.split("\\], \\[");
-        for (int i = 0; i < sArray.length; i ++) {
-          try {
-            String[] element = sArray[i].split("\"");
-            if (element.length == 3) {
-              String key = element[1]
-                  .replaceAll("\\]","")
-                  .replaceAll("\\[","");
-              double value = Double.parseDouble(element[2]
-                  .split(",")[1]
-                  .trim()
-                  .replaceAll("\\]","")
-                  .replaceAll("\\[",""));
-              map.put(key, value);
-              updated.put(key, true);
-            }
-          } catch (NumberFormatException e) {
-            //do nothing
-          }
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    } catch (Exception e) { //traffic fail quietly!
-      e.printStackTrace();
-    }
-  }
-  */
 
   /**
    *

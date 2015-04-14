@@ -25,12 +25,8 @@ public final class CommandReader {
   }
 
   /**
-   * Method called by main class that reads command line prompts.
-   * @param tm - the triemanager that ranks input words
-   * @param usePrefix - the options
-   * @param levenshtein - the options
-   * @param useWhitespace - the options
-   * @param useSmart - the options
+   * Static function for MAPS REPL
+   * @param file The String for the name of the maps database.
    */
   public static void readCommands(String file) {
     try (PathFinder p = new PathFinder(file, null)) {
