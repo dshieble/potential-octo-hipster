@@ -89,7 +89,6 @@ public class MapsTest {
     assertTrue(p.getName("/w/1").equals("Chihiro Ave"));
     assertTrue(p.getName("/w/3").equals("Sootball Ln"));
     assertTrue(p.getName("/w/6").equals("Yubaba St"));
-
   }
 
   @Test

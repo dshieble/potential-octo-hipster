@@ -1,6 +1,7 @@
 //TODO:
-//Fix Traffic to be threaded
-//make system tests - re-email TA list
+//Change errors to be graceful
+//pass error system tests
+//make big system tests
 //mvn site
 //write README
 
@@ -23,12 +24,6 @@ INTITIAL_LONG = -71.40320000001;  // Top Left Longitude
 
 TILE_LAT = 0.01; // Degrees
 TILE_LONG = 0.01; // Degrees
-
-// MIN_WIDTH = TILE_LONG/100; 
-// MIN_HEIGHT = TILE_LAT/100; 
-
-// MAX_WIDTH = TILE_LONG*100; 
-// MAX_HEIGHT = TILE_LAT*100; 
 
 DEFAULT_WAY = "#0000FF";
 GRID_LINE = "#D1D2F2";
@@ -324,6 +319,10 @@ $(function() {
 			source2 : $("[name='source2']").val(),
 			target1 : $("[name='target1']").val(),
 			target2 : $("[name='target2']").val()
+		}
+		if (postParameters.source1 == "" || postParameters.source2 == "" || postParameters.target1 == "" || postParameters.target2 == "") {
+			alert("Make sure all fields are filled!")
+			return;
 		}
 		console.log(postParameters)
 
