@@ -64,7 +64,6 @@ public class Trie {
     if (prefixPlus.equals(searchWord)) {
       return node;
     } else if (searchWord.startsWith(prefixPlus)) {
-      HashSet<TrieNode> childNodes = new HashSet<TrieNode>();
       Iterator<TrieNode> childIterator = node.getChildren().iterator();
       while (childIterator.hasNext()) {
         TrieNode child = childIterator.next();

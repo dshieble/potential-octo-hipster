@@ -29,10 +29,6 @@ public class Node implements KDimensional {
    */
   private double weight;
   /**
-   * actor's name.
-   */
-  private String name;
-  /**
    * actor's id.
    */
   private String id;
@@ -106,7 +102,7 @@ public class Node implements KDimensional {
 
   @Override
   /**
-   * 
+   *
    * @return the number of dimensions
    */
   public final int getK() {
@@ -128,10 +124,10 @@ public class Node implements KDimensional {
     }
     return -1;
   }
-  
+
   @Override
   /**
-   * 
+   *
    * @return the distance between this node and another node, using the
    * Haversine formula
    */
@@ -145,7 +141,7 @@ public class Node implements KDimensional {
 
   @Override
   /**
-   * 
+   *
    * @return the distance between this node and some coordinates, using the
    * Haversine formula
    */
@@ -184,6 +180,7 @@ public class Node implements KDimensional {
   *
   * @return this actor's id
   */
+  @Override
   public final String getID() {
     return id;
   }
@@ -237,7 +234,7 @@ public class Node implements KDimensional {
   }
 
 
-  
+
   /**
    *
     * @param o the actor to compare to
@@ -259,7 +256,8 @@ public class Node implements KDimensional {
   *
   * @return string version of object
   */
- public final String toString() {
+ @Override
+public final String toString() {
    if (parent != null) {
      return " Parent: " + parent.getID() + " Weight: " + weight
             + " ID: " + id + " Edge Name: " + edgeName;

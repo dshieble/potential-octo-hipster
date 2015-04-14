@@ -1,12 +1,9 @@
 package edu.brown.cs.dshieble.maps;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import edu.brown.cs.sjl2.kd.KDTree;
@@ -35,8 +32,7 @@ public final class CommandReader {
    * @param useWhitespace - the options
    * @param useSmart - the options
    */
-  public static void readCommands(String file)
-      throws IOException, SQLException {
+  public static void readCommands(String file) {
     try (PathFinder p = new PathFinder(file, null)) {
       try (BufferedReader reader =
         new BufferedReader(new InputStreamReader(System.in))) {
@@ -53,7 +49,7 @@ public final class CommandReader {
           if (quoteArr.length == 1) {
             String[] spaceArr = command.split(" ");
             if (spaceArr.length != 4) {
-              throw new IOException();
+              throw new IOException("Incorrect number of Arguments.");
             }
             double[] from = new double[2];
             double[] to = new double[2];
@@ -66,18 +62,17 @@ public final class CommandReader {
                   to[i-2] = d;
                 }
               } catch (NumberFormatException e) {
-                throw new IOException();
+                throw new IOException("An expected double was not found.");
               }
             }
-            //System.out.println("Thinking");
+
             fromId = kd.neighbors(1, from).get(0).getID();
             toId = kd.neighbors(1, to).get(0).getID();
-            //System.out.println("Neighbors Found");
 
           //if quotation input type
           } else {
             if (quoteArr.length != 8) {
-              throw new IOException();
+              throw new IOException("Incorrect Number of Inputs.");
             } else {
               String s1 = quoteArr[1];
               String c1 = quoteArr[3];
@@ -104,13 +99,10 @@ public final class CommandReader {
           }
         }
       } catch (IOException ioe) {
-        System.out.println("ERROR: REPL Exception");
-        throw(ioe);
+        System.out.println("ERROR: REPL Exception: " + ioe.getMessage());
       }
-    } catch (SQLException|ClassNotFoundException e) {
-      e.printStackTrace();
-      System.out.println("ERROR: SQL Exception");
-      throw new SQLException();
+    } catch (RuntimeException e) {
+      System.out.println("ERROR: " + e.getMessage());
     }
   }
 }

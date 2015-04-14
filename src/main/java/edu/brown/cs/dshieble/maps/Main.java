@@ -1,7 +1,5 @@
 package edu.brown.cs.dshieble.maps;
 
-
-import java.io.IOException;
 import java.sql.SQLException;
 
 /**
@@ -51,7 +49,7 @@ public final class Main {
       if (args[0].equals("--gui")) {
         String file = args[1];
         TrafficManager t = new TrafficManager(8080);
-        GUIManager g = new GUIManager(file, t);
+        new GUIManager(file, t);
 
 //        try {
 //          GUIManager g = new GUIManager(file, t);
@@ -82,11 +80,7 @@ public final class Main {
       return;
     //matching names
     } else {
-      try {
-       CommandReader.readCommands(args[0]);
-      } catch (IOException|SQLException e) {
-        return; // error printed in CommandReader
-      }
+      CommandReader.readCommands(args[0]);
     }
 
   }

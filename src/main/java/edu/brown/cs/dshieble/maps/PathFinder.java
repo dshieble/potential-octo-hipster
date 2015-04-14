@@ -35,12 +35,20 @@ public class PathFinder implements AutoCloseable {
    * @throws ClassNotFoundException
    * @throws SQLException
    */
-  public PathFinder(final String db, TrafficManager tm_input)
-      throws ClassNotFoundException, SQLException {
+  public PathFinder(final String db, TrafficManager tm_input) {
     tm = tm_input;
-    Class.forName("org.sqlite.JDBC");
-    String urlToDB = "jdbc:sqlite:" + db;
-    conn = DriverManager.getConnection(urlToDB);
+    try {
+      Class.forName("org.sqlite.JDBC");
+      String urlToDB = "jdbc:sqlite:" + db;
+      conn = DriverManager.getConnection(urlToDB);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(
+          "Could not find SQLite JDBC Class: " + e.getMessage());
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          "Could not connect to database " + db + ": " + e.getMessage());
+    }
+
   }
 
   /**
@@ -51,8 +59,7 @@ public class PathFinder implements AutoCloseable {
    * @throws SQLException
    */
   public final List<Node> findPath(final String startId,
-      final String endId, final boolean usingTraffic)
-          throws SQLException {
+      final String endId, final boolean usingTraffic) {
 
     Set<String> explored = new HashSet<String>();
     if (startId == null || endId == null) {
@@ -95,8 +102,7 @@ public class PathFinder implements AutoCloseable {
    */
   public final Set<Node> findNodes(
       final Node node, final boolean usingTraffic,
-      final double[] target)
-      throws SQLException {
+      final double[] target) {
     Set<Node> output = new HashSet<Node>();
     String query =
         "SELECT node.id, node.latitude, node.longitude, W.id, W.name "
@@ -136,10 +142,12 @@ public class PathFinder implements AutoCloseable {
           }
         }
       } catch (SQLException e1) {
-        throw(e1);
+        throw new RuntimeException(
+            "Could not obtain neighbor nodes." + e1.getMessage());
       }
     } catch (SQLException e2) {
-      throw(e2);
+      throw new RuntimeException(
+          "Could not obtain neighbor nodes." + e2.getMessage());
     }
 
     return output;
@@ -160,7 +168,7 @@ public class PathFinder implements AutoCloseable {
    * @param id of a node
    * @return a 2 element array containg the latitude, longtiude of that node
    */
-  public double[] getLatLong(String id) throws SQLException {
+  public double[] getLatLong(String id) {
     // TODO Auto-generated method stub
     double[] latlong = new double[2];
     String latlongquery = "SELECT latitude, longitude FROM node WHERE id = ?";
@@ -176,7 +184,8 @@ public class PathFinder implements AutoCloseable {
         throw(e1);
       }
     } catch (SQLException e2) {
-      throw(e2);
+      throw new RuntimeException(
+          "Could not obtain Lat, Long for " + id + ": " + e2.getMessage());
     }
     return latlong;
   }
@@ -186,8 +195,7 @@ public class PathFinder implements AutoCloseable {
   * @return the name of the way
   * @throws SQLException
   */
-  public final String getName(final String id)
-          throws SQLException {
+  public final String getName(final String id) {
     String name = null;
     String query = "SELECT name FROM way WHERE id = ?";
     try (PreparedStatement prep = conn.prepareStatement(query)) {
@@ -201,7 +209,8 @@ public class PathFinder implements AutoCloseable {
         throw(e1);
       }
     } catch (SQLException e2) {
-      throw(e2);
+      throw new RuntimeException(
+          "Could not obtain name for " + id + ": " + e2.getMessage());
     }
     return name;
   }
@@ -211,8 +220,7 @@ public class PathFinder implements AutoCloseable {
   * @return the id of the node at the intersection of these roads
   * @throws SQLException
   */
-  public final String getIntersection(final String name1, final String name2)
-          throws SQLException {
+  public final String getIntersection(final String name1, final String name2) {
     String name = null;
     String[] queries =
       {
@@ -252,7 +260,8 @@ public class PathFinder implements AutoCloseable {
           throw(e1);
         }
       } catch (SQLException e2) {
-        throw(e2);
+        throw new RuntimeException(name1 + " and " + name2 + " do not form an "
+            + "intersection. ");
       }
     }
     return name;
@@ -263,7 +272,7 @@ public class PathFinder implements AutoCloseable {
    * @return a list of all nodes
    * @throws SQLException
    */
-  public final List<Node> getAllNodes() throws SQLException {
+  public final List<Node> getAllNodes() {
     List<Node> list = new ArrayList<Node>();
     String query = "SELECT id, latitude, longitude FROM node";
     try (PreparedStatement prep = conn.prepareStatement(query)) {
@@ -280,12 +289,12 @@ public class PathFinder implements AutoCloseable {
         throw(e1);
       }
     } catch (SQLException e2) {
-      throw(e2);
+      throw new RuntimeException("Could not get all nodes: " + e2.getMessage());
     }
     return list;
   }
 
-  public final List<String> getStreetNames() throws SQLException {
+  public final List<String> getStreetNames() {
     List<String> names = new ArrayList<>();
     String query = "SELECT DISTINCT name FROM way;";
     try (PreparedStatement prep = conn.prepareStatement(query)) {
@@ -297,7 +306,8 @@ public class PathFinder implements AutoCloseable {
         throw (e1);
       }
     } catch (SQLException e2) {
-      throw (e2);
+      throw new RuntimeException("Could not get all street names: "
+          + e2.getMessage());
     }
 
     return names;
@@ -308,7 +318,7 @@ public class PathFinder implements AutoCloseable {
    * @throws SQLException
    */
   public final List<Way> getWaysWithin(double lat1, double lat2,
-      double lon1, double lon2) throws SQLException {
+      double lon1, double lon2) {
     List<Way> list = new ArrayList<Way>();
     String query = "SELECT start, end, way.id, way.name FROM way INNER JOIN "
         + "(SELECT id FROM node "
@@ -338,7 +348,8 @@ public class PathFinder implements AutoCloseable {
         throw(e1);
       }
     } catch (SQLException e2) {
-      throw(e2);
+      throw new RuntimeException(
+          "Could not get ways within bounding box: " + e2.getMessage());
     }
     return list;
   }
@@ -349,7 +360,7 @@ public class PathFinder implements AutoCloseable {
    * @return that node
    * @throws SQLException
    */
-  public Node idToNode(String id) throws SQLException {
+  public Node idToNode(String id) {
     Node node = null;
     String query = "SELECT latitude, longitude FROM node WHERE id = ?";
     try (PreparedStatement prep = conn.prepareStatement(query)) {
@@ -365,7 +376,8 @@ public class PathFinder implements AutoCloseable {
         throw(e1);
       }
     } catch (SQLException e2) {
-      throw(e2);
+      throw new RuntimeException(
+          "Could not obtain node for " + id + ": " + e2.getMessage());
     }
     return node;
   }
@@ -377,9 +389,8 @@ public class PathFinder implements AutoCloseable {
    * 1 - max lat
    * 2 - min lon
    * 3 - max lon
-   * @throws SQLException
    */
-  public double[] getMaxMin() throws SQLException {
+  public double[] getMaxMin() {
     double[] output = new double[4];
     String query = "SELECT  MIN(latitude), MAX(latitude), MIN(longitude), MAX(longitude) FROM node";
     try (PreparedStatement prep = conn.prepareStatement(query)) {
@@ -394,7 +405,8 @@ public class PathFinder implements AutoCloseable {
         throw(e1);
       }
     } catch (SQLException e2) {
-      throw(e2);
+      throw new RuntimeException(
+          "Could not obtain extrema of database: " + e2.getMessage());
     }
     return output;
   }
@@ -402,9 +414,13 @@ public class PathFinder implements AutoCloseable {
   @Override
   /**
    * Closes and cleans up any resources.
-   * @throws SQLException
    */
-  public final void close() throws SQLException {
-    conn.close();
+  public final void close() {
+    try {
+      conn.close();
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          "Could not close PathFinder: " + e.getMessage());
+    }
   }
 }

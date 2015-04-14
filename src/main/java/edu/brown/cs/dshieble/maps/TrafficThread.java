@@ -47,15 +47,20 @@ public class TrafficThread extends Thread {
 
   @Override
   public void run() {
-    Timer t = new Timer();
-    TimerTask task = new TimerTask() {
-      @Override
-      public void run() {
-        updateTraffic();
-      }
-    };
+    try {
+      Timer t = new Timer();
+      TimerTask task = new TimerTask() {
+        @Override
+        public void run() {
+          updateTraffic();
+        }
+      };
 
-    t.scheduleAtFixedRate(task, 0, 500);
+      t.scheduleAtFixedRate(task, 0, 500);
+    } catch (RuntimeException e) {
+      System.out.println(e);
+    }
+
   }
 
   /**
@@ -102,7 +107,7 @@ public class TrafficThread extends Thread {
         e.printStackTrace();
       }
     } catch (Exception e) { //traffic fail quietly!
-      e.printStackTrace();
+      throw new RuntimeException("ERROR: " + e.getMessage());
     }
   }
 }

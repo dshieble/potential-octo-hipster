@@ -1,8 +1,5 @@
 package edu.brown.cs.dshieble.maps;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.brown.cs.sjl2.kd.KDimensional;
 
 /**
@@ -30,7 +27,7 @@ public class Way implements KDimensional {
   private String id;
 
   /**
-   * 
+   *
    * @param s start node
    * @param e end node
    * @param n name of way
@@ -56,7 +53,7 @@ public class Way implements KDimensional {
 
   @Override
   /**
-   * 
+   *
    * @return the number of dimensions
    */
   public final int getK() {
@@ -65,7 +62,7 @@ public class Way implements KDimensional {
 
   @Override
   /**
-   * 
+   *
    * @return the distance between this node and another node, using the
    * Haversine formula
    */
@@ -75,7 +72,7 @@ public class Way implements KDimensional {
 
   @Override
   /**
-   * 
+   *
    * @return the distance between this node and some coordinates, using the
    * Haversine formula
    */
@@ -126,7 +123,7 @@ public class Way implements KDimensional {
   }
 
   /**
-   * 
+   *
    * @return start node
    */
   public Node getStart() {
@@ -134,7 +131,7 @@ public class Way implements KDimensional {
   }
 
   /**
-   * 
+   *
    * @return end node
    */
   public Node getEnd() {
@@ -145,6 +142,7 @@ public class Way implements KDimensional {
   *
   * @return string version of object
   */
+  @Override
   public final String toString() {
     return "Name: " + name + " ID: " + id
          + " Start: " + start.getID() + " End: " + end.getID();

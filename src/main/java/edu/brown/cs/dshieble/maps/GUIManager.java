@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Type;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,12 +49,8 @@ public class GUIManager {
       Collection<String> names = p.getStreetNames();
       autocorrect = new TrieManager(
           names.toArray(new String[names.size()]));
-    } catch (ClassNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (SQLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } catch (RuntimeException e) {
+      System.out.println("ERROR: " + e.getMessage());
     }
 
     if (port == TRAFFIC_PORT) {
@@ -70,15 +65,13 @@ public class GUIManager {
     this.db = db;
     try (PathFinder p = new PathFinder(db, tm)) {
       this.tree = new KDTree<Node>(2, new ArrayList<>(p.getAllNodes()));
+
+      //initializeAutocorrect(p.getStreetNames());
       Collection<String> names = p.getStreetNames();
       autocorrect = new TrieManager(
           names.toArray(new String[names.size()]));
-      } catch (ClassNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (SQLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } catch (RuntimeException e) {
+      System.out.println("ERROR: " + e.getMessage());
     }
     runSparkServer(DEFAULT_PORT);
   }
@@ -104,7 +97,6 @@ public class GUIManager {
     FreeMarkerEngine freeMarker = createEngine();
 
     Spark.get("/maps", new FrontHandler(), freeMarker);
-    Spark.get("/anchor", new AnchorHandler());
     Spark.post("/ways", new WaysHandler());
     Spark.post("/closest", new ClosestHandler());
     Spark.post("/path", new PathHandler());
@@ -129,23 +121,6 @@ public class GUIManager {
     }
   }
 
-  // TODO Remove?
-  private class AnchorHandler implements Route {
-    @Override
-    public Object handle(final Request req, final Response res) {
-      double[] extrema = new double[0];
-
-      try(PathFinder p = new PathFinder(db, tm)) {
-        extrema = p.getMaxMin();
-      } catch (ClassNotFoundException | SQLException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-
-      return GSON.toJson(extrema);
-    }
-  }
-
   /**
    * Handler for determining the ways within a tile.
    *
@@ -163,18 +138,14 @@ public class GUIManager {
       double maxLong = GSON.fromJson(qm.value("maxLong"), Double.class);
       double minLong = GSON.fromJson(qm.value("minLong"), Double.class);
 
-      List<Way> ways;
+      List<Way> ways = new ArrayList<>();
 
       try (PathFinder p = new PathFinder(db, tm)) {
         ways = p.getWaysWithin(minLat, maxLat, minLong, maxLong);
-
-      } catch (ClassNotFoundException | SQLException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-
-        ways = new ArrayList<>();
+      } catch (RuntimeException e) {
+        System.out.println("ERROR: " + e.getMessage());
       }
-      //System.out.println(Arrays.toString(ways.toArray()));
+
       return GSON.toJson(ways);
     }
   }
@@ -189,7 +160,6 @@ public class GUIManager {
   private class ClosestHandler implements Route {
     @Override
     public Object handle(Request req, Response res) {
-      // TODO
       QueryParamsMap qm = req.queryMap();
       Double latitude = GSON.fromJson(qm.value("lat"), Double.class);
       Double longitude = GSON.fromJson(qm.value("lng"), Double.class);
@@ -218,17 +188,11 @@ public class GUIManager {
       String startID = qm.value("start");
       String endID = qm.value("end");
 
-      List<Node> path;
+      List<Node> path = new ArrayList<>();
       try (PathFinder p = new PathFinder(db, tm)) {
          path = p.findPath(startID, endID, true);
-      } catch (ClassNotFoundException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-        path = new ArrayList<>();
-      } catch (SQLException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-        path = new ArrayList<>();
+      } catch (RuntimeException e) {
+        System.out.println("ERROR: " + e.getMessage());
       }
 
       return GSON.toJson(path);
@@ -285,14 +249,8 @@ public class GUIManager {
 //         if (path == null) {
 //           path = new ArrayList<>();
 //         }
-      } catch (ClassNotFoundException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-        inter = new ArrayList<>();
-      } catch (SQLException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-        inter = new ArrayList<>();
+      } catch (RuntimeException e) {
+        System.out.println("ERROR: " + e.getMessage());
       }
 
       return GSON.toJson(inter);
@@ -316,7 +274,7 @@ public class GUIManager {
               0,
               true,
               false);
-      //System.out.println(Arrays.toString(suggestions));
+
       return GSON.toJson(suggestions);
     }
   }

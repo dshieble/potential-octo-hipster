@@ -36,10 +36,10 @@ public class SmartComparator implements Comparator<String> {
       final HashMultiset<String> b1,
       final HashMultiset<String> u,
       final HashMultiset<String> b) {
-    this.unigramHash = unigramHash;
-    this.bigramHash = bigramHash;
-    this.unigramHash1 = unigramHash1;
-    this.bigramHash1 = bigramHash1;
+    this.unigramHash = u1;
+    this.bigramHash = b1;
+    this.unigramHash1 = u;
+    this.bigramHash1 = b;
   }
 
   /**
