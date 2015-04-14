@@ -1,0 +1,83 @@
+README
+
+Attributions -
+
+The KD Tree is Stewart's
+The Autocorrect and Pathfinder (Bacon) are Dan's
+
+
+How to use the GUI - 
+
+Scroll the mouse wheel to zoom. Zooming is reversible, and always occurs based on the 
+current center of the map.
+
+Hold the mouse down and drag to move the map. Release the mouse to stop dragging.
+Dragging happens continuously while the mouse is held down.
+
+Click once on the map to highlight a nearest neighbor node, and click again to find a path. Click again to
+find a new nearest neighbor node. Press the clear button at any time to restart the process.
+
+Enter street names in the fields at the top of the screen to find a path via intersections.
+
+
+Swag -
+ 
+Our map displays the street names when it is zoomed in enough. In addition, our scrolling
+happens continuously while the mouse is held down.
+
+
+Optimizations - 
+
+We optimized our canvas drawing by calling stroke only once for each color.
+
+Citations - 
+Compass: http://www.clipartbest.com/cliparts/dT8/57M/dT857MjTe.png
+Background: http://simplywallpaper.net/pictures/2010/10/02/Wizarding-World-Map.jpg
+
+CheckStyle - 
+
+Javadoc Package - 
+This error is not included on the style guide.
+
+EqualsHashCode -
+I chose not to use a HashCode function because it introduced unusual PQ behavior.
+
+Magic Number - The magic numbers that I use are:
+-In my triemanager class, I return the top 5 suggestions
+-In my GUIManager, I need to set the spark localhost port. I also need to ignore the
+first 3 characters of each id when setting urls.
+-In my Main class, I expect an args input that is 3 characters long
+-In my PathFinder class, I need to parse all 5 of the columns returned by the resultSet.
+
+JavaDocMethod -
+For some reason, checkstyle is saying that I do not include the @throws tag for SQLException 
+and ClassNotFoundException, even though I'm pretty sure that I do.
+
+
+Bugs - 
+
+This program has no known bugs
+
+
+Design Details - 
+
+The code for this project is split between the autocorrect and Trie packages, which handle
+the autocorrection, the kd and stars packages, which handle nearest neighbor search,
+and the maps package, which handles shortest path search, running the gui, parsing the REPL,
+and running the traffic server.
+
+The autocorrection and nearest neighbor packages are essentially unchanged. In order to place
+nodes and ways in the KD tree and utilize the nearest neighbor search, we had the Node and Way classes
+implement the KDimensional interface in the kd package.
+
+
+Tests -
+
+Our maps junit tests are located in the MapsTest.java file, and our stars junit tests 
+are in the KDTreeTest.java, StarDatabaseTest.java and StarsTest.java files.
+You can run them by running mvn package.
+
+The system tests are located in the mytests file. You can run them with the 
+cs032_system_tester_slow. Make sure to set a timeout of -t45.
+
+

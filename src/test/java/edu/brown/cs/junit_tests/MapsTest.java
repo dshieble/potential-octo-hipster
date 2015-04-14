@@ -80,7 +80,6 @@ public class MapsTest {
     assertTrue(p.getName("/w/1").equals("Chihiro Ave"));
     assertTrue(p.getName("/w/3").equals("Sootball Ln"));
     assertTrue(p.getName("/w/6").equals("Yubaba St"));
-
   }
 
   @Test
@@ -114,10 +113,6 @@ public class MapsTest {
 
     Set<Node> nodes5 = p.findNodes(Node5, false, ll0);
     assertTrue(nodes5.size() == 0);
-
-    System.out.println(Arrays.toString(nodes0.toArray()));
-    System.out.println(Arrays.toString(nodes3.toArray()));
-    System.out.println(Arrays.toString(nodes5.toArray()));
   }
 
   //KDimensional interface

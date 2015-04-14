@@ -1,7 +1,7 @@
 body {
 	color:#000000;
 	background-color: blue;
-	background-image: url(../images/OldMapPaper.jpg);
+	background-image: url(../images/Wizarding-World-Map.jpg);
 	background-size: cover;
 }
 
@@ -45,12 +45,13 @@ textarea {
 } 
 
 #centerpiece {
+	text-align:center;
 	float: right;
 	width: 20%;
 }
 
 .target *, .source * {
-	padding-top: 5px;
+	margin-top: 5px;
 }
 
 
@@ -68,19 +69,22 @@ textarea {
 }
 
 #compass {
-	position: relative;
-	top: -110px;
+	position: absolute;
+	top: 50%;
+	left:5%;
 	width:100px;
 	height:100px;
 	z-index: 3;
-	float: right;
+	float: left;
 }
 
 #clear {
 	/*visibility: hidden;*/
 	width: 100px;
-	position: relative;
-	top: -29px;
+	position: absolute;
+	top: 70%;
+	left:5%;
+	
 	margin-left: auto; 
 	z-index: 3;
 }
