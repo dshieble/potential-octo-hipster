@@ -70,7 +70,7 @@ textarea {
 
 #compass {
 	position: absolute;
-	top: 50%;
+	top: 70%;
 	left:5%;
 	width:100px;
 	height:100px;
@@ -79,14 +79,14 @@ textarea {
 }
 
 #clear {
-	/*visibility: hidden;*/
+	/*visibility: hidden;
 	width: 100px;
 	position: absolute;
 	top: 70%;
 	left:5%;
 	
 	margin-left: auto; 
-	z-index: 3;
+	z-index: 3;*/
 }
 
 

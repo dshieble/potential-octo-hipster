@@ -12,6 +12,7 @@
 			<div id="centerpiece">
 				<h2>Ye High-Tech, Olde Providence</h1>
 				<button id="get_path"type="button">Get Path</button>
+				<button id="clear" type="button">Clear</button>
 			</div>
 			
 			<div class="source">
@@ -28,7 +29,6 @@
 			<img id = "compass" src="http://www.clipartbest.com/cliparts/dT8/57M/dT857MjTe.png" alt="a compass">
 			
 		</div>
-		<button id="clear" type="button">Clear</button>
 	</div>
 </#assign>
 <#include "main.ftl">
