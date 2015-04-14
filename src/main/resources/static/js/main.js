@@ -1,9 +1,6 @@
 //TODO:
-//Change errors to be graceful
-//pass error system tests
-//make big system tests
 //mvn site
-//write README
+// README checkstyle
 
 
 //sparse representation from server (SWAG)
@@ -114,37 +111,6 @@ setTimeout(
 
 
 $(function() {
-
-	//starting location is supposed to be Brown's campus
-
-
-	//$.get("/anchor", function(responseJSON) {
-		//var extrema = JSON.parse(responseJSON);
-
-		//No edge of the world
-		//max zoom
-		//min zoom
-
-		// ANCHOR_LAT = extrema[1] + 4*TILE_LAT; 
-		// WORLD_HEIGHT = Math.ceil((extrema[1] - extrema[0]) / TILE_LAT) + 8; // deg. Lat 
-
-		// ANCHOR_LONG = extrema[2] - 4*TILE_LONG; 
-		// WORLD_WIDTH = Math.ceil((extrema[3] - extrema[2]) / TILE_LONG) + 8; // deg. Long
-
-		// grid = new Array(WORLD_HEIGHT);
-
-		// for (var i = 0; i < WORLD_HEIGHT; i++) {
-		// 	grid[i] = new Array(WORLD_WIDTH);
-		// }
-
-		// // TODO Obtain initialial points from program
-		// topLeftRow = 0;
-		// topLeftCol = 0;
-
-		// width = Math.floor(WORLD_WIDTH / 4); 
-		// height = Math.floor(WORLD_HEIGHT / 4); 
-	//});
-	
 	//Initialize the Canvas
 	var canvas = $("#map")[0]; 
 	canvas.width = MAP_WIDTH;
@@ -154,7 +120,6 @@ $(function() {
 
 	//Initialize Tile Map, and paint it
 	tilesTarget = 4;
-
 	tileMap[indexToString([0, 0])] = new Tile([0, 0]);
 	tileMap[indexToString([0, 1])] = new Tile([0, 1]);
 	tileMap[indexToString([-1, 0])] = new Tile([-1, 0]);
@@ -359,6 +324,10 @@ $(function() {
 	$("#clear").click(function (event) {
 		clearNodes();
 		paintMap();
+		document.getElementById('suggest').value = "";
+		document.getElementById('suggest2').value = "";
+		document.getElementById('suggest3').value = "";
+		document.getElementById('suggest4').value = "";
 	})
 
 	$('html').on('mousewheel', function(event) {
@@ -487,11 +456,8 @@ function clearNodes() {
 function updateMapDim(newHeight, newWidth) {
 	width = newWidth;
 	height = newHeight;
-
 	lat_over_y = height/MAP_HEIGHT;
 	long_over_x = width/MAP_WIDTH;
-	
-
 }
 
 //updates the visible tile array based on the anchors, width and height
@@ -572,9 +538,7 @@ function indexToString(index) {
 }
 
 function paintGrid(ctx) {
-	//ctx.globalAlpha = 0.1;
 	ctx.fillStyle = GRID_LINE; 
-
 	var longWidth = MAP_WIDTH / width;
 	for (var i = longWidth; i < MAP_WIDTH; i += longWidth) {
 		ctx.moveTo(i, 0);
@@ -586,9 +550,9 @@ function paintGrid(ctx) {
 		ctx.moveTo(0, j);
 		ctx.lineTo(MAP_WIDTH, j); 
 	} 
-	//ctx.stroke(); 
 }
 
+//Render the Map on the Screen
 function paintMap() {
 	if (tilesReady == tilesTarget && !updateLock) {
 
@@ -596,29 +560,17 @@ function paintMap() {
 		drawnWays = {};
 		var ctx = $("#map")[0].getContext("2d"); 
 		ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); 
-
-		// for (t in visibleTiles) {
-		// 	visibleTiles[t].paint(ctx);
-		// }
-
 		paintTraffic(ctx); 
-
-		//draw the path
 		paintPath(ctx)
-
-
 		tilesReady = 0;
 		tilesTarget = 0;
 
 	}
 }
 
+//Draw the Ways, with traffic
 function paintTraffic(ctx) {
-
-
-	//var trafficLevels = { normal : [], light : [], medium : [], aboveAverage : [], heavy : [], stayHome : [] }; 
-	//fill this
-
+	//for each possible traffic level, draw all ways of that color
 	for (var i = 1; i < TRAFFIC_COLORS.length; i++) {
 		ctx.beginPath(); 
 		ctx.strokeStyle = TRAFFIC_COLORS[i]; 
@@ -633,18 +585,9 @@ function paintTraffic(ctx) {
 		}
 		ctx.stroke(); 
 	}
-
-
-	// ctx.beginPath(); 
-	// ctx.strokeStyle = STAY_HOME;
-	// for (var w in trafficLevels.stayHome) {
-	// 	paintWay(ctx, trafficLevels.stayHome[w]); 
-	// }
-	// ctx.stroke(); 
-
 }
 
-
+//paint the path from one node to the other
 function paintPath(ctx) {
 	if (input_state >= 2) {
 		//just paint the first node
@@ -684,6 +627,7 @@ function paintPath(ctx) {
 	}
 }
 
+//paint the nodes along the path
 function paintNodes(ctx) {
 	if (nodes.length > 0) {
 		ctx.beginPath(); 
@@ -701,7 +645,7 @@ function paintNodes(ctx) {
 	}
 }
 
-
+//draw a line from start to end on the map
 function paintLine(ctx, start, end) {
 	var p1 = latLongToXY(start.lat, start.lon); 
 	var p2 = latLongToXY(end.lat, end.lon); 
@@ -709,18 +653,20 @@ function paintLine(ctx, start, end) {
 	ctx.lineTo(p2[0], p2[1]);
 }
 
+//Node class, represents a point on a path
 function Node(lat, lon, id) {
 	this.lat = lat; 
 	this.lon = lon;
 	this.id = id; 
 }
 
+//paint the node to the map
 Node.prototype.paint = function(ctx) {
 	var A = latLongToXY(this.lat, this.lon);
 	ctx.arc(A[0], A[1], 4, 0, 2 * Math.PI, false);
 }
 
-
+//way class, represents a street
 function Way(lat1, long1, lat2, long2, id) {
 	this.lat1 = lat1; 
 	this.lat2 = lat2; 
@@ -750,10 +696,9 @@ function Tile(index) {
 		tilesReady ++; //handling asynchonity
 		paintMap();
 	})
-
-
 }
 
+//intialize the ways of a tile - this method is called by an asynchronous post call
 Tile.prototype.setWays = function(ways) {
 	this.ways.length = 0;
 	for (w in ways) {
@@ -761,43 +706,6 @@ Tile.prototype.setWays = function(ways) {
 			this.ways.push(ways[w]);
 		}
 	}
-
-
-	// var left = [[this.minLat, this.minLong], [this.maxLat, this.minLong]];
-	// var right = [[this.maxLat, this.maxLong], [this.minLat, this.maxLong]];
-	// var top = [[this.maxLat, this.minLong], [this.maxLat, this.maxLong]];
-	// var bottom = [[this.minLat, this.maxLong], [this.minLat, this.minLong]];
-
-	// var box = [left, right, top, bottom];
-	// points = [];
-	// for (var i in this.ways) {
-	// 	var start = [this.ways[i].start.lat, this.ways[i].start.lon]; 
-	// 	var end = [this.ways[i].end.lat, this.ways[i].end.lon];
-	// 	for (var b in box) {
-	// 		I = intersection(box[b][0], box[b][1], start, end);
-	// 		if (I != undefined) {
-	// 			points.push(I);
-	// 		}
-	// 	}
-	// 	this.ways[i];
-	// }
-	// if (points.length == 2) {
-	// 	this.ways[i].start.lat = points[0][0];
-	// 	this.ways[i].start.lon = points[0][1];
-	// 	this.ways[i].end.lat = points[1][0];
-	// 	this.ways[i].end.lon = points[1][1];
-	// } else if (points.length == 1) {
-	// 	if (this.within(this.ways[i].start)) {
-	// 		this.ways[i].end.lat = points[0][0];
-	// 		this.ways[i].end.lon = points[0][1];		
-	// 	} else if (this.within(this.ways[i].end)) {
-	// 		this.ways[i].start.lat = points[0][0];
-	// 		this.ways[i].start.lon = points[0][1];	
-	// 	} else {
-	// 		alert("ERROR: start or end should be within");
-	// 	}
-	// } 
-
 }
 
 //returns true if a point is within the bounds of the tile
@@ -816,49 +724,8 @@ function withinBox(pt, minLat, maxLat, minLong, maxLong) {
 	return pt[0] >= minLat && pt[0] <= maxLat &&  pt[1] >= minLong && pt[1] <= maxLong;
 }
 
-// all inputs in the for [x, y]
-function intersection(start1, end1, start2, end2) {
-	var q = start1; 
-	var p = start2; 
-
-	var s = diff(end1, start1);
-	var r = diff(end2, start2);
-
-	var d = diff(q, p);
-
-	var rxs = crossProduct(r, s); 
-
-	if (rxs == 0) {
-		return undefined; 
-	}
-
-	var u = crossProduct(d, [r[0] / rxs, r[1] / rxs]);
-	var t = crossProduct(d, [s[0] / rxs, s[1] / rxs]);
-
-	if (u <= 0 || u > 1 || t < 0 || t > 1) {
-		return undefined; 
-	}
-
-	return [q[0] + u * s[0], q[1] + u * s[1]]; 
-}
-
-function diff(pt1, pt2) {
-	return [pt1[0] - pt2[0], pt1[1] - pt2[1]]
-}
-
-function crossProduct(pt1, pt2) {
-	return pt1[0]*pt2[1] - pt1[1]*pt2[0]; 
-}
-
+//TODO Paint all of the ways of a tile. 
 Tile.prototype.paint = function(ctx) {
-	// TODO Paint all of the ways of a tile. 
-	// var tileX = (this.col - topLeftCol) * (MAP_WIDTH / width);
-	// var tileY = (this.row - topLeftRow) * (MAP_HEIGHT / height);
-
-	//ctx.strokeText((this.row) + "," + (this.col), tileX + 20, tileY + 20); 
-
-	//var ways = this.ways; 
-	//console.log(444)
 	for (var i in this.ways) {
 		//console.log(this.ways[i]);
 		paintWay(ctx, this.ways[i]); 
@@ -866,12 +733,11 @@ Tile.prototype.paint = function(ctx) {
 }
 
 function paintWay(ctx, w) {
-	//console.log(window.x)
+	//paint the line
 	paintLine(ctx, w.start, w.end);
-	//xy1 = latLongToXY(w.start.lat + (w.end.lat-w.start.lat)/2, w.end.lon + (w.end.lon-w.start.lon)/2)
 	xy1 = latLongToXY(w.start.lat, w.start.lon);
 	xy2 = latLongToXY(w.end.lat, w.end.lon);
-	//console.log(w)
+	//paint the name as well, only paint each name once
 	if (zoom <= -3 && w.id[w.id.length - 1] == "1" && drawnWays[w.name] == undefined) {
 		ctx.save();
 		ctx.textAlign = "center";
