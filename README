@@ -33,6 +33,9 @@ happens continuously while the mouse is held down.
 Optimizations - 
 
 We optimized our canvas drawing by calling stroke only once for each color.
+Our kd tree code and A* code uses the haversine distance formula, rather
+than the euclidian distance formula, to guarantee correctness in non-euclidi
+an lat-long space.
 
 
 Citations - 
