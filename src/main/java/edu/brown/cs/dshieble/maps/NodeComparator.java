@@ -1,5 +1,6 @@
 package edu.brown.cs.dshieble.maps;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 
@@ -7,7 +8,13 @@ import java.util.Comparator;
  * A Comparator that compares the weights of 2 actors.
  *
  * */
-public class NodeComparator implements Comparator<Node> {
+public class NodeComparator implements Comparator<Node>, Serializable {
+
+  /**
+   *generated id.
+   */
+  private static final long serialVersionUID = 1L;
+
 
   /**
    * Constructor doesn't do anything.

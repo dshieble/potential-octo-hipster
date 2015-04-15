@@ -105,7 +105,7 @@ public class KDTree<E extends KDimensional> implements Iterable<E> {
 
       for (E kd : points) {
         if (kd.getDimension(dim) <= median.getDimension(dim)
-            && kd.getID() != median.getID()) {
+            && !kd.getID().equals(median.getID())) {
           leftPoints.add(kd);
         } else if (kd.getDimension(dim) > median.getDimension(dim)) {
           rightPoints.add(kd);

@@ -101,7 +101,7 @@ public class TrafficThread extends Thread {
       connection.connect();
       try (BufferedReader reader =
           new BufferedReader(
-              new InputStreamReader(connection.getInputStream()))) {
+              new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
         String line = reader.readLine();
         if (line == null) {
           throw new IOException();

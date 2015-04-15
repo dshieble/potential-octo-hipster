@@ -246,6 +246,14 @@ public class Node implements KDimensional {
   }
 
   /**
+   *@return hashcode of id
+  */
+  @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
+
+  /**
    *
    * @return string version of object
    */

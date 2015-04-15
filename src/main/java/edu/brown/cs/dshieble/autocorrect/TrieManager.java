@@ -160,14 +160,6 @@ public class TrieManager {
 
   /**
    * Simple Getter.
-   * @return the bi hash
-   */
-  public final Hashtable<String, HashMultiset<String>> getBigramHash() {
-    return bigramHash;
-  }
-
-  /**
-   * Simple Getter.
    * @return the trie
    */
   public final Trie getTrie() {

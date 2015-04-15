@@ -1,13 +1,18 @@
 package edu.brown.cs.dshieble.autocorrect;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import com.google.common.collect.HashMultiset;
 
 /**A Comparator that compares 2 words.
  * */
-public class BasicComparator implements Comparator<String> {
+public class BasicComparator implements Comparator<String>, Serializable {
 
+  /**
+   *generated id.
+   */
+  private static final long serialVersionUID = 1L;
   /**
    * stores unigram freq.
    */

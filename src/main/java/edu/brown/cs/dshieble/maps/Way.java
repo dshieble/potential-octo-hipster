@@ -123,6 +123,14 @@ public class Way implements KDimensional {
   }
 
   /**
+   *@return hashcode of id
+  */
+  @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
+
+  /**
    *
    * @return start node
    */

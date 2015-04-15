@@ -37,7 +37,7 @@ public final class CommandReader {
   public static void readCommands(String file) {
     try (PathFinder p = new PathFinder(file, null)) {
       try (BufferedReader reader =
-          new BufferedReader(new InputStreamReader(System.in))) {
+          new BufferedReader(new InputStreamReader(System.in, "UTF-8"))) {
         KDTree<Node> kd =
             new KDTree<Node>(2, new ArrayList<Node>(p.getAllNodes()));
         String command = null;
@@ -94,7 +94,7 @@ public final class CommandReader {
             System.out.println(fromId + " -/- " + toId);
           } else {
             for (Node n : list) {
-              if (n.getID() != fromId) {
+              if (!n.getID().equals(fromId)) {
                 System.out.println(n.getParent().getID() + " -> " + n.getID()
                   + " : " + n.getEdgeId());
               }
